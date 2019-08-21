@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="Resources/HRScan2/favicon.ico"/>
+    <link rel="stylesheet" href="Resources/HRScan2/dropzone.css"/>
+    <link rel="stylesheet" href="Resources/HRScan2/HRScan2.css"/>
+    <script type="text/javascript" src="Resources/HRScan2/HRC2-Functions.js"></script>
+    <script type="text/javascript" src="Resources/HRScan2/dropzone.js"></script>
+    <style>
+      body {
+        font-family: Arial; }
+    </style>
+    <title>HRScan2-Scan for viruses!</title>
+  </head>
+    <body>
+          <div id="call-to-action1" style="max-width:1000px; text-align:center;">
+        <p>Select files by clicking, tapping, or dropping files into the box below.</p>
+      </div>
+      <div id="dropzone" style="max-height:2000px; max-width:1000px; margin:25px;">
+        <form action="scanCore.php" class="dropzone" id="filesToUpload" name="filesToUpload" method="post" enctype="multipart/form-data">
+        <input type="hidden" id="token1" name="Token1" value="84ef3090c7b9f014d327c85e9ea377da2a86e8b1">
+        <input type="hidden" id="token2" name="Token2" value="69cb4b90780641ca74c62e074c81891b442c1698">
+        </form>
+      </div>
+    </div>
+    <div align="center">
+      <form action="scanCore.php?showFiles=1" method="post">
+        <input type="hidden" id="token1" name="Token1" value="84ef3090c7b9f014d327c85e9ea377da2a86e8b1">
+        <input type="hidden" id="token2" name="Token2" value="69cb4b90780641ca74c62e074c81891b442c1698">
+        <input type="submit" id="continue-button" class="info-button" value="Continue ...">
+      </form>
+      </form>
+      
+    </div>
+    <br />
+    <hr />
+        <div id="footer" name="footer" style="max-width:1000px; margin-left:auto; margin-right:auto; text-align:center;">
+      <p>Check out our <a href="https://www.honestrepair.net/index.php/terms-of-service/" target="_blank" rel="noopener noreferrer">Terms of Service</a>
+       and <a href="https://www.honestrepair.net/index.php/privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a></p>
+    </div>
+
+  </body>
+</html>

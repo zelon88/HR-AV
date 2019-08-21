@@ -1,9 +1,9 @@
-'HTA-UI Desktop Application Template
-'https://github.com/zelon88/HTA-UI
+'HR-AV Desktop Antivirus
+'https://github.com/zelon88/HR-AV
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 8/14/2019
+'Date: 8/20/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -11,9 +11,6 @@
 
 'Portions of the UI-Core.vbs file are licensed under the Microsoft Limited Public License.
 'Copies of all applicable software licenses can be found in the "Documentation" directory.
-
-'This HTA application template started out on the Microsoft TechNet website and has served me well.
-'I hope that someone out there can make as much use out of it as I was able to. 
 
 Option Explicit
 'Large portions of code in this file were borrowed from the Microsoft TechNet website on 8/14/2019 
@@ -25,31 +22,56 @@ Option Explicit
 Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, _
  colItems, objItem, intHorizontal, intVertical, nLeft, nTop, sItem, helpLocSetting, _
  version, currentDirectory, appName, developerName, developerURL, windowHeight, windowWidth, _
- BinaryToRun, Command, tempDirectory, uiVersion, Async
+ BinaryToRun, Command, tempDirectory, uiVersion, Async, error, requiredDir, requiredDirs, installationError, _
+ dieOnInstallationError
 
-version = "v0.5"
+'--------------------------------------------------
+'Application Related Variables
+version = "v0.6"
 uiVersion = "v1.2"
-
-helpLocSetting = "https://github.com/zelon88"
-appName = "HTA-UI"
+helpLocSetting = "https://github.com/zelon88/HR-AV"
+appName = "HR-AV"
 developerName = "Justin Grimes"
 developerURL = "https://github.com/zelon88"
-
+dieOnInstallationError = FALSE
 windowHeight = 660
 windowWidth = 600
 
+'--------------------------------------------------
+'UI Related Variables.
 Const sMenuItems = "File,Settings,Help" 
 Const sFile = "Exit" 
 Const sSettings = "View Settings"
 Const sHelp = "Help, About" 
 Const sHTML = "&nbsp;&nbsp;&nbsp;#sItem#&nbsp;&nbsp;&nbsp;" 
 Dim dMenus, sMenuOpen 
+'Directctory Related Variables.
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 currentDirectory = objFSO.GetAbsolutePathName(".")
 scriptsDirectory = currentDirectory & "\Scripts\"
 binariesDirectory = currentDirectory & "\Binaries\"
 tempDirectory = currentDirectory & "\Temp\"
+requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory)
+'Misc variables.
 strComputer = "."
+installationError = FALSE
+'--------------------------------------------------
+
+'--------------------------------------------------
+'Verify that all required directories exist and try to create them when they don't.
+'If "dieOnInstallationError" is set to TRUE this application will die when required directories do not exist.
+For Each requiredDir In requiredDirs
+On Error Resume Next
+  If Not fileSystem.FolderExists(requiredDir) Then
+    fileSystem.CreateFolder(requiredDir)
+    If Not fileSystem.FolderExists(requiredDir) Then
+      installationError = TRUE
+    End If
+  End If
+Next
+If dieOnInstallationError = TRUE Then 
+  WScript.Quit
+End If
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -74,15 +96,16 @@ Function Bootstrap(BinaryToRun, Command, Async)
   Set tempData = objFSO.OpenTextFile(tempFile, 1)
   Bootstrap = tempData.ReadAll()
   tempData.Close
-  objFSO.DeleteFile(tempFile)
+  'objFSO.DeleteFile(tempFile)
 End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Load the main application window.
+'Put a Bootstrap function in here to have it run as soon as the window has been displayed.
+'Useful for longer running scripts and programs.
 Sub Window_OnLoad 
   Dim entry 
-  Bootstrap "PHP\7.3.8\php.exe", scriptsDirectory & "PHP\scanCore.php", TRUE
   Set dMenus = createObject("Scripting.Dictionary") 
   For Each entry In Split(sMenuItems, ",") 
     menu.innerHTML = menu.innerHTML & "&nbsp;<span id=" & entry _ 
