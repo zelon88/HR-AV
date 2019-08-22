@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 8/20/2019
+'Date: 8/21/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -27,7 +27,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, _
 
 '--------------------------------------------------
 'Application Related Variables
-version = "v0.6"
+version = "v0.6.5"
 uiVersion = "v1.2"
 helpLocSetting = "https://github.com/zelon88/HR-AV"
 appName = "HR-AV"

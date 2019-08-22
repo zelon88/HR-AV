@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>HR-AV - Scanner</title>
+  <title>HR-AV - Updater</title>
   <hta:application id="PC" 
   applicationname="HR-AV" 
   border="dialog"
@@ -39,32 +39,18 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
 
   <div class="navigation">
     <a href="HR-AV.hta">Monitor</a>
-    <a class="active" href="scanner.hta">Scan</a>
-    <a href="updater.hta">Update</a>
+    <a href="scanner.hta">Scan</a>
+    <a class="active" href="updater.hta">Update</a>
     <a href="">Page 4</a>
-    <a href="settings.hta" style="float:right;"><strong>&#8801;</strong></a>
+    <a class="active" href="settings.hta" style="float:right;"><strong>&#8801;</strong></a>
   </div>
 
   <div id="spacer" style="width: 200px; height: 47px; float:left; display:inline-block"></div>
 
   <div id="header" style="color:#ffffff; height:300px; text-align:center; font-family:Tahoma; filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#1A3560', EndColorStr='#475d7f')">
     <br />
-    <h4><p>Scan</p></h4>
+    <h4><p>This is how you will eventually keep HR-AV and it's virus definitions up-to-date.</p></h4>
     <hr />
-    <div style="text-align:center; margin-left:5%; float:left; width:90%;">
-      <form method="POST" action="computerScanner.hta">
-        <p>Scan the <strong>Entire Computer</strong> for viruses or malware.</p>
-          <input style="min-width:125px;" type="submit" value="Computer Scan" title="Scan the entire computer for viruses or malware." alt="Scan the entire omputer for viruses or malware."></input></form>
-      <form method="POST" action="diskScanner.hta">        
-        <p>Scan an individual <strong>Disk Or Volume</strong> attached to this computer.</p>
-          <input style="min-width:125px;" type="submit" value="Disk Scan" title="Scan a disk or volume for viruses or malware." alt="Scan a disk or volume for viruses or malware."></input></form>
-      <form method="POST" action="fileScanner.hta">
-        <p>Scan a <strong>Single File Or Folder</strong> on this computer for viruses or malware.</p>
-          <input style="min-width:125px;" type="submit" value="File-Folder Scan" title="Scan a file for viruses or malware." alt="Scan a file for viruses or malware."></input></form>
-      <form method="POST" action="remoteScanner.hta">
-        <p>Scan a <strong>Remote Computer</strong> for indicators of compromise.</p>
-          <input style="min-width:125px;" type="submit" value="File-Folder Scan" title="Scan a remote computer for viruses or malware." alt="Scan a remote computer for viruses or malware."></input></form>
-    </div>
   </div>
 
   <div style="text-align:left; margin-left:5%; float:left; width:90%;"></div>
