@@ -23,7 +23,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, _
  colItems, objItem, intHorizontal, intVertical, nLeft, nTop, sItem, helpLocSetting, _
  version, currentDirectory, appName, developerName, developerURL, windowHeight, windowWidth, _
  BinaryToRun, Command, tempDirectory, uiVersion, Async, error, requiredDir, requiredDirs, installationError, _
- dieOnInstallationError
+ dieOnInstallationError, dMenus, sMenuOpen, shell, file
 
 '--------------------------------------------------
 'Application Related Variables
@@ -44,9 +44,9 @@ Const sFile = "Exit"
 Const sSettings = "View Settings"
 Const sHelp = "Help, About" 
 Const sHTML = "&nbsp;&nbsp;&nbsp;#sItem#&nbsp;&nbsp;&nbsp;" 
-Dim dMenus, sMenuOpen 
 'Directctory Related Variables.
 Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set shell = CreateObject("Shell.Application")
 currentDirectory = objFSO.GetAbsolutePathName(".")
 scriptsDirectory = currentDirectory & "\Scripts\"
 binariesDirectory = currentDirectory & "\Binaries\"
@@ -72,6 +72,14 @@ Next
 If dieOnInstallationError = TRUE Then 
   WScript.Quit
 End If
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to open a dialog box so the user can select files or folders.
+Function BrowseForFile()
+    Set file = shell.BrowseForFolder(0, "Choose a file:", &H4000, "C:\")
+    BrowseForFile = file.self.Path
+End Function
 '--------------------------------------------------
 
 '--------------------------------------------------

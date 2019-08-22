@@ -52,18 +52,18 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
     <h4><p>Scan</p></h4>
     <hr />
     <div style="text-align:center; margin-left:5%; float:left; width:90%;">
-      <form method="POST" action="computerScanner.hta">
-        <p>Scan the <strong>Entire Computer</strong> for viruses or malware.</p>
-          <input style="min-width:125px;" type="submit" value="Computer Scan" title="Scan the entire computer for viruses or malware." alt="Scan the entire omputer for viruses or malware."></input></form>
-      <form method="POST" action="diskScanner.hta">        
-        <p>Scan an individual <strong>Disk Or Volume</strong> attached to this computer.</p>
-          <input style="min-width:125px;" type="submit" value="Disk Scan" title="Scan a disk or volume for viruses or malware." alt="Scan a disk or volume for viruses or malware."></input></form>
-      <form method="POST" action="fileScanner.hta">
-        <p>Scan a <strong>Single File Or Folder</strong> on this computer for viruses or malware.</p>
-          <input style="min-width:125px;" type="submit" value="File-Folder Scan" title="Scan a file for viruses or malware." alt="Scan a file for viruses or malware."></input></form>
-      <form method="POST" action="remoteScanner.hta">
-        <p>Scan a <strong>Remote Computer</strong> for indicators of compromise.</p>
-          <input style="min-width:125px;" type="submit" value="File-Folder Scan" title="Scan a remote computer for viruses or malware." alt="Scan a remote computer for viruses or malware."></input></form>
+      <p alt="Scan the entire computer for viruses or malware." title="Scan the entire computer for viruses or malware.">Scan the <strong>Entire Computer</strong> for viruses or malware.</p>
+      <button alt="Scan the entire computer for viruses or malware." title="Scan the entire computer for viruses or malware." id="computerScanButton" name="computerScanButton" style="width:33%; display:block;" class="button1">Computer Scan</button>
+
+      <p alt="Scan a file for viruses or malware." title="Scan a file for viruses or malware.">Scan a <strong>Single File Or Folder</strong> on this computer for viruses or malware.</p>
+      <button onclick="window.location.href='fileScanner.hta'" alt="Scan a file for viruses or malware." title="Scan a file for viruses or malware." id="fileScanButton" name="fileScanButton" style="width:33%; display:block;" class="button1">File-Folder Scan</button>
+      
+      <p alt="Scan a disk or volume for viruses or malware." title="Scan a disk or volume for viruses or malware.">Scan a <strong>Disk Or Volume</strong> on this computer for viruses or malware.</p>
+      <button alt="Scan a disk or volume for viruses or malware." title="Scan a disk or volume for viruses or malware." id="diskScanButton" name="diskScanButton" style="width:33%; display:block;" class="button1">Disk Scan</button>
+
+
+      <p alt="Scan a remote computer for viruses or malware." title="Scan a remote computer for viruses or malware.">Scan a <strong>Remote Computer</strong> for indicators of compromise.</p>
+      <button alt="Scan a remote computer for viruses or malware." title="Scan a remote computer for viruses or malware." id="diskScanButton" name="diskScanButton" style="width:33%; display:block;" class="button1">Remote Scan</button>
     </div>
   </div>
 
