@@ -24,11 +24,13 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, _
  version, currentDirectory, appName, developerName, developerURL, windowHeight, windowWidth, _
  BinaryToRun, Command, tempDirectory, uiVersion, Async, error, requiredDir, requiredDirs, installationError, _
  dieOnInstallationError, cacheDirectory, pagesDirectory, realDirectory, vbsScriptsDirectory, dMenus, sMenuOpen, _
- hrefLocation, fullScriptName, arrFN, scriptName, oRE, oMatch, oMatches, shell, file
+ hrefLocation, fullScriptName, arrFN, scriptName, oRE, oMatch, oMatches, shell, file, objWshNet, strNamespace, strHRAVUserName, _
+ strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, run, tempFile, tempData, entry, objSysInfo, strComputerName, _
+ sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData
 
 '--------------------------------------------------
 'Application Related Variables
-version = "v0.6.6"
+version = "v0.6.7"
 uiVersion = "v1.2"
 helpLocSetting = "https://github.com/zelon88/HR-AV"
 appName = "HR-AV"
@@ -46,14 +48,18 @@ Const sSettings = "View Settings"
 Const sHelp = "Help, About" 
 Const sHTML = "&nbsp;&nbsp;&nbsp;#sItem#&nbsp;&nbsp;&nbsp;" 
 'Directctory Related Variables.
-Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objShell = CreateObject("WScript.Shell")
 Set shell = CreateObject("Shell.Application")
+Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set objSysInfo = CreateObject("WinNTSystemInfo")
+Set objWshNet = CreateObject("WScript.Network")
+Set oRE = New RegExp
 realDirectory = objFSO.GetAbsolutePathName(".")
 'Perform a quick sanity check to be sure the value of "realDirectory" won't cause problems.
 If realDirectory = NULL or realDirectory = FALSE Then
   realDirectory = ""
 End If
-currentDirectory = Left(realDirectory, InStrRev(realDirectory, "Scripts\VBS\"))
+currentDirectory = Trim(Left(realDirectory, InStrRev(realDirectory, "Scripts\VBS\")))
 scriptsDirectory = currentDirectory & "\Scripts\"
 vbsScriptsDirectory = scriptsDirectory & "\VBS\"
 binariesDirectory = currentDirectory & "\Binaries\"
@@ -61,12 +67,16 @@ cacheDirectory = currentDirectory & "\Cache\"
 tempDirectory = currentDirectory & "\Temp\"
 pagesDirectory = currentDirectory & "\Pages\"
 requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory)
-fullScriptName = Replace(HRAV.commandLine, Chr(34), "")
+fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 arrFN = Split(fullScriptName, "\")
-scriptName = Trim(arrFN(ubound(arrFN)))
+scriptName = Trim(arrFN(UBound(arrFN)))
 'Misc variables.
-Set oRE = New RegExp
+strNamespace = "root\cimv2"
+strCurrentUserName = Trim(objSysInfo.UserName)
+strHRAVUserName = "HRAV"
+strHRAVGroupName = "Administrators" 
 strComputer = "."
+strComputerName = Trim(objWshNet.ComputerName)
 installationError = FALSE
 '--------------------------------------------------
 
@@ -98,21 +108,19 @@ End Function
 '--------------------------------------------------
 'Bootstrap some other program or code in the Binaries folder.
 'Example for bootstrapping a PHP script.
-'  Bootstrap("PHP\php.exe", scriptsDirectory & "PHP\test.php")
+'  Bootstrap("PHP\php.exe", scriptsDirectory & "PHP\test.php", TRUE)
 'The above function call uses the Bootstrap() function to call 
 'Binaries\PHP\php.exe with an argument that evaluates to Scripts\PHP\test.php.
 'The result will be that the PHP binary is used to execute a PHP script.
 'If Async is set to TRUE, HTA-UI will wait for the command to finish before continuing.
 Function Bootstrap(BinaryToRun, Command, Async)
-  Dim objShell, objShellExec, run, tempFile, tempData
   tempFile = tempDirectory & "temp.txt"
   If Async = TRUE Then 
     async = TRUE
   Else 
     async = ""
   End If
-  Set objShell = CreateObject("WScript.Shell")
-  run = "C:\Windows\System32\cmd.exe /c " & binariesDirectory & BinaryToRun & " " & Command & " > " & tempFile
+  run = Trim("C:\Windows\System32\cmd.exe /c " & binariesDirectory & BinaryToRun & " " & Command & " > " & tempFile)
   objShell.Run run, 0, async
   Set tempData = objFSO.OpenTextFile(tempFile, 1)
   Bootstrap = tempData.ReadAll()
@@ -122,20 +130,43 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
+'SystemBootstrap some other program or code without preparing a folder for the binary.
+'Example for system bootstrapping a the shutdown command with restart argument.
+'  SystemBootstrap("shutdown.exe", "/r", TRUE)
+'The above function call uses the SystemBootstrap() function to call 
+'shutdown.exe with an argument that evaluates to /r.
+'The result will be that the shutdown.exe binary is used with the /r argument to restart the computer.
+'If sAsync is set to TRUE, HTA-UI will wait for the command to finish before continuing.
+Function SystemBootstrap(sBinaryToRun, sCommand, sAsync)
+  stempFile = stempDirectory & "systemp.txt"
+  If sAsync = TRUE Then
+    sasync1 = TRUE
+  Else 
+    sasync1 = ""
+  End If
+  srun = Trim("C:\Windows\System32\cmd.exe /c " & sCommand & " > " & stempFile)
+  objShell.Run srun, 0, sasync1
+  Set stempData = objFSO.OpenTextFile(stempFile, 1)
+  SystemBootstrap = stempData.ReadAll()
+  stempData.Close
+  'objFSO.DeleteFile(stempFile)
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
 'Load the main application window.
 'Put a Bootstrap function in here to have it run as soon as the window has been displayed.
 'Useful for longer running scripts and programs.
 Sub Window_OnLoad 
-  Dim entry 
   Set dMenus = createObject("Scripting.Dictionary") 
   For Each entry In Split(sMenuItems, ",") 
-    menu.innerHTML = menu.innerHTML & "&nbsp;<span id=" & entry _ 
+    menu.innerHTML = Trim(menu.innerHTML & "&nbsp;<span id=" & entry _ 
       & " style='padding-bottom:2px' onselectstart=cancelEvent>&nbsp;" _ 
-      & entry & "&nbsp;</span>&nbsp;&nbsp;" 
+      & entry & "&nbsp;</span>&nbsp;&nbsp;") 
     dMenus.Add entry, Split(eval("s" & entry), ",") 
   Next 
   sMenuOpen = "" 
-end sub 
+End Sub 
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -155,147 +186,146 @@ Next
 'Handle UI changes on mouse hover.
 Sub menu_onmouseover 
   clearmenu 
-  with window.event.srcElement 
-    if .parentElement.ID = "menu" then 
+  With window.event.srcElement 
+    If .parentElement.ID = "menu" Then 
       .style.border = "thin outset" 
       .style.cursor = "arrow" 
-    end if 
-  end with 
-end sub 
+    End if 
+  End With 
+End Sub 
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Handle UI changes when mouse leaves hover.
 Sub menu_onmouseout 
-  with window.event.srcElement 
+  With window.event.srcElement 
     .style.border = "none" 
     .style.cursor = "default" 
-  end with 
-end sub 
+  End With 
+End Sub 
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Handle UI changes when mouse hovers over a dropdown menu item.
 Sub dropmenu_onmouseover 
-  with window.event 
+  With window.event 
     .srcElement.style.cursor = "arrow" 
-    .cancelbubble = true 
-    .returnvalue = false 
-  end with 
-end sub 
+    .cancelbubble = TRUE 
+    .returnvalue = FALSE 
+  End With 
+End Sub 
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Handle UI changes when a user hovers over a dropdown menu selection.
-sub SubMenuOver 
-  with window.event.srcElement 
-    if .ID = "dropmenu" then exit sub 
-    .style.backgroundcolor = "darkblue" 
-    .style.color = "white" 
-    .style.cursor = "arrow" 
-  end with 
-end sub 
+Sub SubMenuOver 
+  With window.event.srcElement 
+    If .ID = "dropmenu" Then Exit Sub 
+      .style.backgroundcolor = "darkblue" 
+      .style.color = "white" 
+      .style.cursor = "arrow" 
+  End With 
+End Sub 
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Handle UI changes when mouse leaves hover over a dropdown menu selection.
-sub SubMenuOut 
-  with window.event.srcElement 
+Sub SubMenuOut 
+  With window.event.srcElement 
     .style.backgroundcolor = "lightgrey" 
     .style.color = "black" 
     .style.cursor = "default" 
-  end with 
-end sub 
+  End With 
+End Sub 
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Handle UI changes when a user clicks on a menu item.
-Sub menu_onclick 
-  Dim oEL, oItem 
-  if sMenuOpen <> "" then exit sub 
-  with window.event.srcElement 
-    if .ID <> "menu" then 
+Sub menu_onclick  
+  If sMenuOpen <> "" Then Exit Sub 
+  With window.event.srcElement 
+    If .ID <> "menu" Then 
       .style.border = "thin inset" 
-      nLeft = .offsetLeft 
-      ntop  = .offsetTop + replace(menu.style.Height, "px", "") - 5 
-      sMenuOpen = trim(.innertext) 
-      with dropmenu 
-        with .style 
+      nLeft = Trim(.offsetLeft)
+      ntop  = Trim(.offsetTop + Replace(menu.style.Height, "px", "") - 5)
+      sMenuOpen = Trim(.innertext) 
+      With dropmenu 
+        With .style 
           .border = "thin outset" 
           .backgroundcolor = "lightgrey" 
           .position = "absolute" 
-          .left = nLeft 
+          .Left = nLeft 
           .top = nTop 
           .width = "100px" 
           .zIndex = "101"
-        end with 
-        for each sItem in dMenus.Item(sMenuOpen) 
+        End With 
+        For Each sItem In dMenus.Item(sMenuOpen) 
           set oEL = document.createElement("SPAN") 
           .appendChild(oEL) 
-          with oEl 
+          With oEl 
             .ID = sItem 
             .style.height = "20px" 
             .style.width = dropmenu.style.width 
             .style.zIndex = "102"
-            .innerHTML = Replace(sHTML, "#sItem#", trim(sItem)) 
-            set .onmouseover = getRef("SubMenuOver") 
-            set .onmouseout = getRef("SubMenuOut") 
-            set .onclick = getRef("SubMenuClick") 
-            set .onselectstart = getRef("cancelEvent") 
-          end with
-          set oEL = document.createElement("BR") 
+            .innerHTML = Replace(sHTML, "#sItem#", Trim(sItem)) 
+            Set .onmouseover = getRef("SubMenuOver") 
+            Set .onmouseout = getRef("SubMenuOut") 
+            Set .onclick = getRef("SubMenuClick") 
+            Set .onselectstart = getRef("cancelEvent") 
+          End With
+          Set oEL = document.createElement("BR") 
           .appendChild(oEL) 
-        next 
-      end with
-    end if 
-  end with
+        Next 
+      End With
+    End If 
+  End With
 end sub 
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Handle when an event is cancelled.
-sub cancelEvent 
-  window.event.returnValue = false 
-end sub
+Sub cancelEvent 
+  window.event.returnValue = FALSE 
+End Sub
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Handle when a user deselects a menu.
-sub clearmenu 
+Sub clearmenu 
   dropmenu.innerHTML = "" 
   dropmenu.style.border = "none" 
   dropmenu.style.backgroundcolor = "transparent" 
-  if sMenuOpen <> "" then 
+  If sMenuOpen <> "" Then 
     document.getElementByID(sMenuOpen).style.border = "none" 
     sMenuOpen = "" 
-  end if 
-end sub 
+  End If 
+End Sub 
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Handle when a user clicks on a submenu.
 Sub SubMenuClick 
-  sItem = trim(window.event.srcElement.innerText) 
+  sItem = Trim(window.event.srcElement.innerText) 
   clearmenu   
   hrefLocation = "Pages/"
   oRE.Pattern = "Pages"
-  oRE.Global = True
+  oRE.Global = TRUE
   Set oMatches = oRE.Execute(document.location.href)
   For Each oMatch In oMatches
     hrefLocation = ""
   Next
-  Select Case lcase(sItem) 
-    case "exit" 
+  Select Case LCase(sItem) 
+    Case "exit" 
       window.close  
-    case "view settings"
+    Case "view settings"
       document.location = hrefLocation & "settings.hta"
-    case "about" 
-      msgbox version & ". " & vbCRLF & vbCRLF & "Developed by " & developerName & "."_ 
+    Case "about" 
+      MsgBox version & ". " & vbCRLF & vbCRLF & "Developed by " & developerName & "."_ 
         & vbCRLF & vbCRLF & developerURL, _ 
         vbOKOnly + vbInformation, "About "& appName 
-    case else 
+    Case Else 
       msgbox "You can get support for '" & appName & "' by visiting: " _ 
       & vbCRLF & vbCRLF & helpLocSetting, vbOKOnly + vbInformation, appName & " Help"
-  end Select 
-end sub 
+  End Select 
+End Sub 
 '--------------------------------------------------
