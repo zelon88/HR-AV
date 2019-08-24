@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 8/20/2019
+'Date: 8/23/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -12,13 +12,6 @@
 'Portions of the UI-Core.vbs file are licensed under the Microsoft Limited Public License.
 'Copies of all applicable software licenses can be found in the "Documentation" directory.
 
-Option Explicit
-Dim php73Directory, phpavEngineDirectory
+Dim HRScan2Output, HRScan2Div
 
-phpavEngineDirectory = scriptsDirectory & "\PHP\PHP-AV\"
-php73Directory = "PHP\7.3.8\php.exe"
-
-'--------------------------------------------------
-
-
-
+Set HRScan2Div = document.getElementById("HRScan2OutputDiv")
