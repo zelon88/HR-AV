@@ -1,7 +1,7 @@
 <html>
 <head>
-  <title>HR-AV - Scanner</title>
-  <hta:application id="PC" 
+  <title>HR-AV - File Scanner</title>
+  <hta:application id="HRAV" 
   applicationname="HR-AV" 
   border="dialog"
   caption="yes"
@@ -15,10 +15,9 @@
   contextmenu="no" />
 </head>
 
-<script language="VBScript" src="UI-Core.vbs"></script>
-<script language="VBScript" src="App-Core.vbs"></script>
-<script language="Javascript" src="Scripts/Javascript/JSFunctions.js"></script>
-
+<script language="VBScript" src="../../UI-Core.vbs"></script>
+<script language="VBScript" src="../../App-Core.vbs"></script>
+<script language="Javascript" src="../../Scripts/Javascript/JSFunctions.js"></script>
 <script language="Javascript">
 setInterval(function() { document.getElementById('date').innerHTML = humanDate(); }, 1000);
 </script>
@@ -35,40 +34,25 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
 
 <div id="date" name="date" style="font-size:66%;">Initializing Date</div> 
 
-  <img align="center" src="Resources/Banner.png" alt="" />
+  <img align="center" src="../../Resources/Banner.png" alt="" />
 
   <div class="navigation">
-    <a href="HR-AV.hta">Monitor</a>
-    <a class="active" href="scanner.hta">Scan</a>
-    <a href="updater.hta">Update</a>
+    <a href="../../HR-AV.hta">Home</a>
+    <a class="active" href="../../scanner.hta">Scan</a>
+    <a href="../../updater.hta">Update</a>
     <a href="">Page 4</a>
-    <a href="settings.hta" style="float:right;"><strong>&#8801;</strong></a>
+    <a href="../../settings.hta" style="float:right;"><strong>&#8801;</strong></a>
   </div>
 
   <div id="spacer" style="width: 200px; height: 47px; float:left; display:inline-block"></div>
 
   <div id="header" style="color:#ffffff; height:300px; text-align:center; font-family:Tahoma; filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#1A3560', EndColorStr='#475d7f')">
     <br />
-    <h4><p>Scan</p></h4>
+    <h4><p>File Scanner</p></h4>
     <hr />
-    <div style="text-align:center; margin-left:5%; float:left; width:90%;">
-      <p alt="Scan the entire computer for viruses or malware." title="Scan the entire computer for viruses or malware.">Scan the <strong>Entire Computer</strong> for viruses or malware.</p>
-      <button alt="Scan the entire computer for viruses or malware." title="Scan the entire computer for viruses or malware." id="computerScanButton" name="computerScanButton" style="width:33%; display:block;" class="button1">Computer Scan</button>
-
-      <p alt="Scan a file for viruses or malware." title="Scan a file for viruses or malware.">Scan a <strong>Single File Or Folder</strong> on this computer for viruses or malware.</p>
-      <button onclick="window.location.href='fileScanner.hta'" alt="Scan a file for viruses or malware." title="Scan a file for viruses or malware." id="fileScanButton" name="fileScanButton" style="width:33%; display:block;" class="button1">File-Folder Scan</button>
-      
-      <p alt="Scan a disk or volume for viruses or malware." title="Scan a disk or volume for viruses or malware.">Scan a <strong>Disk Or Volume</strong> on this computer for viruses or malware.</p>
-      <button alt="Scan a disk or volume for viruses or malware." title="Scan a disk or volume for viruses or malware." id="diskScanButton" name="diskScanButton" style="width:33%; display:block;" class="button1">Disk Scan</button>
-
-
-      <p alt="Scan a remote computer for viruses or malware." title="Scan a remote computer for viruses or malware.">Scan a <strong>Remote Computer</strong> for indicators of compromise.</p>
-      <button alt="Scan a remote computer for viruses or malware." title="Scan a remote computer for viruses or malware." id="diskScanButton" name="diskScanButton" style="width:33%; display:block;" class="button1">Remote Scan</button>
-    </div>
+    <div id="HRScan2OutputDiv"><strong>Please wait...</strong></div>
+  
   </div>
-
-  <div style="text-align:left; margin-left:5%; float:left; width:90%;"></div>
-
 </body>
 
 <style>
@@ -132,5 +116,10 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
   position:relative;
   top:1px; }
 </style>
+
+<script language="VBScript" src="Scan-Core.vbs"></script>
+<script language="VBScript">
+  HRScan2Div.innerText = Bootstrap ("PHP\7.3.8\php.exe", phpavEngineDirectory & "\scanCore.php", TRUE)
+</script>
 
 </html>

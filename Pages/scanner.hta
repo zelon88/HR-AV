@@ -1,7 +1,7 @@
 <html>
 <head>
   <title>HR-AV - Scanner</title>
-  <hta:application id="PC" 
+  <hta:application id="HRAV" 
   applicationname="HR-AV" 
   border="dialog"
   caption="yes"
@@ -15,9 +15,9 @@
   contextmenu="no" />
 </head>
 
-<script language="VBScript" src="UI-Core.vbs"></script>
-<script language="VBScript" src="App-Core.vbs"></script>
-<script language="Javascript" src="Scripts/Javascript/JSFunctions.js"></script>
+<script language="VBScript" src="../Scripts/VBS/UI-Core.vbs"></script>
+<script language="VBScript" src="../Scripts/VBS/App-Core.vbs"></script>
+<script language="Javascript" src="../Scripts/Javascript/JSFunctions.js"></script>
 
 <script language="Javascript">
 setInterval(function() { document.getElementById('date').innerHTML = humanDate(); }, 1000);
@@ -35,14 +35,14 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
 
 <div id="date" name="date" style="font-size:66%;">Initializing Date</div> 
 
-  <img align="center" src="Resources/Banner.png" alt="" />
+  <img align="center" src="../Resources/Banner.png" alt="" />
 
   <div class="navigation">
-    <a href="HR-AV.hta">Monitor</a>
-    <a class="active" href="scanner.hta">Scan</a>
-    <a href="updater.hta">Update</a>
+    <a href="../HR-AV.hta">Monitor</a>
+    <a class="active" href="../Pages/scanner.hta">Scan</a>
+    <a href="../Pages/updater.hta">Update</a>
     <a href="">Page 4</a>
-    <a href="settings.hta" style="float:right;"><strong>&#8801;</strong></a>
+    <a href="../Pages/settings.hta" style="float:right;"><strong>&#8801;</strong></a>
   </div>
 
   <div id="spacer" style="width: 200px; height: 47px; float:left; display:inline-block"></div>
@@ -51,19 +51,18 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
     <br />
     <h4><p>Scan</p></h4>
     <hr />
-    <div style="text-align:center; margin-left:5%; float:left; width:90%;">
-      <p alt="Scan the entire computer for viruses or malware." title="Scan the entire computer for viruses or malware.">Scan the <strong>Entire Computer</strong> for viruses or malware.</p>
-      <button alt="Scan the entire computer for viruses or malware." title="Scan the entire computer for viruses or malware." id="computerScanButton" name="computerScanButton" style="width:33%; display:block;" class="button1">Computer Scan</button>
-
-      <p alt="Scan a file for viruses or malware." title="Scan a file for viruses or malware.">Scan a <strong>Single File Or Folder</strong> on this computer for viruses or malware.</p>
-      <button onclick="window.location.href='fileScanner.hta'" alt="Scan a file for viruses or malware." title="Scan a file for viruses or malware." id="fileScanButton" name="fileScanButton" style="width:33%; display:block;" class="button1">File-Folder Scan</button>
-      
-      <p alt="Scan a disk or volume for viruses or malware." title="Scan a disk or volume for viruses or malware.">Scan a <strong>Disk Or Volume</strong> on this computer for viruses or malware.</p>
-      <button alt="Scan a disk or volume for viruses or malware." title="Scan a disk or volume for viruses or malware." id="diskScanButton" name="diskScanButton" style="width:33%; display:block;" class="button1">Disk Scan</button>
-
-
-      <p alt="Scan a remote computer for viruses or malware." title="Scan a remote computer for viruses or malware.">Scan a <strong>Remote Computer</strong> for indicators of compromise.</p>
-      <button alt="Scan a remote computer for viruses or malware." title="Scan a remote computer for viruses or malware." id="diskScanButton" name="diskScanButton" style="width:33%; display:block;" class="button1">Remote Scan</button>
+    <form method="POST" action="Pages/Scan/computerScanner.hta">
+      <p>Scan the <strong>Entire Computer</strong> for viruses or malware.</p>
+        <input style="min-width:125px;" type="submit" value="Computer Scan" title="Scan the entire computer for viruses or malware." alt="Scan the entire omputer for viruses or malware."></input></form>
+    <form method="POST" action="Pages/Scan/diskScanner.hta">        
+      <p>Scan an individual <strong>Disk Or Volume</strong> attached to this computer.</p>
+        <input style="min-width:125px;" type="submit" value="Disk Scan" title="Scan a disk or volume for viruses or malware." alt="Scan a disk or volume for viruses or malware."></input></form>
+    <form method="POST" action="Pages/Scan/fileScanner.hta">
+      <p>Scan a <strong>Single File Or Folder</strong> on this computer for viruses or malware.</p>
+        <input style="min-width:125px;" type="submit" value="File-Folder Scan" title="Scan a file for viruses or malware." alt="Scan a file for viruses or malware."></input></form>
+    <form method="POST" action="Pages/Scan/remoteScanner.hta">
+      <p>Scan a <strong>Remote Computer</strong> for indicators of compromise.</p>
+        <input style="min-width:125px;" type="submit" value="File-Folder Scan" title="Scan a remote computer for viruses or malware." alt="Scan a remote computer for viruses or malware."></input></form>
     </div>
   </div>
 

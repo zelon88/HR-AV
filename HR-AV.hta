@@ -1,7 +1,7 @@
 <html>
 <head>
   <title>HR-AV</title>
-  <hta:application id="PC" 
+  <hta:application id="HRAV" 
   applicationname="HR-AV" 
   border="dialog"
   caption="yes"
@@ -15,8 +15,8 @@
   contextmenu="no" />
 </head>
 
-<script language="VBScript" src="UI-Core.vbs"></script>
-<script language="VBScript" src="App-Core.vbs"></script>
+<script language="VBScript" src="Scripts/VBS/UI-Core.vbs"></script>
+<script language="VBScript" src="Scripts/VBS/App-Core.vbs"></script>
 <script language="Javascript" src="Scripts/Javascript/JSFunctions.js"></script>
 
 <script language="Javascript">
@@ -38,11 +38,11 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
   <img align="center" src="Resources/Banner.png" alt="" />
 
   <div class="navigation">
-    <a class="active" href="HR-AV.hta">Home</a>
-    <a href="scanner.hta">Scan</a>
-    <a href="">Page 3</a>
+    <a class="active" href="HR-AV.hta">Monitor</a>
+    <a href="Pages/scanner.hta">Scan</a>
+    <a href="Pages/updater.hta">Update</a>
     <a href="">Page 4</a>
-    <a href="settings.hta" style="float:right;"><strong>&#8801;</strong></a>
+    <a href="Pages/settings.hta" style="float:right;"><strong>&#8801;</strong></a>
   </div>
 
   <div id="spacer" style="width: 200px; height: 47px; float:left; display:inline-block"></div>

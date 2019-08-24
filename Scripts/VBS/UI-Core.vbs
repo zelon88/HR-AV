@@ -23,11 +23,12 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, _
  colItems, objItem, intHorizontal, intVertical, nLeft, nTop, sItem, helpLocSetting, _
  version, currentDirectory, appName, developerName, developerURL, windowHeight, windowWidth, _
  BinaryToRun, Command, tempDirectory, uiVersion, Async, error, requiredDir, requiredDirs, installationError, _
- dieOnInstallationError, dMenus, sMenuOpen, shell, file
+ dieOnInstallationError, cacheDirectory, pagesDirectory, realDirectory, vbsScriptsDirectory, dMenus, sMenuOpen, _
+ hrefLocation, fullScriptName, arrFN, scriptName, oRE, oMatch, oMatches, shell, file
 
 '--------------------------------------------------
 'Application Related Variables
-version = "v0.6.5"
+version = "v0.6.6"
 uiVersion = "v1.2"
 helpLocSetting = "https://github.com/zelon88/HR-AV"
 appName = "HR-AV"
@@ -47,12 +48,24 @@ Const sHTML = "&nbsp;&nbsp;&nbsp;#sItem#&nbsp;&nbsp;&nbsp;"
 'Directctory Related Variables.
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 Set shell = CreateObject("Shell.Application")
-currentDirectory = objFSO.GetAbsolutePathName(".")
+realDirectory = objFSO.GetAbsolutePathName(".")
+'Perform a quick sanity check to be sure the value of "realDirectory" won't cause problems.
+If realDirectory = NULL or realDirectory = FALSE Then
+  realDirectory = ""
+End If
+currentDirectory = Left(realDirectory, InStrRev(realDirectory, "Scripts\VBS\"))
 scriptsDirectory = currentDirectory & "\Scripts\"
+vbsScriptsDirectory = scriptsDirectory & "\VBS\"
 binariesDirectory = currentDirectory & "\Binaries\"
+cacheDirectory = currentDirectory & "\Cache\"
 tempDirectory = currentDirectory & "\Temp\"
+pagesDirectory = currentDirectory & "\Pages\"
 requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory)
+fullScriptName = Replace(HRAV.commandLine, Chr(34), "")
+arrFN = Split(fullScriptName, "\")
+scriptName = Trim(arrFN(ubound(arrFN)))
 'Misc variables.
+Set oRE = New RegExp
 strComputer = "."
 installationError = FALSE
 '--------------------------------------------------
@@ -263,12 +276,19 @@ end sub
 'Handle when a user clicks on a submenu.
 Sub SubMenuClick 
   sItem = trim(window.event.srcElement.innerText) 
-  clearmenu 
+  clearmenu   
+  hrefLocation = "Pages/"
+  oRE.Pattern = "Pages"
+  oRE.Global = True
+  Set oMatches = oRE.Execute(document.location.href)
+  For Each oMatch In oMatches
+    hrefLocation = ""
+  Next
   Select Case lcase(sItem) 
     case "exit" 
       window.close  
     case "view settings"
-      document.location = "Settings.hta"
+      document.location = hrefLocation & "settings.hta"
     case "about" 
       msgbox version & ". " & vbCRLF & vbCRLF & "Developed by " & developerName & "."_ 
         & vbCRLF & vbCRLF & developerURL, _ 
