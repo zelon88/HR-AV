@@ -19,15 +19,25 @@
       </div>
       <div id="dropzone" style="max-height:2000px; max-width:1000px; margin:25px;">
         <form action="scanCore.php" class="dropzone" id="filesToUpload" name="filesToUpload" method="post" enctype="multipart/form-data">
+<<<<<<< HEAD
         <input type="hidden" id="token1" name="Token1" value="9e96be204b36c604aba838ca01ac792b9ac7945e">
         <input type="hidden" id="token2" name="Token2" value="63cee6c9a4b560f82f9701e9572d4bcc728c8816">
+=======
+        <input type="hidden" id="token1" name="Token1" value="97af837a4b88fd0f7760ffbe2bd95346b79b689a">
+        <input type="hidden" id="token2" name="Token2" value="5954bc6d0868eb09a847750e323cc8678c54a5ab">
+>>>>>>> c3e419f7df84de984e2adcde814b8a8267c579c6
         </form>
       </div>
     </div>
     <div align="center">
       <form action="scanCore.php?showFiles=1" method="post">
+<<<<<<< HEAD
         <input type="hidden" id="token1" name="Token1" value="9e96be204b36c604aba838ca01ac792b9ac7945e">
         <input type="hidden" id="token2" name="Token2" value="63cee6c9a4b560f82f9701e9572d4bcc728c8816">
+=======
+        <input type="hidden" id="token1" name="Token1" value="97af837a4b88fd0f7760ffbe2bd95346b79b689a">
+        <input type="hidden" id="token2" name="Token2" value="5954bc6d0868eb09a847750e323cc8678c54a5ab">
+>>>>>>> c3e419f7df84de984e2adcde814b8a8267c579c6
         <input type="submit" id="continue-button" class="info-button" value="Continue ...">
       </form>
       </form>
