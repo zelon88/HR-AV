@@ -48,7 +48,8 @@ End Function
 '--------------------------------------------------
 'A function to restart the script with admin priviledges if required.
 Function restartAsAdmin()
-    oShell2.ShellExecute "wscript.exe", Chr(34) & SanitizeFolder(fullScriptName) & Chr(34), "", "runas", 1
+  oShell2.ShellExecute "wscript.exe", Chr(34) & SanitizeFolder(fullScriptName) & Chr(34), "", "runas", 1
+  DieGracefully 0, "", TRUE
 End Function
 '--------------------------------------------------
 
@@ -58,7 +59,7 @@ End Function
 'Returns FALSE if the application is not elevated as HRAV user.
 Function isUserHRAV()
   On Error Resume Next
-  whoamiOutput = Sanitize(SystemBootstrap ("whoami", "", FALSE))
+  whoamiOutput = Sanitize(SystemBootstrap("whoami", "", FALSE))
   CreateObject("WScript.Shell").RegRead("HKEY_USERS\S-1-5-19\Environment\TEMP")
   If Err.number = 0 And whoamiOutput = strHRAVUserName Then 
     isUserHRAV = TRUE
@@ -72,7 +73,8 @@ End Function
 '--------------------------------------------------
 'A function to restart the script with admin priviledges if required.
 Function restartAsHRAV(strHRAVPassword)
-    Bootstrap "PAExec\paexec.exe", "-u:" & Sanitize(strHRAVUserName) & " -p:" & Sanitize(strHRAVPassword) & " " & SanitizeFolder(fullScriptName), FALSE
+  Bootstrap "PAExec\paexec.exe", "-u:" & Sanitize(strHRAVUserName) & " -p:" & Sanitize(strHRAVPassword) & " " & SanitizeFolder(fullScriptName), FALSE
+  DieGracefully 1, "", TRUE
 End Function
 '--------------------------------------------------
 
@@ -110,7 +112,7 @@ End Function
 '--------------------------------------------------
 'A function for running SendMail to send a prepared Warning.mail email message.
 Function sendEmail() 
-  oShell.run "c:\Windows\System32\cmd.exe /c sendmail.exe " & SanitizeFolder(mailFile), 0, TRUE
+  Bootstrap "Sendmail\sendmail.exe", "", TRUE
 End Function
 '--------------------------------------------------
 
@@ -182,7 +184,7 @@ Function verifyInstallation()
   createUserCheck = FALSE
   If checkHRAVUser = FALSE Then
     createUserCheck = createHRAVUser()
-    MsgBox "There was a problem creating the HRAV user! This is usually because you do not have administrator permissions. Real-time protection", appName, vbCritical
+    DieGracefully 2, "There was a problem creating the HRAV user! This is usually because you do not have administrator permissions. The application cannot continue.", FALSE
   End If
 End Function
 '--------------------------------------------------
@@ -190,9 +192,6 @@ End Function
 '--------------------------------------------------
 'A function shut down the machine when triggered.
 Function killWorkstation()
-     oShell.Run "C:\Windows\System32\shutdown.exe /s /f /t 0", 0, false
+  oShell.Run "C:\Windows\System32\shutdown.exe /s /f /t 0", 0, false
 End Function
 '--------------------------------------------------
-
-
-

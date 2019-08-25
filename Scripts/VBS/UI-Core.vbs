@@ -27,7 +27,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, _
  hrefLocation, fullScriptName, arrFN, scriptName, oRE, oMatch, oMatches, shell, file, objWshNet, strNamespace, strHRAVUserName, _
  strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, run, tempFile, tempData, entry, objSysInfo, strComputerName, _
  sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, errorNumber, _
- errorMessage, sCommLine, dProcess, cProcessList, 
+ errorMessage, sCommLine, dProcess, cProcessList, quietly
 
 '--------------------------------------------------
 'Application Related Variables
@@ -119,9 +119,11 @@ End Function
 
 '--------------------------------------------------
 'A function to kill the script when a critical error occurs and display a useful message to the user.
-Function DieGracefully(errorNumber, errorMessage)
+Function DieGracefully(errorNumber, errorMessage, quietly)
   errorMessage = Sanitize(errorMessage)
-  MsgBox appName & " ERROR!!! " & errorNumber & " " & errorMessage, "ERROR!!! - " & appName, 16
+  If quietly <> TRUE Then
+    MsgBox appName & " ERROR!!! " & errorNumber & " " & errorMessage, "ERROR!!! - " & appName, 16
+  End If
   If IsNumeric(errorMessage) = FALSE Then
     errorNumber = 0
   End If
