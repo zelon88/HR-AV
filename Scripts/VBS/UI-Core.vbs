@@ -28,7 +28,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, tempFile, tempData, entry, strComputerName, file, _
  sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, _
  errorMessage, sCommLine, dProcess, cProcessList, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, humanTime, _
- logDateTime, logTime, oRE1, oRE2, outputStr1, outputStr2, logsDirectory, sesID, rStr, rStrLen, i1
+ logDateTime, logTime, oRE1, oRE2, outputStr1, outputStr2, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory
 
 '--------------------------------------------------
 'UI Related Variables.
@@ -61,8 +61,9 @@ tempDirectory = currentDirectory & "\Temp\"
 pagesDirectory = currentDirectory & "\Pages\"
 mediaDirectory = currentDirectory & "\Media\"
 logsDirectory = currentDirectory & "\Logs\"
+reportsDirectory = currentDirectory & "\Reports\"
 logFilePath = Trim(logsDirectory & appName & "-Log_" & logDate)
-requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory)
+requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory, reportsDirectory)
 fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 arrFN = Split(fullScriptName, "\")
 scriptName = Trim(arrFN(UBound(arrFN)))
