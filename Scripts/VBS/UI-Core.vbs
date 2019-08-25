@@ -30,7 +30,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, _
 
 '--------------------------------------------------
 'Application Related Variables
-version = "v0.6.7"
+version = "v0.6.8"
 uiVersion = "v1.2"
 helpLocSetting = "https://github.com/zelon88/HR-AV"
 appName = "HR-AV"
@@ -300,6 +300,13 @@ Sub clearmenu
     sMenuOpen = "" 
   End If 
 End Sub 
+'--------------------------------------------------
+
+'--------------------------------------------------
+'Display a MsgBox window confirming to the user that they have saved their settings.
+Function saveSettings()
+  MsgBox "All settings saved and applied!", appName, 0
+End Function
 '--------------------------------------------------
 
 '--------------------------------------------------

@@ -18,7 +18,8 @@
 '--------------------------------------------------
 Option Explicit
 
-Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedPassword, configFile
+Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedPassword, configFile, colAccounts, objUser, _
+ objUser2, objGroup, ouser, sCommLine, dProcess, cProcessList
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -26,6 +27,16 @@ phpavEngineDirectory = scriptsDirectory & "\PHP\PHP-AV\"
 php73Directory = "PHP\7.3.8\php.exe"
 
 '--------------------------------------------------
+
+Function Die()
+  For Each dProcess in cProcessList
+    sCommLine = Trim(LCase(dProcess.CommandLine))
+    If InStr(sCommLine, fullScriptName) = 0 Then
+      dProcess.Terminate()
+    End If
+  Next
+  Window.Close
+End Function
 
 '--------------------------------------------------
 'A function to tell if the script has the required priviledges to run.
@@ -124,9 +135,47 @@ Function verifyPassword()
 End Function
 '--------------------------------------------------
 
+Function checkHRAVUser()
+  On Error Resume Next
+  Set ouser = GetObject("WinNT://" & strComputerName & "/" & strHRAVUserName & ",user")
+  checkHRAVUser = FALSE
+  If Err.number = 0 Then
+    checkHRAVUser = TRUE
+  End If
+  Err.clear
+End Function
+
+'--------------------------------------------------
+Function createHRAVUser()
+  createHRAVUser = FALSE
+  'Creation of the local user
+  Set colAccounts = GetObject("WinNT://" & strComputerName & "")
+  Set objGroup = GetObject("WinNT://" & strComputerName & "/Administrators,group") 
+  Set objUser2 = GetObject("WinNT://" & strComputerName & "/" & strHRAVUserName & ",user")
+  Set objUser = colAccounts.Create("user", strHRAVUserName)  
+  objUser.SetPassword generatePassword()
+  objUser.SetInfo
+  ' Select the option "Password never expire"
+  Const ADS_UF_DONT_EXPIRE_PASSWD = &h10000
+  objUserFlags = objUser.Get("UserFlags")
+  objPasswordExpirationFlag = objUserFlags OR ADS_UF_DONT_EXPIRE_PASSWD
+  objUser.Put "userFlags", objPasswordExpirationFlag 
+  objUser.SetInfo
+  'Add the newly created HRAV user to the Administrators group.
+  On Error Resume Next 
+  objGroup.Add(objUser2.ADsPath) 
+  Err.clear
+  createHRAVUser = checkHRAVUser()
+End Function
+
 '--------------------------------------------------
 Function verifyInstallation()
-
+  verifyInstallation = FALSE
+  createUserCheck = FALSE
+  If checkHRAVUser = FALSE Then
+    createUserCheck = createHRAVUser()
+    MsgBox "There was a problem creating the HRAV user! This is usually because you do not have administrator permissions. Real-time protection"
+  End If
 End Function
 '--------------------------------------------------
 
