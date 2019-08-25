@@ -19,15 +19,16 @@ Option Explicit
 
 '--------------------------------------------------
 'Define global variables for the session.
-Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, _
- colItems, objItem, intHorizontal, intVertical, nLeft, nTop, sItem, helpLocSetting, _
- version, currentDirectory, appName, developerName, developerURL, windowHeight, windowWidth, _
+Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, humanDateTime, _
+ colItems, objItem, intHorizontal, intVertical, nLeft, nTop, sItem, helpLocSetting, errorNumber, run, _
+ version, currentDirectory, appName, developerName, developerURL, windowHeight, windowWidth, objSysInfo, _
  BinaryToRun, Command, tempDirectory, uiVersion, Async, error, requiredDir, requiredDirs, installationError, _
  dieOnInstallationError, cacheDirectory, pagesDirectory, realDirectory, vbsScriptsDirectory, dMenus, sMenuOpen, _
- hrefLocation, fullScriptName, arrFN, scriptName, oRE, oMatch, oMatches, shell, file, objWshNet, strNamespace, strHRAVUserName, _
- strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, run, tempFile, tempData, entry, objSysInfo, strComputerName, _
- sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, errorNumber, _
- errorMessage, sCommLine, dProcess, cProcessList, quietly
+ hrefLocation, fullScriptName, arrFN, scriptName, oRE, oMatch, oMatches, shell, objWshNet, strNamespace, strHRAVUserName, _
+ strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, tempFile, tempData, entry, strComputerName, file, _
+ sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, _
+ errorMessage, sCommLine, dProcess, cProcessList, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, humanTime, _
+ logDateTime, logTime, oRE1, oRE2, outputStr1, outputStr2, logsDirectory
 
 '--------------------------------------------------
 'Application Related Variables
@@ -46,14 +47,21 @@ Const sFile = "Exit"
 Const sSettings = "View Settings"
 Const sHelp = "Help, About" 
 Const sHTML = "&nbsp;&nbsp;&nbsp;#sItem#&nbsp;&nbsp;&nbsp;" 
-'Frequently used objects.
+'Frequently Used Objects.
 Set objShell = CreateObject("WScript.Shell")
 Set shell = CreateObject("Shell.Application")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 Set objSysInfo = CreateObject("WinNTSystemInfo")
 Set objWshNet = CreateObject("WScript.Network")
-'Directory related variables.
-currentDirectory = objFSO.GetAbsolutePathName(".")
+'Time Related Variables.
+humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
+logDate = Trim(Replace(humanDate, "/", "-"))
+humanTime = Trim(FormatDateTime(Now, vbLongTime))
+logTime = Trim(Replace(Replace(humanTime, ":", "-"), " ", ""))
+humanDateTime = Trim(humanDate & " " & humanTime)
+logDateTime = Trim(logDate & "_" & logTime)
+'Directory Related Variables.
+currentDirectory = Trim(objFSO.GetAbsolutePathName("."))
 scriptsDirectory = currentDirectory & "\Scripts\"
 vbsScriptsDirectory = scriptsDirectory & "\VBS\"
 binariesDirectory = currentDirectory & "\Binaries\"
@@ -61,11 +69,13 @@ cacheDirectory = currentDirectory & "\Cache\"
 tempDirectory = currentDirectory & "\Temp\"
 pagesDirectory = currentDirectory & "\Pages\"
 mediaDirectory = currentDirectory & "\Media\"
-requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory)
+logsDirectory = currentDirectory & "\Logs\"
+logFilePath = Trim(logsDirectory & appName & "-Log_" & logDate)
+requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory)
 fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 arrFN = Split(fullScriptName, "\")
 scriptName = Trim(arrFN(UBound(arrFN)))
-'Misc variables.
+'Misc Variables.
 strNamespace = "root\cimv2"
 strCurrentUserName = Trim(objSysInfo.UserName)
 strHRAVUserName = "HRAV"
@@ -93,36 +103,47 @@ Next
 
 '--------------------------------------------------
 'A function for sanitizing user input strings for strict use cases.
-Function Sanitize(strToClean)
+Function Sanitize(strToClean1)
   Set oRE1 = New RegExp
   oRE1.IgnoreCase = True
   oRE1.Global = True
-  oRE1.Pattern = "[(?*"",\\<>&#~%{}+_.@:\/!;]+"
-  outputStr = oRE1.Replace(strtoclean, "-")
+  oRE1.Pattern = "[()?*""<>&#~%{};]+"
+  outputStr1 = oRE1.Replace(strtoclean1, "-")
   oRE1.Pattern = "\-+"
-  Sanitize = oRE1.Replace(outputStr, "-")
+  Sanitize = oRE1.Replace(outputStr1, "-")
 End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
 'A function for sanitizing user input strings for use in directory paths.
-Function SanitizeFolder(strToClean)
-  Set oRE1 = New RegExp
-  oRE1.IgnoreCase = True
-  oRE1.Global = True
-  oRE1.Pattern = "[(?*"",<>&#~%{}+_.@:!;]+"
-  outputStr = oRE1.Replace(strtoclean, "-")
-  oRE1.Pattern = "-+"
-  SanitizeFolder = oRE1.Replace(outputStr, "-")
+Function SanitizeFolder(strToClean2)
+  Set oRE2 = New RegExp
+  oRE2.IgnoreCase = True
+  oRE2.Global = True
+  oRE2.Pattern = "[()*""<>&#%{};]+"
+  outputStr2 = oRE2.Replace(strtoclean2, "-")
+  oRE2.Pattern = "-+"
+  SanitizeFolder = oRE2.Replace(outputStr2, "-")
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to create a log file.
+Function createLog(strEventInfo)
+  If Not strEventInfo = "" Then
+    Set objLogFile = oFSO.CreateTextFile(logFilePath, ForAppending, TRUE)
+    objLogFile.WriteLine(SanitizeFolder(strEventInfo))
+    objLogFile.Close
+  End If
 End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
 'A function to kill the script when a critical error occurs and display a useful message to the user.
 Function DieGracefully(errorNumber, errorMessage, quietly)
-  errorMessage = Sanitize(errorMessage)
+  errorMessage = SanitizeFolder(errorMessage)
   If quietly <> TRUE Then
-    MsgBox appName & " ERROR!!! " & errorNumber & " " & errorMessage, "ERROR!!! - " & appName, 16
+    MsgBox appName & " ERROR!!! " & errorNumber & " " & errorMessage, 16, "ERROR!!! - " & appName
   End If
   If IsNumeric(errorMessage) = FALSE Then
     errorNumber = 0
@@ -139,9 +160,9 @@ End Function
 
 '--------------------------------------------------
 'A function to display a consistent message box to the user.
-Function PrintGracefully(message)
-  message = Sanitize(message)
-  MsgBox message, appName, 0
+Function PrintGracefully(windowNote, message)
+  message = SanitizeFolder(message)
+  MsgBox message, 0, appName
 End Function
 '--------------------------------------------------
 
@@ -386,12 +407,9 @@ Sub SubMenuClick
     Case "view settings"
       document.location = hrefLocation & "settings.hta"
     Case "about" 
-      MsgBox version & ". " & vbCRLF & vbCRLF & "Developed by " & developerName & "."_ 
-        & vbCRLF & vbCRLF & developerURL, _ 
-        vbOKOnly + vbInformation, "About "& appName 
+      PrintGracefully version & ". " & vbCRLF & vbCRLF & "Developed by " & developerName & "." & vbCRLF & vbCRLF & developerURL
     Case Else 
-      msgbox "You can get support for '" & appName & "' by visiting: " _ 
-      & vbCRLF & vbCRLF & helpLocSetting, vbOKOnly + vbInformation, appName & " Help"
+      PrintGracefully "You can get support for '" & appName & "' by visiting: " & vbCRLF & vbCRLF & helpLocSetting & "."
   End Select 
 End Sub 
 '--------------------------------------------------

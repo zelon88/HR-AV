@@ -18,9 +18,9 @@
 '--------------------------------------------------
 Option Explicit
 
-Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedPassword, configFile, colAccounts, objUser, oRE1, _
- objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject, strToClean, objRegExp, outputStr, _
- objUserFlags, objPasswordExpirationFlag
+Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedPassword, configFile, colAccounts, objUser, _
+ objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag
+
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -75,17 +75,6 @@ End Function
 Function restartAsHRAV(strHRAVPassword)
   Bootstrap "PAExec\paexec.exe", "-u:" & Sanitize(strHRAVUserName) & " -p:" & Sanitize(strHRAVPassword) & " " & SanitizeFolder(fullScriptName), FALSE
   DieGracefully 1, "", TRUE
-End Function
-'--------------------------------------------------
-
-'--------------------------------------------------
-'A function to create a log file.
-Function createLog(strEventInfo)
-  If Not strEventInfo = "" Then
-    Set objLogFile = oFSO.CreateTextFile(logFileName, True)
-    objLogFile.WriteLine(Sanitize(strEventInfo))
-    objLogFile.Close
-  End If
 End Function
 '--------------------------------------------------
 
