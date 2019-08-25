@@ -28,7 +28,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, tempFile, tempData, entry, strComputerName, file, _
  sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, _
  errorMessage, sCommLine, dProcess, cProcessList, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, humanTime, _
- logDateTime, logTime, oRE1, oRE2, outputStr1, outputStr2, logsDirectory, sesID, rStr, rStrLen, i1
+ logDateTime, logTime, oRE1, oRE2, outputStr1, outputStr2, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, typeMsg
 
 '--------------------------------------------------
 'UI Related Variables.
@@ -61,8 +61,9 @@ tempDirectory = currentDirectory & "\Temp\"
 pagesDirectory = currentDirectory & "\Pages\"
 mediaDirectory = currentDirectory & "\Media\"
 logsDirectory = currentDirectory & "\Logs\"
+reportsDirectory = currentDirectory & "\Reports\"
 logFilePath = Trim(logsDirectory & appName & "-Log_" & logDate)
-requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory)
+requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory, reportsDirectory)
 fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 arrFN = Split(fullScriptName, "\")
 scriptName = Trim(arrFN(UBound(arrFN)))
@@ -173,10 +174,16 @@ End Function
 
 '--------------------------------------------------
 'A function to display a consistent message box to the user.
-Function PrintGracefully(windowNote, message)
+Function PrintGracefully(windowNote, message, typeMsg)
+  If typeMsg <> "vbOkCancel" Or typeMsg <> "vbOkOnly" Then
+    typeMsg = vbOkOnly
+  End If
   windowNote = SanitizeFolder(windowNote)
   message = SanitizeFolder(message)
-  MsgBox message, 0, appName & " - " & windowNote
+  printResult = MsgBox(message, 0, appName & " - " & windowNote, typeMsg)
+  If printResult = 2 Then
+    DieGracefully 500, "Operation cancelled by user!", FALSE 
+  End If
 End Function
 '--------------------------------------------------
 
@@ -398,7 +405,7 @@ End Sub
 '--------------------------------------------------
 'Display a MsgBox window confirming to the user that they have saved their settings.
 Function saveSettings()
-  PrintGracefully "Settings", "All settings saved and applied!"
+  PrintGracefully "Settings", "All settings saved and applied!", "vbOkOnly"
 End Function
 '--------------------------------------------------
 
@@ -421,9 +428,9 @@ Sub SubMenuClick
     Case "view settings"
       document.location = hrefLocation & "settings.hta"
     Case "about" 
-      PrintGracefully "About", version & ". " & vbCRLF & vbCRLF & "Developed by " & developerName & "." & vbCRLF & vbCRLF & developerURL
+      PrintGracefully "About", version & ". " & vbCRLF & vbCRLF & "Developed by " & developerName & "." & vbCRLF & vbCRLF & developerURL, "vbOkOnly"
     Case Else 
-      PrintGracefully "Help", "You can get support for '" & appName & "' by visiting: " & vbCRLF & vbCRLF & helpLocSetting & "."
+      PrintGracefully "Help", "You can get support for '" & appName & "' by visiting: " & vbCRLF & vbCRLF & helpLocSetting & ".", "vbOkOnly"
   End Select 
 End Sub 
 '--------------------------------------------------
