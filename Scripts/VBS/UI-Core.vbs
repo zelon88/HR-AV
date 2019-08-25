@@ -28,7 +28,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, tempFile, tempData, entry, strComputerName, file, _
  sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, _
  errorMessage, sCommLine, dProcess, cProcessList, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, humanTime, _
- logDateTime, logTime, oRE1, oRE2, outputStr1, outputStr2, logsDirectory
+ logDateTime, logTime, oRE1, oRE2, outputStr1, outputStr2, logsDirectory, sesID, rStr, rStrLen, i1
 
 '--------------------------------------------------
 'UI Related Variables.
@@ -37,6 +37,7 @@ Const sFile = "Exit"
 Const sSettings = "View Settings"
 Const sHelp = "Help, About" 
 Const sHTML = "&nbsp;&nbsp;&nbsp;#sItem#&nbsp;&nbsp;&nbsp;" 
+Const Letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 'Frequently Used Objects.
 Set objShell = CreateObject("WScript.Shell")
 Set shell = CreateObject("Shell.Application")
@@ -66,6 +67,7 @@ fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 arrFN = Split(fullScriptName, "\")
 scriptName = Trim(arrFN(UBound(arrFN)))
 'Misc Variables.
+sesID = Int(Rnd * 10000000)
 strNamespace = "root\cimv2"
 strCurrentUserName = Trim(objSysInfo.UserName)
 strHRAVUserName = "HRAV"
@@ -118,20 +120,40 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
+'A function to generate a random string of a specified length.
+Function RandomString(rStrLen)
+  Randomize
+  For i1 = 1 to strLen
+    rStr = rStr & Mid(Letters, Int(rStrLen * Rnd + 1))
+  Next
+  RandomString = rStr
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
 'A function to create a log file.
+'Appends to an existing "logFilePath" is one exists.
+'Creates a new file if none exists.
 Function createLog(strEventInfo)
-  If Not strEventInfo = "" Then
+  strEventInfo = Sanitize(Trim(strEventInfo)) & vbNewLine
+  createLog = FALSE
+  If Not strEventInfo = "" And strEventInfo <> FALSE And strEventInfo <> NULL Then
     Set objLogFile = oFSO.CreateTextFile(logFilePath, ForAppending, TRUE)
     objLogFile.WriteLine(SanitizeFolder(strEventInfo))
     objLogFile.Close
+    createLog = TRUE 
   End If
+  If objFSO.FileExists(logFilePath) = FALSE Then
+    createLog = FALSE
+  End If
+  strEventInfo = FALSE
 End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
 'A function to kill the script when a critical error occurs and display a useful message to the user.
 Function DieGracefully(errorNumber, errorMessage, quietly)
-  errorMessage = appName & " ERROR!!! " & errorNumber & " " & SanitizeFolder(errorMessage) & "!"
+  errorMessage = appName & "-" & sesID & " ERROR-" & errorNumber & " on " & humanDateTime & ", " & SanitizeFolder(errorMessage) & "!"
   createLog(errorMessage)
   If quietly <> TRUE Then
     MsgBox errorMessage, 16, "ERROR!!! - " & appName

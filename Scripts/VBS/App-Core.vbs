@@ -114,16 +114,20 @@ Function generatePassword()
   Randomize
   newKey1 = Rnd * 100000000000000000
   newKey2 = Rnd * 100000000000
-  newKey3 = Rnd * 1000000
-  generatePassword = Int((newKey1 - newKey2 + 1) * newKey3 + newKey2)
+  newKey3 = Rnd * 1000000 
+  newKey4 = RandomString(4)
+  generatePassword = Trim(newKey4 & Int((newKey1 - newKey2 + 1) * newKey3 + newKey2))
   If objFSO.FileExists(passwordFile) Then
     objFSO.DeleteFile(passwordFile)
   End If
   Set newPasswordFile = objFSO.CreateTextFile(passwordFile, TRUE)
-  newPasswordFile.WriteLine("Option Explicit" & vbNewLine & "Dim key1, key2, key3" & vbNewLine & "key1 = " & newKey1 & vbNewLine & "key2 = " & newKey2 & vbNewLine & "key3 = " & vbNewLine & newKey3)
+  newPasswordFile.WriteLine("Option Explicit" & vbNewLine & "Dim key1, key2, key3, key4" & vbNewLine & _
+   "key1 = " & newKey1 & vbNewLine & "key2 = " & newKey2 & vbNewLine & "key3 = " & vbNewLine & newKey3 & vbNewLine & "key4 = " & newKey4)
   newPasswordFile.Close
   If Not objFSO.FileExists(passwordFile) Then
     DieGracefully 2, "Could not generate a new password!"
+  Else
+    createLog(appName & "-" & sesID & ", Generated a new password on " & humanDateTime & "!")
   End If
 End Function
 '--------------------------------------------------
