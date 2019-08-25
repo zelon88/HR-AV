@@ -118,10 +118,10 @@ Function generatePassword()
   generatePassword = Int((newKey1 - newKey2 + 1) * newKey3 + newKey2)
   If objFSO.FileExists(passwordFile) Then
     objFSO.DeleteFile(passwordFile)
-    Set newPasswordFile = objFSO.CreateTextFile(passwordFile, TRUE)
-    newPasswordFile.WriteLine("Option Explicit" & vbNewLine & "Dim key1, key2, key3" & vbNewLine & "key1 = " & newKey1 & vbNewLine & "key2 = " & newKey2 & vbNewLine & "key3 = " & vbNewLine & newKey3)
-    newPasswordFile.Close
   End If
+  Set newPasswordFile = objFSO.CreateTextFile(passwordFile, TRUE)
+  newPasswordFile.WriteLine("Option Explicit" & vbNewLine & "Dim key1, key2, key3" & vbNewLine & "key1 = " & newKey1 & vbNewLine & "key2 = " & newKey2 & vbNewLine & "key3 = " & vbNewLine & newKey3)
+  newPasswordFile.Close
   If Not objFSO.FileExists(passwordFile) Then
     DieGracefully 2, "Could not generate a new password!"
   End If
