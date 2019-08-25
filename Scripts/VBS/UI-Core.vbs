@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 8/21/2019
+'Date: 8/24/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -26,47 +26,42 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, _
  dieOnInstallationError, cacheDirectory, pagesDirectory, realDirectory, vbsScriptsDirectory, dMenus, sMenuOpen, _
  hrefLocation, fullScriptName, arrFN, scriptName, oRE, oMatch, oMatches, shell, file, objWshNet, strNamespace, strHRAVUserName, _
  strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, run, tempFile, tempData, entry, objSysInfo, strComputerName, _
- sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData
+ sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, errorNumber, _
+ errorMessage, sCommLine, dProcess, cProcessList, 
 
 '--------------------------------------------------
 'Application Related Variables
-version = "v0.6.8"
+version = "v0.6.9"
 uiVersion = "v1.2"
 helpLocSetting = "https://github.com/zelon88/HR-AV"
 appName = "HR-AV"
 developerName = "Justin Grimes"
 developerURL = "https://github.com/zelon88"
-dieOnInstallationError = FALSE
+dieOnInstallationError = TRUE
 windowHeight = 660
 windowWidth = 600
-
-'--------------------------------------------------
 'UI Related Variables.
 Const sMenuItems = "File,Settings,Help" 
 Const sFile = "Exit" 
 Const sSettings = "View Settings"
 Const sHelp = "Help, About" 
 Const sHTML = "&nbsp;&nbsp;&nbsp;#sItem#&nbsp;&nbsp;&nbsp;" 
-'Directctory Related Variables.
+'Frequently used objects.
 Set objShell = CreateObject("WScript.Shell")
 Set shell = CreateObject("Shell.Application")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 Set objSysInfo = CreateObject("WinNTSystemInfo")
 Set objWshNet = CreateObject("WScript.Network")
-Set oRE = New RegExp
-realDirectory = objFSO.GetAbsolutePathName(".")
-'Perform a quick sanity check to be sure the value of "realDirectory" won't cause problems.
-If realDirectory = NULL or realDirectory = FALSE Then
-  realDirectory = ""
-End If
-currentDirectory = Trim(Left(realDirectory, InStrRev(realDirectory, "Scripts\VBS\")))
+'Directory related variables.
+currentDirectory = objFSO.GetAbsolutePathName(".")
 scriptsDirectory = currentDirectory & "\Scripts\"
 vbsScriptsDirectory = scriptsDirectory & "\VBS\"
 binariesDirectory = currentDirectory & "\Binaries\"
 cacheDirectory = currentDirectory & "\Cache\"
 tempDirectory = currentDirectory & "\Temp\"
 pagesDirectory = currentDirectory & "\Pages\"
-requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory)
+mediaDirectory = currentDirectory & "\Media\"
+requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory)
 fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 arrFN = Split(fullScriptName, "\")
 scriptName = Trim(arrFN(UBound(arrFN)))
@@ -84,24 +79,85 @@ installationError = FALSE
 'Verify that all required directories exist and try to create them when they don't.
 'If "dieOnInstallationError" is set to TRUE this application will die when required directories do not exist.
 For Each requiredDir In requiredDirs
-On Error Resume Next
-  If Not fileSystem.FolderExists(requiredDir) Then
-    fileSystem.CreateFolder(requiredDir)
-    If Not fileSystem.FolderExists(requiredDir) Then
+  If dieOnInstallationError = TRUE Then 
+    On Error Resume Next
+  End If
+  If Not objFSO.FolderExists(requiredDir) Then
+    objFSO.CreateFolder(requiredDir)
+    If Not objFSO.FolderExists(requiredDir) Then
       installationError = TRUE
     End If
   End If
 Next
-If dieOnInstallationError = TRUE Then 
-  WScript.Quit
-End If
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function for sanitizing user input strings for strict use cases.
+Function Sanitize(strToClean)
+  Set oRE1 = New RegExp
+  oRE1.IgnoreCase = True
+  oRE1.Global = True
+  oRE1.Pattern = "[(?*"",\\<>&#~%{}+_.@:\/!;]+"
+  outputStr = oRE1.Replace(strtoclean, "-")
+  oRE1.Pattern = "\-+"
+  Sanitize = oRE1.Replace(outputStr, "-")
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function for sanitizing user input strings for use in directory paths.
+Function SanitizeFolder(strToClean)
+  Set oRE1 = New RegExp
+  oRE1.IgnoreCase = True
+  oRE1.Global = True
+  oRE1.Pattern = "[(?*"",<>&#~%{}+_.@:!;]+"
+  outputStr = oRE1.Replace(strtoclean, "-")
+  oRE1.Pattern = "-+"
+  SanitizeFolder = oRE1.Replace(outputStr, "-")
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to kill the script when a critical error occurs and display a useful message to the user.
+Function DieGracefully(errorNumber, errorMessage)
+  errorMessage = Sanitize(errorMessage)
+  MsgBox appName & " ERROR!!! " & errorNumber & " " & errorMessage, "ERROR!!! - " & appName, 16
+  If IsNumeric(errorMessage) = FALSE Then
+    errorNumber = 0
+  End If
+  For Each dProcess in cProcessList
+    sCommLine = Trim(LCase(dProcess.CommandLine))
+    If InStr(sCommLine, fullScriptName) = 0 Then
+      dProcess.Terminate()
+    End If
+  Next
+  Window.Close
+End Function 
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to display a consistent message box to the user.
+Function PrintGracefully(message)
+  message = Sanitize(message)
+  MsgBox message, appName, 0
+End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
 'A function to open a dialog box so the user can select files or folders.
 Function BrowseForFile()
-    Set file = shell.BrowseForFolder(0, "Choose a file:", &H4000, "C:\")
-    BrowseForFile = file.self.Path
+  Set file = shell.BrowseForFolder(0, "Choose a file:", &H4000, "C:\")
+  BrowseForFile = file.self.Path
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to play sounds and media with Windows Media Player objects.
+Function playMedia(pathToMedia)
+  Set mediaPlayer = CreateObject("WMPlayer.OCX")
+  mediaPlayer.URL = SanitizeFolder(mediaDirectory & pathToMedia)
+  mediaPlayer.controls.play 
+  mediaPlayer.close
 End Function
 '--------------------------------------------------
 
@@ -120,7 +176,7 @@ Function Bootstrap(BinaryToRun, Command, Async)
   Else 
     async = ""
   End If
-  run = Trim("C:\Windows\System32\cmd.exe /c " & binariesDirectory & BinaryToRun & " " & Command & " > " & tempFile)
+  run = Trim("C:\Windows\System32\cmd.exe /c " & SanitizeFolder(binariesDirectory & BinaryToRun) & " " & Command & " > " & SanitizeFolder(tempFile))
   objShell.Run run, 0, async
   Set tempData = objFSO.OpenTextFile(tempFile, 1)
   Bootstrap = tempData.ReadAll()
@@ -144,7 +200,7 @@ Function SystemBootstrap(sBinaryToRun, sCommand, sAsync)
   Else 
     sasync1 = ""
   End If
-  srun = Trim("C:\Windows\System32\cmd.exe /c " & sCommand & " > " & stempFile)
+  srun = Trim("C:\Windows\System32\cmd.exe /c " & sCommand & " > " & SanitizeFolder(stempFile))
   objShell.Run srun, 0, sasync1
   Set stempData = objFSO.OpenTextFile(stempFile, 1)
   SystemBootstrap = stempData.ReadAll()
@@ -171,7 +227,7 @@ End Sub
 
 '--------------------------------------------------
 'Resize the application window.
-Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\cimv2")
+Set objWMIService = GetObject("winmgmts:\\" & Sanitize(strComputer) & "\root\cimv2")
 Set colItems = objWMIService.ExecQuery("Select * From Win32_DesktopMonitor")
 For Each objItem in colItems
   'Max screen width in pixels.
@@ -305,13 +361,14 @@ End Sub
 '--------------------------------------------------
 'Display a MsgBox window confirming to the user that they have saved their settings.
 Function saveSettings()
-  MsgBox "All settings saved and applied!", appName, 0
+  PrintGracefully("All settings saved and applied!")
 End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Handle when a user clicks on a submenu.
 Sub SubMenuClick 
+  Set oRE = New RegExp
   sItem = Trim(window.event.srcElement.innerText) 
   clearmenu   
   hrefLocation = "Pages/"
