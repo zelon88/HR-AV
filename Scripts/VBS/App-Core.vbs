@@ -19,7 +19,8 @@
 Option Explicit
 
 Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedPassword, configFile, colAccounts, objUser, _
- objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag
+ objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag, _
+ newKey1, newKey2, newKey3, passwordFile, newPasswordFile
 
 '--------------------------------------------------
 
@@ -27,6 +28,7 @@ Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedP
 'Set variables for the session.
 phpavEngineDirectory = scriptsDirectory & "\PHP\PHP-AV\"
 php73Directory = "PHP\7.3.8\php.exe"
+passwordFile = cacheDirectory & appNAme & "_Keys.vbs"
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -107,13 +109,28 @@ End Function
 
 '--------------------------------------------------
 'A function to generate a random password for the HRAV user.
+'Generates a new random password and saves it to the \Config\ folder.
 Function generatePassword()
-
+  Randomize
+  newKey1 = Rnd * 100000000000000000
+  newKey2 = Rnd * 100000000000
+  newKey3 = Rnd * 1000000
+  generatePassword = Int((newKey1 - newKey2 + 1) * newKey3 + newKey2)
+  If objFSO.FileExists(passwordFile) Then
+    objFSO.DeleteFile(passwordFile)
+    Set newPasswordFile = objFSO.CreateTextFile(passwordFile, TRUE)
+    newPasswordFile.WriteLine("Option Explicit" & vbNewLine & "Dim key1, key2, key3" & vbNewLine & "key1 = " & newKey1 & vbNewLine & "key2 = " & newKey2 & vbNewLine & "key3 = " & vbNewLine & newKey3)
+    newPasswordFile.Close
+  End If
+  If Not objFSO.FileExists(passwordFile) Then
+    DieGracefully 2, "Could not generate a new password!"
+  End If
 End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
-'A function to check and verify the HRAV user password.
+'A function to retrieve and verify the HRAV user password.
+'Returns the password as calculated from the keys in the \Config\ folder.
 Function verifyPassword()
 
 End Function
@@ -124,7 +141,10 @@ End Function
 'Part of HRAV's security is to constantly rotate the HRAV user password.
 'If the password is stale we can assume something is wrong.
 Function changePassword()
-
+  Set objUser3 = GetObject("WinNT://" & Sanitize(strComputerName) & "/" & Sanitize(strHRAVUserName) & ", user")
+  'YOU ARE HERE!!!'
+  objUser3.SetPassword verifyPassword
+  objUser3.SetInfo 
 End Function
 '--------------------------------------------------
 
@@ -160,7 +180,7 @@ Function createHRAVUser()
   objPasswordExpirationFlag = objUserFlags OR ADS_UF_DONT_EXPIRE_PASSWD
   objUser.Put "userFlags", objPasswordExpirationFlag 
   objUser.SetInfo
-  'Add the newly created HRAV user to the Administrators group.
+  'Make sure the newly created HRAV user is in the Administrators group.
   On Error Resume Next 
   objGroup.Add(objUser2.ADsPath) 
   Err.clear
@@ -173,7 +193,7 @@ Function verifyInstallation()
   createUserCheck = FALSE
   If checkHRAVUser = FALSE Then
     createUserCheck = createHRAVUser()
-    DieGracefully 2, "There was a problem creating the HRAV user! This is usually because you do not have administrator permissions. The application cannot continue.", FALSE
+    DieGracefully 3, "There was a problem creating the HRAV user! This is usually because you do not have administrator permissions. The application cannot continue.", FALSE
   End If
 End Function
 '--------------------------------------------------

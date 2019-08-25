@@ -31,16 +31,6 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  logDateTime, logTime, oRE1, oRE2, outputStr1, outputStr2, logsDirectory
 
 '--------------------------------------------------
-'Application Related Variables
-version = "v0.6.9"
-uiVersion = "v1.2"
-helpLocSetting = "https://github.com/zelon88/HR-AV"
-appName = "HR-AV"
-developerName = "Justin Grimes"
-developerURL = "https://github.com/zelon88"
-dieOnInstallationError = TRUE
-windowHeight = 660
-windowWidth = 600
 'UI Related Variables.
 Const sMenuItems = "File,Settings,Help" 
 Const sFile = "Exit" 
@@ -141,9 +131,10 @@ End Function
 '--------------------------------------------------
 'A function to kill the script when a critical error occurs and display a useful message to the user.
 Function DieGracefully(errorNumber, errorMessage, quietly)
-  errorMessage = SanitizeFolder(errorMessage)
+  errorMessage = appName & " ERROR!!! " & errorNumber & " " & SanitizeFolder(errorMessage) & "!"
+  createLog(errorMessage)
   If quietly <> TRUE Then
-    MsgBox appName & " ERROR!!! " & errorNumber & " " & errorMessage, 16, "ERROR!!! - " & appName
+    MsgBox errorMessage, 16, "ERROR!!! - " & appName
   End If
   If IsNumeric(errorMessage) = FALSE Then
     errorNumber = 0
@@ -161,8 +152,9 @@ End Function
 '--------------------------------------------------
 'A function to display a consistent message box to the user.
 Function PrintGracefully(windowNote, message)
+  windowNote = SanitizeFolder(windowNote)
   message = SanitizeFolder(message)
-  MsgBox message, 0, appName
+  MsgBox message, 0, appName & " - " & windowNote
 End Function
 '--------------------------------------------------
 
@@ -384,7 +376,7 @@ End Sub
 '--------------------------------------------------
 'Display a MsgBox window confirming to the user that they have saved their settings.
 Function saveSettings()
-  PrintGracefully("All settings saved and applied!")
+  PrintGracefully "Settings", "All settings saved and applied!"
 End Function
 '--------------------------------------------------
 
@@ -407,9 +399,9 @@ Sub SubMenuClick
     Case "view settings"
       document.location = hrefLocation & "settings.hta"
     Case "about" 
-      PrintGracefully version & ". " & vbCRLF & vbCRLF & "Developed by " & developerName & "." & vbCRLF & vbCRLF & developerURL
+      PrintGracefully "About", version & ". " & vbCRLF & vbCRLF & "Developed by " & developerName & "." & vbCRLF & vbCRLF & developerURL
     Case Else 
-      PrintGracefully "You can get support for '" & appName & "' by visiting: " & vbCRLF & vbCRLF & helpLocSetting & "."
+      PrintGracefully "Help", "You can get support for '" & appName & "' by visiting: " & vbCRLF & vbCRLF & helpLocSetting & "."
   End Select 
 End Sub 
 '--------------------------------------------------
