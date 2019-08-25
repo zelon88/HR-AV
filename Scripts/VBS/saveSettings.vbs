@@ -11,21 +11,30 @@
 
 'This file is for saving settings submitted by settings.hta to a specific configuration file. 
 
-dim scriptLocInput, helpLocInput, maintLocInput, logLocInput, cameraLocInput, _
- scriptLocSettings, helpLocSettings, logLocSettings, cameraLocSettings, readfile
+'--------------------------------------------------
+'Define variables for the session.
+Dim scriptLocInput, helpLocInput, maintLocInput, logLocInput, scriptLocSettings, helpLocSettings, _
+ logLocSettings, readfile
+'--------------------------------------------------
 
-set scriptLocInput = document.getElementById("scriptLocInput")
-set helpLocInput = document.getElementById("helpLocInput")
-set maintLocInput = document.ge tElementById("maintLocInput")
-set logLocInput = document.getElementById("logLocInput")
-set cameraLocInput = document.getElementById("cameraLocInput")
+'--------------------------------------------------
+'Get submitted setting values from the DOM.
+Set scriptLocInput = document.getElementById("setting1")
+Set helpLocInput = document.getElementById("setting2")
+Set maintLocInput = document.ge tElementById("setting2")
+Set logLocInput = document.getElementById("setting4")
+'--------------------------------------------------
 
-scriptLocSettings = "Cache\scriptLocSettings.dat"
-helpLocSettings = "Cache\helpLocSettings.dat"
-maintLocSettings = "Cache\maintLocSettings.dat"
-logLocSettings = "Cache\logLocSettings.dat"
-cameraLocSettings = "Cache\cameraLocSettings.dat"
+'--------------------------------------------------
+'Set the directory/file locations for the settings.dat files.
+scriptLocSettings = cacheDirectory & "scriptLocSettings.dat"
+helpLocSettings = cacheDirectory & "helpLocSettings.dat"
+maintLocSettings = cacheDirectory & "maintLocSettings.dat"
+logLocSettings = cacheDirectory & "logLocSettings.dat"
+'--------------------------------------------------
 
+'--------------------------------------------------
+'Save the new settings to the settings.dat files.
 If objFSO.FileExists(scriptLocSettings) Then
   Set readfile = objFSO.OpenTextFile(scriptLocSettings, 1)
   If Not readfile.AtEndOfStream Then
@@ -57,17 +66,12 @@ If objFSO.FileExists(logLocSettings) Then
   End If
   readfile.Close
 End If
+'--------------------------------------------------
 
-If objFSO.FileExists(cameraLocSettings) Then
-  Set readfile = objFSO.OpenTextFile(cameraLocSettings, 1)
-  If Not readfile.AtEndOfStream Then
-    cameraLocSetting = readfile.ReadAll
-  End If
-  readfile.Close
-End If
-
+'--------------------------------------------------
+'Reset the DOM with the newest settings.
 scriptLocInput.value = scriptLocSetting
 helpLocInput.value = helpLocSetting
 maintLocInput.value = maintLocSetting
 logLocInput.value = logLocSetting
-cameraLocInput.value = cameraLocSetting
+'--------------------------------------------------
