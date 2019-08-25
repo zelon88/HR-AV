@@ -1,0 +1,77 @@
+ToDo  -  8/25/2019
+
+
+UI IDEAS
+Play a sound when job is complete
+Play a sound when infection is detected.
+Use JS to decide/change href of banner. Green shield, yellow shield, red shield.
+Work on implementing settings (work on close to last?)
+Make monitors using all kinds of JS
+
+
+
+UPDATER/APP IDEAS
+Updates from github. 
+Make a separate repo for just definition updates
+Update definition files only or entire application
+Installer is built in to application.
+When complete use VBSEdit to compile the entire app to standalone binaries.
+  When HR-AV.exe is run it will prompt for admin rights
+  With admin rights it will self-extract to %appdata% and run. 
+  Prompt user with installation wizard.
+  If HR-AV is not installed it will automatically create a folder in ProgramFiles and copy everything there.
+  It will then call the newly installed installation.
+  The newly installed version will detect if it is in Program Files.
+  If the newly installed version is good to go it will delete the %appdata% version.
+  Newly installed version now checks for HRAV user as admin. Creates one and a new password.
+  New installation now calls itself as HRAV admin using PAExec and created password.
+  Create destop/start menu shortcuts.
+  New installation now sets up required folders (running as HRAV now, no longer Admin).
+  New installation can now be run by anyone on the PC and the UI will run as local user.
+  When the UI has to call a function with SYSTEM privs; it uses the HRAV user and password with PAExec.
+  Every time HRAV starts it generates a new password via 4 random key generators and ONLY SAVES THE KEYS.
+  Stored HRAV password keys are only valid for one session.
+  Two users of the same machine cannot use HRAV at the same time. The sesID will change and the password keys will expire.
+  Each time the password is needed it is calculated with verifyPassword() from the stored keys.
+
+
+
+
+
+SCANNER IDEAS
+
+Worker generator in VBS. Async.
+Workers call scanning programs.
+Workers divide up large file/computer/network scans into smaller jobs, then execute a tool on them.
+To scan memory...
+  Load windows modules/tasklist/file paths to processes.
+  Scan all these things with PHP-AV.
+To scan filesystem objects...
+  Get a list of files/folders to scan.
+  If the list is longer than "#" of items, divide list into "x" number of objects.
+  Assign each list to a worker process.
+  Parse logfiles with javascript on a timer for real-time detection of IoC.
+  Consolidate the logfiles.
+  Generate report from logfiles to \Reports\ folder and display scan report.
+
+
+
+REAL TIME PROTECTION IDEAS
+
+Worker generator in VBS. Async.
+Workers call real-time protection programs like RTmemscan and ransomware_defender.
+Workers divide up large file/computer/network scans into smaller jobs, then execute a tool on them.
+Have a worker constantly check for new logfiles and parse them for IoC.
+Real-Time defender manages a schedule for running defense programs on timers.
+  Kind of like an internal task scheduler for AV tasks to fire whenever HRAV runs.
+Ideas for Real-Time worker programs...
+  Networkscanner - Look for new/ suspicious hosts on LAN
+  Tracert - Check for too many/unexpected routes.
+  MemoryWatcher - Keep an eye on running processes and scope out new ones with scanner.
+  RansomwareDefender - DONE
+  RegistryWatcher - Watch the registry for suspicious changes (maybe keep a definitions file of known malicious keys?).
+  USB_Monitor - DONE (Needs to be ported) (add bad usb monitor, watches for fast USB device switching & ejects/disables device)
+  Accessibility_Tools_Defender - DONE (Needs to be ported)
+
+
+

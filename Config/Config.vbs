@@ -7,7 +7,7 @@ Dim version, uiVersion, helpLocSetting, appName, developerName, developerURL, di
 
 '--------------------------------------------------
 'Application Related Variables
-version = "v0.7" 
+version = "v0.7.1" 
 uiVersion = "v1.2"
 helpLocSetting = "https://github.com/zelon88/HR-AV"
 appName = "HR-AV"
