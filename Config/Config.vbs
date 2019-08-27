@@ -7,9 +7,11 @@ Dim version, uiVersion, helpLocSetting, appName, developerName, developerURL, di
 
 '--------------------------------------------------
 'Application Related Variables
-version = "v0.7.1" 
+version = "v0.7.2" 
 uiVersion = "v1.2"
 helpLocSetting = "https://github.com/zelon88/HR-AV"
+appDownloadURL = "https://github.com/zelon88/HR-AV/archive/master.zip"
+defDownloadURL = "https://github.com/zelon88/HR-AV_Defs/archive/master.zip"
 appName = "HR-AV"
 developerName = "Justin Grimes"
 developerURL = "https://github.com/zelon88"
