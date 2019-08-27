@@ -210,17 +210,17 @@ Function verifyInstallation()
   If isInProgramFiles = FALSE Then
     iW1Result = installationWizard1()
     If iW1Result = 2 Then
-      DieGracefully(210, "Operation cancelled by user!", FALSE)
+      DieGracefully 210, "Operation cancelled by user!", FALSE
     End If
-    DieGracefully(219, "Restart Required!", TRUE)
+    DieGracefully 219, "Restart Required!", TRUE
   End If
   'Detect if running from Program Files but without an HRAV user. If so, fire "Installation Wizard 2."
   If isInProgramFiles = TRUE And checkHRAVUser = FALSE Then
     iW2Result = installationWizard2()
     If iW2Result = 2 Then
-      DieGracefully(220, "Operation cancelled by user!", FALSE)
+      DieGracefully 220, "Operation cancelled by user!", FALSE
     End If
-    DieGracefully(229, "Restart Required!", TRUE)
+    DieGracefully 229, "Restart Required!", TRUE
   End If 
   'Detect if runing from Program Files and an HRAV user exists, signifying a valid installation environment.
   If isInProgramFiles = TRUE And checkHRAVUser = TRUE Then
@@ -232,7 +232,7 @@ End Function
 '--------------------------------------------------
 'A function to copy all files to a dedicated Program Files directory.
 Function copyToProgramFiles()
-  Dim programFilesDir, 
+  Dim programFilesDir
   programFilesDir = "C:\Program Files\HR-AV\"
   If objFSO.FolderExists(programFilesDir) Then
     objFSO.CreateFolder(programFilesDir)
@@ -240,7 +240,7 @@ Function copyToProgramFiles()
   If objFSO.FolderExists(programFilesDir) Then
     createLog("Created a folder at: " & programFilesDir)
   Else
-    DieGracefully(206, "Could not create a folder at: " & programFilesDir, FALSE)
+    DieGracefully 206, "Could not create a folder at: " & programFilesDir, FALSE
   End If
 End Function
 '--------------------------------------------------

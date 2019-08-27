@@ -2,7 +2,8 @@
 'Define global variables for the session.
 Option Explicit
 
-Dim version, uiVersion, helpLocSetting, appName, developerName, developerURL, dieOnInstallationError, windowHeight, windowWidth
+Dim version, uiVersion, helpLocSetting, appName, developerName, developerURL, dieOnInstallationError, windowHeight, windowWidth, _
+appDownloadURL, defDownloadURL
 '--------------------------------------------------
 
 '--------------------------------------------------
