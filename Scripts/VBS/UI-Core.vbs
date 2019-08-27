@@ -147,12 +147,13 @@ Function createLog(strEventInfo)
   If objFSO.FileExists(logFilePath) = FALSE Then
     createLog = FALSE
   End If
-  strEventInfo = FALSE
+  strEventInfo = NULL
 End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
 'A function to kill the script when a critical error occurs and display a useful message to the user.
+'Also logs the output.
 Function DieGracefully(errorNumber, errorMessage, quietly)
   errorMessage = appName & "-" & sesID & " ERROR-" & errorNumber & " on " & humanDateTime & ", " & SanitizeFolder(errorMessage) & "!"
   createLog(errorMessage)
@@ -169,11 +170,13 @@ Function DieGracefully(errorNumber, errorMessage, quietly)
     End If
   Next
   Window.Close
+  errorMessage = NULL
 End Function 
 '--------------------------------------------------
 
 '--------------------------------------------------
 'A function to display a consistent message box to the user.
+'Also logs the output.
 Function PrintGracefully(windowNote, message, typeMsg)
   If typeMsg <> "vbOkCancel" Or typeMsg <> "vbOkOnly" Then
     typeMsg = vbOkOnly
@@ -181,9 +184,12 @@ Function PrintGracefully(windowNote, message, typeMsg)
   windowNote = SanitizeFolder(windowNote)
   message = SanitizeFolder(message)
   printResult = MsgBox(message, 0, appName & " - " & windowNote, typeMsg)
+  createLog(printResult)
   If printResult = 2 Then
     DieGracefully 500, "Operation cancelled by user!", FALSE 
   End If
+  message = NULL
+  windowNote = NULL
 End Function
 '--------------------------------------------------
 
@@ -192,6 +198,7 @@ End Function
 Function BrowseForFile()
   Set file = shell.BrowseForFolder(0, "Choose a file:", &H4000, "C:\")
   BrowseForFile = file.self.Path
+  createLog("File browser selected file: " & BrowseForFile)
 End Function
 '--------------------------------------------------
 
@@ -202,6 +209,7 @@ Function playMedia(pathToMedia)
   mediaPlayer.URL = SanitizeFolder(mediaDirectory & pathToMedia)
   mediaPlayer.controls.play 
   mediaPlayer.close
+  createLog("Media player played file: " & pathToMedia)
 End Function
 '--------------------------------------------------
 
@@ -222,9 +230,11 @@ Function Bootstrap(BinaryToRun, Command, Async)
   End If
   run = Trim("C:\Windows\System32\cmd.exe /c " & SanitizeFolder(binariesDirectory & BinaryToRun) & " " & Command & " > " & SanitizeFolder(tempFile))
   objShell.Run run, 0, async
+  run = NULL
   Set tempData = objFSO.OpenTextFile(tempFile, 1)
   Bootstrap = tempData.ReadAll()
   tempData.Close
+  createLog("Bootstrapper ran binary:" & BinaryToRun)
   'objFSO.DeleteFile(tempFile)
 End Function
 '--------------------------------------------------
@@ -246,9 +256,11 @@ Function SystemBootstrap(sBinaryToRun, sCommand, sAsync)
   End If
   srun = Trim("C:\Windows\System32\cmd.exe /c " & sCommand & " > " & SanitizeFolder(stempFile))
   objShell.Run srun, 0, sasync1
+  srun = NULL
   Set stempData = objFSO.OpenTextFile(stempFile, 1)
   SystemBootstrap = stempData.ReadAll()
   stempData.Close
+  createLog("System Bootstrapper ran binary:" & sBinaryToRun)
   'objFSO.DeleteFile(stempFile)
 End Function
 '--------------------------------------------------
