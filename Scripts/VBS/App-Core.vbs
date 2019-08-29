@@ -21,7 +21,7 @@ Option Explicit
 Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedPassword, configFile, colAccounts, objUser, _
  objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag, _
  newKey1, newKey2, newKey3, passwordFile, newPasswordFile, programFilesCheck, appdataFilesCheck, installationDirectory, _
- instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated
+ instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated, instMsg7
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -29,7 +29,7 @@ Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedP
 phpavEngineDirectory = scriptsDirectory & "\PHP\PHP-AV\"
 php73Directory = "PHP\7.3.8\php.exe"
 passwordFile = cacheDirectory & appNAme & "_Keys.vbs"
-InstallationDirectory = "C:\Program Files\HR-AV\"
+InstallationDirectory = "C:\Program Files\HR-AV\" 
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -51,7 +51,7 @@ End Function
 '--------------------------------------------------
 'A function to restart the script with admin priviledges if required.
 Function restartAsAdmin()
-  oShell2.ShellExecute "wscript.exe", Chr(34) & SanitizeFolder(fullScriptName) & Chr(34), "", "runas", 1
+  objShell.Run SanitizeFolder(fullScriptName), 0, TRUE
   DieGracefully 0, "", TRUE
 End Function
 '--------------------------------------------------
@@ -64,7 +64,7 @@ Function isUserHRAV()
   On Error Resume Next
   whoamiOutput = Sanitize(SystemBootstrap("whoami", "", FALSE))
   CreateObject("WScript.Shell").RegRead("HKEY_USERS\S-1-5-19\Environment\TEMP")
-  If Err.number = 0 And whoamiOutput = strHRAVUserName Then 
+  If Err.number = 0 And Trim(Replace(Replace(whoamiOutput, Chr(10), ""), Chr(13), "")) = strHRAVUserName Then 
     isUserHRAV = TRUE
   Else
     isUserHRAV = FALSE
@@ -166,22 +166,34 @@ End Function
 'Requires that the user confirm elevation the first time.
 Function createHRAVUser()
   createHRAVUser = FALSE
-  'Create the HRAV user on the local machine.
-  Set colAccounts = GetObject("WinNT://" & Sanitize(strComputerName) & "")
-  Set objGroup = GetObject("WinNT://" & Sanitize(strComputerName) & "/Administrators,group") 
-  Set objUser2 = GetObject("WinNT://" & Sanitize(strComputerName) & "/" & Sanitize(strHRAVUserName) & ",user")
-  Set objUser = colAccounts.Create("user", Sanitize(strHRAVUserName))  
-  objUser.SetPassword generatePassword()
-  objUser.SetInfo
-  'Set the option "Password never expires."
-  Const ADS_UF_DONT_EXPIRE_PASSWD = &h10000
-  objUserFlags = objUser.Get("UserFlags")
-  objPasswordExpirationFlag = objUserFlags OR ADS_UF_DONT_EXPIRE_PASSWD
-  objUser.Put "userFlags", objPasswordExpirationFlag 
-  objUser.SetInfo
-  'Make sure the newly created HRAV user is in the Administrators group.
-  On Error Resume Next 
-  objGroup.Add(objUser2.ADsPath) 
+	On Error Resume Next
+	Set objUser = GetObject("WinNT://" & strComputerName & "/" & strHRAVUserName & ",user")
+	If Err.Number <> 0 Then
+	  'If the user account does not exist, create it.
+	  objShell.Run "NET USER "&strHRAVUserName&" PASSWORD /ADD " _
+	  & "/ACTIVE:YES /COMMENT:""Local IT Support Account"" /FULLNAME:" _
+	  & strHRAVUserName &" /expires:never", 0, True
+	 End If
+	  On Error Resume Next 
+	  Set objUser = GetObject("WinNT://" & strComputerName & "/" & strHRAVUserName & ",user")
+	If Err.Number = 0 Then
+	  'Connect newly created user to the Administrators group.
+	  Set objGroup = GetObject("WinNT://" & strComputerName & "/Administrators")
+	  'Add the user account to the group
+	  On Error Resume Next
+	  objGroup.Add(objUser.ADsPath)
+	  WScript.sleep 600
+	  objGroup.Add(objUser.ADsPath)
+	End If
+	'Set Account password to never expire
+	'This is done externally due to NET USER limitations
+	Const ufDONT_EXPIRE_PASSWD = &H10000
+	objUserFlags = objUser.Get("UserFlags")
+	If (objUserFlags And ufDONT_EXPIRE_PASSWD) = 0 Then
+	  objUserFlags = objUserFlags Or ufDONT_EXPIRE_PASSWD
+	  objUser.Put "UserFlags", objUserFlags
+	  objUser.SetInfo
+	End If
   Err.clear
   createHRAVUser = checkHRAVUser()
 End Function
@@ -258,8 +270,11 @@ End Function
 
 '--------------------------------------------------
 Function installationWizard1()
+  If Not isUserAdmin Then 
+    restartAsAdmin()
+  End If
   pfCopyResult = FALSE
-  instHead = appName & " Installation Wizard"
+  instHead = "Installation Wizard"
   instMsg1 = "Welcome to the " & appName & " Installation wizard!" & vbCRLF & vbCRLF & _
    "This wizard will guide you through the rest of the installation process." & _
    "At any time you can click the cancel button to stop the installation process."
@@ -270,7 +285,7 @@ Function installationWizard1()
   instMsg3 = "By clicking 'Ok' below, you agree that you understand your rights as a consumer of free software, and that any redistributed forms of this application must also be licensed under GNU GPLv3 to protect the rights of everyone."
   instMsg4 = "By clicking 'Ok' below, " & appName & " files will be installed to the following directory: " & vbCRLF & vbCRLF & installationDirectory
   instMsg5 = "Successfully copied " & appName & " files to " & installationDirectory & " on " & humanDateTime & "! The installation will now continue using the copied version of " & appName & "."
-  instMsg6 = "Could not copy files to " & installationDirectory & "!"
+  instMsg6 = "Could not copy files to: " & installationDirectory & "!"
   instMsg7 = "Restarting from new installation directory."
   PrintGracefully instHead, instMsg1, "vbOkCancel"
   PrintGracefully instHead, instMsg2, "vbOkCancel"
@@ -291,7 +306,7 @@ End Function
 Function installationWizard2()
   Dim inst2Head, inst2Msg1, inst2Msg2, inst2Msg3, inst2Msg4, instMsg5, instMsg6, userCreateResult, password
   pfCopyResult = FALSE
-  inst2Head = appName & " Installation Wizard (continued...)"
+  inst2Head = "Installation Wizard (continued...)"
   inst2Msg1 = "You have successfully installed " & appName & " application files onto your computer!" & vbCRLF & vbCRLF & _
    "There's just a few more things to do to get your new AV solution ready. Specifically, we need to create an admin account for " & appName & " to use for system-wide malware fighting superpowers!"
   inst2Msg2 = "By clicking 'Ok' above, " & appName & " will create a new user named '" & strHRAVUserName & "' and add that user to the local Administrators group."
@@ -316,6 +331,6 @@ End Function
 '--------------------------------------------------
 'A function shut down the machine when triggered.
 Function killWorkstation()
-  oShell.Run "C:\Windows\System32\shutdown.exe /s /f /t 0", 0, false
+  shell.Run "C:\Windows\System32\shutdown.exe /s /f /t 0", 0, false
 End Function
 '--------------------------------------------------

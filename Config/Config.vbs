@@ -3,7 +3,7 @@
 Option Explicit
 
 Dim version, uiVersion, helpLocSetting, appName, developerName, developerURL, dieOnInstallationError, windowHeight, windowWidth, _
-appDownloadURL, defDownloadURL
+appDownloadURL, defDownloadURL, realTimeProtectionEnabled
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -19,4 +19,5 @@ developerURL = "https://github.com/zelon88"
 dieOnInstallationError = TRUE
 windowHeight = 660
 windowWidth = 600
+realTimeProtectionEnabled = TRUE
 '--------------------------------------------------

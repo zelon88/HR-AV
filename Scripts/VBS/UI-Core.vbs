@@ -28,7 +28,8 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, tempFile, tempData, entry, strComputerName, file, _
  sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, _
  errorMessage, sCommLine, dProcess, cProcessList, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, humanTime, _
- logDateTime, logTime, oRE1, oRE2, outputStr1, outputStr2, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, typeMsg
+ logDateTime, logTime, charArr, tmpChar, charArr2, tmpChar2, outputStr1, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, typeMsg, printResult, _
+ cantError, sProcName, oWMISrvc
 
 '--------------------------------------------------
 'UI Related Variables.
@@ -44,6 +45,7 @@ Set shell = CreateObject("Shell.Application")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 Set objSysInfo = CreateObject("WinNTSystemInfo")
 Set objWshNet = CreateObject("WScript.Network")
+Set oWMISrvc = GetObject("winmgmts:")
 'Time Related Variables.
 humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
 logDate = Trim(Replace(humanDate, "/", "-"))
@@ -75,48 +77,50 @@ strHRAVUserName = "HRAV"
 strHRAVGroupName = "Administrators" 
 strComputer = "."
 strComputerName = Trim(objWshNet.ComputerName)
-installationError = FALSE
 '--------------------------------------------------
 
 '--------------------------------------------------
-'Verify that all required directories exist and try to create them when they don't.
+'A function fo verify that all required directories exist and try to create them when they don't.
 'If "dieOnInstallationError" is set to TRUE this application will die when required directories do not exist.
-For Each requiredDir In requiredDirs
-  If dieOnInstallationError = TRUE Then 
-    On Error Resume Next
-  End If
-  If Not objFSO.FolderExists(requiredDir) Then
-    objFSO.CreateFolder(requiredDir)
-    If Not objFSO.FolderExists(requiredDir) Then
-      installationError = TRUE
+Function verifyDirectories()
+  verifyDirectories = TRUE
+  For Each requiredDir In requiredDirs
+    If dieOnInstallationError = TRUE Then 
+      On Error Resume Next
     End If
-  End If
-Next
+    If Not objFSO.FolderExists(requiredDir) Then
+      objFSO.CreateFolder(requiredDir)
+      If Not objFSO.FolderExists(requiredDir) Then
+        verifyDirectories = FALSE
+      End If
+    End If
+  Next
+End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
 'A function for sanitizing user input strings for strict use cases.
+'Variables are redefined on every call incase they are compromised.
 Function Sanitize(strToClean1)
-  Set oRE1 = New RegExp
-  oRE1.IgnoreCase = True
-  oRE1.Global = True
-  oRE1.Pattern = "[()?*""<>&#~%{};]+"
-  outputStr1 = oRE1.Replace(strtoclean1, "-")
-  oRE1.Pattern = "\-+"
-  Sanitize = oRE1.Replace(outputStr1, "-")
+  charArr = Array("/", "\", ":", "*", """", "<", ">", ",", "&", "#", "~", "%", "{", "}", "+")
+  Sanitize = FALSE
+  For Each tmpChar In charArr
+    strToClean1 = Replace(strToClean1, tmpChar, "")
+  Next
+  Sanitize = strToClean1
 End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
 'A function for sanitizing user input strings for use in directory paths.
+'Variables are redefined on every call incase they are compromised.
 Function SanitizeFolder(strToClean2)
-  Set oRE2 = New RegExp
-  oRE2.IgnoreCase = True
-  oRE2.Global = True
-  oRE2.Pattern = "[()*""<>&#%{};]+"
-  outputStr2 = oRE2.Replace(strtoclean2, "-")
-  oRE2.Pattern = "-+"
-  SanitizeFolder = oRE2.Replace(outputStr2, "-")
+  charArr2 = Array("*", """", "<", ">", "&", "#", "~", "{", "}", "+")
+  SanitizeFolder = FALSE
+  For Each tmpChar2 In charArr2
+    strToClean2 = Replace(strToClean2, tmpChar2, "")
+  Next
+  SanitizeFolder = strToClean2
 End Function
 '--------------------------------------------------
 
@@ -140,7 +144,7 @@ Function createLog(strEventInfo)
   createLog = FALSE
   If Not strEventInfo = "" And strEventInfo <> FALSE And strEventInfo <> NULL Then
     Set objLogFile = oFSO.CreateTextFile(logFilePath, ForAppending, TRUE)
-    objLogFile.WriteLine(SanitizeFolder(strEventInfo))
+    objLogFile.WriteLine(Trim(SanitizeFolder(strEventInfo)))
     objLogFile.Close
     createLog = TRUE 
   End If
@@ -155,21 +159,29 @@ End Function
 'A function to kill the script when a critical error occurs and display a useful message to the user.
 'Also logs the output.
 Function DieGracefully(errorNumber, errorMessage, quietly)
+  Set cProcessList = oWMISrvc.ExecQuery("select * from win32_process where Name = '" & appName & "'")
+  cantError = FALSE
+  If Not IsNumeric(errorNumber) Or TypeName(errorMessage) <> "String" Then
+    cantError = TRUE
+    MsgBox appName & "-" & sesID & " ERROR-" & errorNumber & " on " & humanDateTime & ", There was a critical error, but due to the severity of the error more information cannot be displayed. The application will now terminate."
+  End If
   errorMessage = appName & "-" & sesID & " ERROR-" & errorNumber & " on " & humanDateTime & ", " & SanitizeFolder(errorMessage) & "!"
   createLog(errorMessage)
-  If quietly <> TRUE Then
-    MsgBox errorMessage, 16, "ERROR!!! - " & appName
-  End If
-  If IsNumeric(errorMessage) = FALSE Then
-    errorNumber = 0
+  If cantError <> TRUE Then
+    If quietly <> TRUE Then
+      MsgBox errorMessage, 16, "ERROR!!! - " & appName
+    End If
+    If IsNumeric(errorMessage) = FALSE Then
+      errorNumber = 0
+    End If
   End If
   For Each dProcess in cProcessList
     sCommLine = Trim(LCase(dProcess.CommandLine))
     If InStr(sCommLine, fullScriptName) = 0 Then
-      dProcess.Terminate()
+      'dProcess.Terminate()
     End If
   Next
-  Window.Close
+  'Window.Close
   errorMessage = NULL
 End Function 
 '--------------------------------------------------
@@ -183,13 +195,11 @@ Function PrintGracefully(windowNote, message, typeMsg)
   End If
   windowNote = SanitizeFolder(windowNote)
   message = SanitizeFolder(message)
-  printResult = MsgBox(message, 0, appName & " - " & windowNote, typeMsg)
-  createLog(printResult)
+  printResult = MsgBox(message, typeMsg, appName & " - " & windowNote)
+  createLog(message)
   If printResult = 2 Then
     DieGracefully 500, "Operation cancelled by user!", FALSE 
   End If
-  message = NULL
-  windowNote = NULL
 End Function
 '--------------------------------------------------
 
