@@ -14,8 +14,10 @@
 '--------------------------------------------------
 Option Explicit
 
-If verifyDirectories() = TRUE Then
-  If verifyInstallation() = TRUE Then
-    msgbox "done"
+If isInProgramFiles() = FALSE Then
+  If verifyDirectories() = TRUE Then
+    If verifyInstallation() = TRUE Then
+      PrintGracefully(appName & "-" & "Installation Wizard", "Installation Complete!", "vbOKOnly")
+    End If
   End If
 End If

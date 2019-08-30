@@ -20,9 +20,9 @@ Option Explicit
 
 Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedPassword, configFile, colAccounts, objUser, _
  objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag, _
- newKey1, newKey2, newKey3, passwordFile, newPasswordFile, programFilesCheck, appdataFilesCheck, installationDirectory, _
+ newKey1, newKey2, newKey3, newKey4, passwordFile, newPasswordFile, programFilesCheck, appdataFilesCheck, installationDirectory, _
  instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated, instMsg7, _
- result0
+ result0, key1, key2, key3, key4, uCheck, pfCheck
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -172,7 +172,7 @@ Function createHRAVUser()
 	If Err.Number <> 0 Then
 	  'If the user account does not exist, create it.
 	  objShell.Run "NET USER "&strHRAVUserName&" PASSWORD /ADD " _
-	  & "/ACTIVE:YES /COMMENT:""Local IT Support Account"" /FULLNAME:" _
+	  & "/ACTIVE:YES /COMMENT:""HR-AV Anti-Virus User Account"" /FULLNAME:" _
 	  & strHRAVUserName &" /expires:never", 0, True
 	 End If
 	  On Error Resume Next 
@@ -204,12 +204,12 @@ End Function
 'A function to detect if the application has been installed to \Program Files or not.
 Function isInProgramFiles()
   isInProgramFiles = FALSE
-  programFilesCheck = InStr(currentDirectory, "Program Files")
-  appdataFilesCheck = InStr(currentDirectory, "AppData")
-  If programFilesCheck >= 0 And programFilesCheck <> FALSE And programFilesCheck <> NULL Then
+  programFilesCheck = InStr(fullScriptName, "Program Files")
+  appdataFilesCheck = InStr(fullScriptName, "AppData")
+  If programFilesCheck > 0 Then
     isInProgramFiles = TRUE
   End If
-  If appdataFilesCheck >= 0 Then
+  If appdataFilesCheck > 0 Then
     isInProgramFiles = FALSE
   End If
 End Function
@@ -219,8 +219,10 @@ End Function
 'A function to verify the existing installation and install/correct a missing/broken installation.
 Function verifyInstallation()
   verifyInstallation = FALSE
+  pfCheck = isInProgramFiles
+  uCheck = checkHRAVUser
   'Detect if running from Program Files. If not, fire "Installation Wizard 1."
-  If isInProgramFiles = FALSE Then
+  If pfCheck = FALSE Then
     iW1Result = installationWizard1()
     If iW1Result = 2 Then
       DieGracefully 210, "Operation cancelled by user!", FALSE
@@ -228,7 +230,7 @@ Function verifyInstallation()
     DieGracefully 219, "Restart Required!", TRUE
   End If
   'Detect if running from Program Files but without an HRAV user. If so, fire "Installation Wizard 2."
-  If isInProgramFiles = TRUE And checkHRAVUser = FALSE Then
+  If pfCheck = TRUE And checkHRAVUser = FALSE Then
     iW2Result = installationWizard2()
     If iW2Result = 2 Then
       DieGracefully 220, "Operation cancelled by user!", FALSE
@@ -236,7 +238,7 @@ Function verifyInstallation()
     DieGracefully 229, "Restart Required!", TRUE
   End If 
   'Detect if runing from Program Files and an HRAV user exists, signifying a valid installation environment.
-  If isInProgramFiles = TRUE And checkHRAVUser = TRUE Then
+  If pfCheck = TRUE And checkHRAVUser = TRUE Then
     verifyInstallation = TRUE
   End If
 End Function
@@ -340,4 +342,15 @@ End Function
 Function killWorkstation()
   shell.Run "C:\Windows\System32\shutdown.exe /s /f /t 0", 0, false
 End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to execute VBS scripts in the context and scope of the running script. Works just like a PHP include().
+'https://blog.ctglobalservices.com/scripting-development/jgs/include-other-files-in-vbscript/
+Sub Include(pathToVBS)
+  Set objVBSFile = objFSO.OpenTextFile(pathToVBS, 1)
+  ExecuteGlobal objVBSFile.ReadAll
+  objVBSFile.Close
+  Set objVBSFile = Nothing
+End Sub
 '--------------------------------------------------

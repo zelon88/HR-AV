@@ -29,7 +29,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, _
  errorMessage, sCommLine, dProcess, cProcessList, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, humanTime, _
  logDateTime, logTime, charArr, tmpChar, charArr2, tmpChar2, outputStr1, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, typeMsg, _
- cantError, sProcName, oWMISrvc, Timesec, dontContinue
+ cantError, sProcName, oWMISrvc, Timesec, dontContinue, pathToVBS, objVBSFile
 
 '--------------------------------------------------
 'UI Related Variables.
@@ -86,7 +86,7 @@ dontContinue = FALSE
 Function verifyDirectories()
   verifyDirectories = TRUE
   For Each requiredDir In requiredDirs
-    If dieOnInstallationError = TRUE Then 
+    If dieOnInstallationError = FALSE Then 
       On Error Resume Next
     End If
     If Not objFSO.FolderExists(requiredDir) Then
@@ -281,9 +281,12 @@ Function SystemBootstrap(sBinaryToRun, sCommand, sAsync)
 End Function
 '--------------------------------------------------
 
-Sub sleep (Timesec)
+'--------------------------------------------------
+'A function to sleep execution in HTA's since WScript.Sleep isn't available.
+Sub Sleep(Timesec)
   objShell.Run "Timeout /T " & Timesec & " /nobreak", 0, TRUE
 End Sub
+'--------------------------------------------------
 
 '--------------------------------------------------
 'Load the main application window.

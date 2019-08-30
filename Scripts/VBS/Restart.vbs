@@ -20,6 +20,7 @@ Set objShell = CreateObject("WScript.Shell")
 Set oWMISrvc = GetObject("winmgmts:")
 Set cProcessList = oWMISrvc.ExecQuery("select * from win32_process where Name = 'HR-AV'")
 
+'Scan for and kill any running instances of the script.
 For Each dProcess in cProcessList
   sCommLine = Trim(LCase(dProcess.CommandLine))
   If InStr(sCommLine, "HR-AV") >= 0 Then
@@ -27,6 +28,7 @@ For Each dProcess in cProcessList
   End If
 Next
 
+'Communicate our intentions to the user, then wait 10 seconds before restarting the script in Program Files.
 MsgBox "The application will restart in 10 seconds.", 0, "HR-AV- Installation Wizard"
 Wscript.Sleep 10000
 objShell.Run """C:\Program Files\HR-AV\HR-AV.hta""", 1, FALSE
