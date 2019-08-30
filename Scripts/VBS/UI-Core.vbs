@@ -28,8 +28,8 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, tempFile, tempData, entry, strComputerName, file, _
  sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, _
  errorMessage, sCommLine, dProcess, cProcessList, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, humanTime, _
- logDateTime, logTime, charArr, tmpChar, charArr2, tmpChar2, outputStr1, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, typeMsg, printResult, _
- cantError, sProcName, oWMISrvc
+ logDateTime, logTime, charArr, tmpChar, charArr2, tmpChar2, outputStr1, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, typeMsg, _
+ cantError, sProcName, oWMISrvc, Timesec, dontContinue
 
 '--------------------------------------------------
 'UI Related Variables.
@@ -77,6 +77,7 @@ strHRAVUserName = "HRAV"
 strHRAVGroupName = "Administrators" 
 strComputer = "."
 strComputerName = Trim(objWshNet.ComputerName)
+dontContinue = FALSE
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -175,13 +176,7 @@ Function DieGracefully(errorNumber, errorMessage, quietly)
       errorNumber = 0
     End If
   End If
-  For Each dProcess in cProcessList
-    sCommLine = Trim(LCase(dProcess.CommandLine))
-    If InStr(sCommLine, fullScriptName) = 0 Then
-      'dProcess.Terminate()
-    End If
-  Next
-  'Window.Close
+  Window.Close
   errorMessage = NULL
 End Function 
 '--------------------------------------------------
@@ -190,14 +185,17 @@ End Function
 'A function to display a consistent message box to the user.
 'Also logs the output.
 Function PrintGracefully(windowNote, message, typeMsg)
-  If typeMsg <> "vbOkCancel" Or typeMsg <> "vbOkOnly" Then
-    typeMsg = vbOkOnly
+  If typeMsg = "vbOkCancel" Then
+    typeMsg = 1
+  Else
+    typeMsg = 0
   End If
   windowNote = SanitizeFolder(windowNote)
   message = SanitizeFolder(message)
-  printResult = MsgBox(message, typeMsg, appName & " - " & windowNote)
+  PrintGracefully = MsgBox(message, typeMsg, appName & " - " & windowNote)
   createLog(message)
-  If printResult = 2 Then
+  If PrintGracefully = 2 Or PrintGracefully = 3 Then
+    dontContinue = TRUE
     DieGracefully 500, "Operation cancelled by user!", FALSE 
   End If
 End Function
@@ -242,7 +240,11 @@ Function Bootstrap(BinaryToRun, Command, Async)
   objShell.Run run, 0, async
   run = NULL
   Set tempData = objFSO.OpenTextFile(tempFile, 1)
-  Bootstrap = tempData.ReadAll()
+  If Not tempData.AtEndOfStream Then 
+    Bootstrap = tempData.ReadAll()
+  Else
+    Bootstrap = FALSE
+  End If
   tempData.Close
   createLog("Bootstrapper ran binary:" & BinaryToRun)
   'objFSO.DeleteFile(tempFile)
@@ -268,12 +270,20 @@ Function SystemBootstrap(sBinaryToRun, sCommand, sAsync)
   objShell.Run srun, 0, sasync1
   srun = NULL
   Set stempData = objFSO.OpenTextFile(stempFile, 1)
-  SystemBootstrap = stempData.ReadAll()
+  If Not stempData.AtEndOfStream Then 
+    SystemBootstrap = stempData.ReadAll()
+  Else
+    SystemBootstrap = FALSE
+  End If
   stempData.Close
   createLog("System Bootstrapper ran binary:" & sBinaryToRun)
   'objFSO.DeleteFile(stempFile)
 End Function
 '--------------------------------------------------
+
+Sub sleep (Timesec)
+  objShell.Run "Timeout /T " & Timesec & " /nobreak", 0, TRUE
+End Sub
 
 '--------------------------------------------------
 'Load the main application window.

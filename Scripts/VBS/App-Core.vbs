@@ -21,7 +21,8 @@ Option Explicit
 Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedPassword, configFile, colAccounts, objUser, _
  objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag, _
  newKey1, newKey2, newKey3, passwordFile, newPasswordFile, programFilesCheck, appdataFilesCheck, installationDirectory, _
- instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated, instMsg7
+ instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated, instMsg7, _
+ result0
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -29,7 +30,7 @@ Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedP
 phpavEngineDirectory = scriptsDirectory & "\PHP\PHP-AV\"
 php73Directory = "PHP\7.3.8\php.exe"
 passwordFile = cacheDirectory & appNAme & "_Keys.vbs"
-InstallationDirectory = "C:\Program Files\HR-AV\" 
+InstallationDirectory = "C:\Program Files\" 
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -205,10 +206,10 @@ Function isInProgramFiles()
   isInProgramFiles = FALSE
   programFilesCheck = InStr(currentDirectory, "Program Files")
   appdataFilesCheck = InStr(currentDirectory, "AppData")
-  If programFilesCheck <> 0 And programFilesCheck <> FALSE And programFilesCheck <> NULL Then
+  If programFilesCheck >= 0 And programFilesCheck <> FALSE And programFilesCheck <> NULL Then
     isInProgramFiles = TRUE
   End If
-  If appdataFilesCheck < 0 Then
+  If appdataFilesCheck >= 0 Then
     isInProgramFiles = FALSE
   End If
 End Function
@@ -244,15 +245,20 @@ End Function
 '--------------------------------------------------
 'A function to copy all files to a dedicated Program Files directory.
 Function copyToProgramFiles()
-  Dim programFilesDir
-  programFilesDir = "C:\Program Files\HR-AV\"
-  If objFSO.FolderExists(programFilesDir) Then
-    objFSO.CreateFolder(programFilesDir)
+  If Not objFSO.FolderExists(InstallationDirectory) Then
+    objFSO.CreateFolder(InstallationDirectory)
   End If
-  If objFSO.FolderExists(programFilesDir) Then
-    createLog("Created a folder at: " & programFilesDir)
+  If objFSO.FolderExists(InstallationDirectory) Then
+    createLog("Created a folder at: " & InstallationDirectory)
+    objFSO.GetFolder(currentDirectory).Copy InstallationDirectory
+    If objFSO.FileExists(InstallationDirectory & appName & "\" & appName & ".hta") Then
+      createLog("Copied files to: " & InstallationDirectory)
+      copyToProgramFiles = TRUE
+    Else
+      DieGracefully 207, "Could not copy files to: " & InstallationDirectory, FALSE
+    End If
   Else
-    DieGracefully 206, "Could not create a folder at: " & programFilesDir, FALSE
+    DieGracefully 206, "Could not create a folder at: " & InstallationDirectory, FALSE
   End If
 End Function
 '--------------------------------------------------
@@ -274,12 +280,13 @@ Function installationWizard1()
     restartAsAdmin()
   End If
   pfCopyResult = FALSE
+  result0 = FALSE
   instHead = "Installation Wizard"
   instMsg1 = "Welcome to the " & appName & " Installation wizard!" & vbCRLF & vbCRLF & _
-   "This wizard will guide you through the rest of the installation process." & _
+   "This wizard will guide you through the the installation process." & _
    "At any time you can click the cancel button to stop the installation process."
   instMsg2 = "Before we continue, we want you to know that this software is 100% free and open-source licensed to you under GNU GPLv3v (gnu.org/licenses/gpl-3.0.en.html)." & vbCRLF & vbCRLF & _
-   "At HonestRepair, we beleive in the GNU definition of free software. Free software in this context doesn't mean 'Free' as in 'Free beer.'" & vbCRLF & vbCRLF & _
+   "At HonestRepair, we beleive in the GNU definition of free software. Free software in this context doesn't mean  'Free beer.'" & vbCRLF & vbCRLF & _
    "It means 'Free' as in you have the 'Freedom' to modify, distribute, and understand the software you use." & vbCRLF & vbCRLF & _
    "To view or download the source code for this application, please visit our website (HonestRepair.net) or the official HR-AV Github repository (github.com/zelon88/HR-AV)."
   instMsg3 = "By clicking 'Ok' below, you agree that you understand your rights as a consumer of free software, and that any redistributed forms of this application must also be licensed under GNU GPLv3 to protect the rights of everyone."
@@ -287,14 +294,14 @@ Function installationWizard1()
   instMsg5 = "Successfully copied " & appName & " files to " & installationDirectory & " on " & humanDateTime & "! The installation will now continue using the copied version of " & appName & "."
   instMsg6 = "Could not copy files to: " & installationDirectory & "!"
   instMsg7 = "Restarting from new installation directory."
-  PrintGracefully instHead, instMsg1, "vbOkCancel"
-  PrintGracefully instHead, instMsg2, "vbOkCancel"
-  PrintGracefully instHead, instMsg3, "vbOkCancel"
-  PrintGracefully instHead, instMsg4, "vbOkCancel" 
+  result0 = PrintGracefully(instHead, instMsg1, "vbOkCancel")
+  result0 = PrintGracefully(instHead, instMsg2, "vbOkCancel")
+  result0 = PrintGracefully(instHead, instMsg3, "vbOkCancel")
+  result0 = PrintGracefully(instHead, instMsg4, "vbOkCancel")
   pfCopyResult = copyToProgramFiles()
-  If pfCopyResult = TRUE Then
+  If dontContinue = FALSE And result0 <> 2 And result0 <> 3 And pfCopyResult = TRUE And objFSO.FileExists(InstallationDirectory & appName & "\" & appName & ".hta") Then
     PrintGracefully instHead, instMsg5, "vbOkOnly"
-    Bootstrap "PAExec\paexec.exe", installationDirectory & "\HR-AV.hta", TRUE
+    objShell.Run """C:\Program Files\HR-AV\Scripts\VBS\Restart.vbs"""
     DieGracefully 0, instMsg7, TRUE 
   Else
     DieGracefully 201, instMsg6, FALSE 
