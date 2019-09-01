@@ -22,7 +22,7 @@ Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedP
  objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag, _
  newKey1, newKey2, newKey3, newKey4, passwordFile, newPasswordFile, programFilesCheck, appdataFilesCheck, installationDirectory, _
  instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated, instMsg7, _
- result0, key1, key2, key3, key4, uCheck, pfCheck
+ result0, key1, key2, key3, key4, uCheck, pfCheck, oLNK
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -200,6 +200,16 @@ Function createHRAVUser()
 End Function
 '--------------------------------------------------
 
+'https://www.vistax64.com/threads/vbs-script-to-create-start-programs-menu-item.240145/
+Function createStartMenuShortcut()
+  Set oLNK = objShell.CreateShortcut("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\" & appName & ".lnk")
+  With oLNK
+  .TargetPath = InstallationDirectory & appName & "\" & appName & ".hta"
+  .IconLocation = InstallationDirectory & appName & "\Resources\" & appName & ".ico"
+  .Save
+  End With
+  oLNK = NULL
+End Function
 '--------------------------------------------------
 'A function to detect if the application has been installed to \Program Files or not.
 Function isInProgramFiles()
@@ -324,6 +334,7 @@ Function installationWizard2()
   PrintGracefully inst2Head, inst2Msg1, "vbOkCancel" 
   PrintGracefully inst2Head, inst2Msg2, "vbOkCancel" 
   userCreateResult = createHRAVUser()
+  createStartMenuShortcut
   password = verifyPassword()
   If userCreateResult = TRUE Then
     PrintGracefully instHead, instMsg5, "vbOkOnly" 
@@ -351,6 +362,6 @@ Sub Include(pathToVBS)
   Set objVBSFile = objFSO.OpenTextFile(pathToVBS, 1)
   ExecuteGlobal objVBSFile.ReadAll
   objVBSFile.Close
-  Set objVBSFile = Nothing
+  Set objVBSFile = NULL
 End Sub
 '--------------------------------------------------

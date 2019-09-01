@@ -17,7 +17,10 @@ Option Explicit
 If isInProgramFiles() = FALSE Then
   If verifyDirectories() = TRUE Then
     If verifyInstallation() = TRUE Then
-      PrintGracefully(appName & "-" & "Installation Wizard", "Installation Complete!", "vbOKOnly")
+      PrintGracefully appName & "-" & "Installation Wizard", "Installation Complete!", "vbOKOnly"
     End If
   End If
+End If
+If realTimeProtectionEnabled = TRUE Then
+
 End If
