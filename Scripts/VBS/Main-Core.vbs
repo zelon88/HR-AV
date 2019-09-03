@@ -14,6 +14,8 @@
 '--------------------------------------------------
 Option Explicit
 
+Dim realTimeCoreResults
+
 If isInProgramFiles() = FALSE Then
   If verifyDirectories() = TRUE Then
     If verifyInstallation() = TRUE Then
@@ -22,5 +24,6 @@ If isInProgramFiles() = FALSE Then
   End If
 End If
 If realTimeProtectionEnabled = TRUE Then
+  realTimeCoreResults = SystemBootstrap(realTimeCoreFile, "", TRUE)
 
 End If
