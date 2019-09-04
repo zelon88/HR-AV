@@ -3,12 +3,12 @@
 Option Explicit
 
 Dim version, uiVersion, helpLocSetting, appName, developerName, developerURL, dieOnInstallationError, windowHeight, windowWidth, _
-appDownloadURL, defDownloadURL, realTimeProtectionEnabled
+appDownloadURL, defDownloadURL, realTimeProtectionEnabled, servicesEnabled
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Application Related Variables
-version = "v0.7.6" 
+version = "v0.7.7" 
 uiVersion = "v1.2"
 helpLocSetting = "https://github.com/zelon88/HR-AV"
 appDownloadURL = "https://github.com/zelon88/HR-AV/archive/master.zip"
@@ -20,4 +20,5 @@ dieOnInstallationError = TRUE
 windowHeight = 660
 windowWidth = 600
 realTimeProtectionEnabled = TRUE
+servicesEnabled = Array("USB_Monitor")
 '--------------------------------------------------

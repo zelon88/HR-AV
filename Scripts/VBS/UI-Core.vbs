@@ -27,7 +27,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  hrefLocation, fullScriptName, arrFN, scriptName, oRE, oMatch, oMatches, shell, objWshNet, strNamespace, strHRAVUserName, _
  strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, tempFile, tempData, entry, strComputerName, file, _
  sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, _
- errorMessage, sCommLine, dProcess, cProcessList, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, humanTime, _
+ errorMessage, sCommLine, dProcess, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, humanTime, _
  logDateTime, logTime, charArr, tmpChar, charArr2, tmpChar2, outputStr1, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, typeMsg, _
  cantError, sProcName, oWMISrvc, Timesec, dontContinue, pathToVBS, objVBSFile, resourcesDirectory
 
@@ -161,7 +161,6 @@ End Function
 'A function to kill the script when a critical error occurs and display a useful message to the user.
 'Also logs the output.
 Function DieGracefully(errorNumber, errorMessage, quietly)
-  Set cProcessList = oWMISrvc.ExecQuery("select * from win32_process where Name = '" & appName & "'")
   cantError = FALSE
   If Not IsNumeric(errorNumber) Or TypeName(errorMessage) <> "String" Then
     cantError = TRUE

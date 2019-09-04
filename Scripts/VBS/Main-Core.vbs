@@ -16,14 +16,14 @@ Option Explicit
 
 Dim realTimeCoreResults
 
-If isInProgramFiles() = FALSE Then
-  If verifyDirectories() = TRUE Then
-    If verifyInstallation() = TRUE Then
+If Not isInProgramFiles() Then
+  If verifyDirectories() Then
+    If verifyInstallation() Then
       PrintGracefully appName & "-" & "Installation Wizard", "Installation Complete!", "vbOKOnly"
     End If
   End If
 End If
-If realTimeProtectionEnabled = TRUE Then
+If realTimeProtectionEnabled Then
   realTimeCoreResults = SystemBootstrap(realTimeCoreFile, "", TRUE)
 
 End If
