@@ -3,21 +3,24 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 8/24/2019
+'Date: 9/4/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
 'https://www.gnu.org/licenses/gpl-3.0.html
 
-'Portions of the UI-Core.vbs file are licensed under the Microsoft Limited Public License.
-'Copies of all applicable software licenses can be found in the "Documentation" directory.
-
-Option Explicit
 'Large portions of code in this file were borrowed from the Microsoft TechNet website on 8/14/2019 
 'in accordance with the Microsoft Limited Public License...
 'https://gallery.technet.microsoft.com/scriptcenter/796bd584-0fdb-43bc-a5d2-aa5fc99a5e5d
+'Copies of all applicable software licenses can be found in the "Documentation" directory.
+
+'This file contains the popular functions and subroutines required for basic UI functionality.
+
+'This file requires Config.vbs.
 
 '--------------------------------------------------
+Option Explicit
+
 'Define global variables for the session.
 Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, humanDateTime, _
  colItems, objItem, intHorizontal, intVertical, nLeft, nTop, sItem, helpLocSetting, errorNumber, run, _

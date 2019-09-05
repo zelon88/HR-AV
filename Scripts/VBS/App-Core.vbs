@@ -3,17 +3,16 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 8/24/2019
+'Date: 9/4/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
 'https://www.gnu.org/licenses/gpl-3.0.html
 
-'Portions of the UI-Core.vbs file are licensed under the Microsoft Limited Public License.
-'Copies of all applicable software licenses can be found in the "Documentation" directory.
-
 'This file contains popular functions that are likely to be used throught the entire operation.
 'Note that some of the real-time protection files define these variables again for robustness.
+
+'This file requiires Config.vbs and UI-Core.vbs.
 
 '--------------------------------------------------
 Option Explicit
@@ -22,7 +21,7 @@ Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedP
  objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag, _
  newKey1, newKey2, newKey3, newKey4, passwordFile, newPasswordFile, programFilesCheck, appdataFilesCheck, installationDirectory, _
  instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated, instMsg7, _
- result0, key1, key2, key3, key4, uCheck, pfCheck, oLNK
+ result0, key1, key2, key3, key4, uCheck, pfCheck, oLNK, arr, obj, x, i
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -287,6 +286,12 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
+'A function to display the first portion of the Installation Wizard.
+'The first portion of the Installation Wizard...
+'...ensures the application is elevated,
+'...asks the user for consent to install files into C:/Program Files,
+'...copies files to the installation directory.
+'...kills the running application and executes the new one which will continue the installation process.
 Function installationWizard1()
   If Not isUserAdmin Then 
     restartAsAdmin()
@@ -322,6 +327,12 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
+'A function to display the second portion of the Installation Wizard.
+'The second portion of the Installation Wizard...
+'...ensures the application is elevated,
+'...ensures the application is located in C:/Program Files,
+'...creates a new admin user with some options and a password set,
+'...kills the running application and executes it again using the newly created admin user.
 Function installationWizard2()
   Dim inst2Head, inst2Msg1, inst2Msg2, inst2Msg3, inst2Msg4, instMsg5, instMsg6, userCreateResult, password
   pfCopyResult = FALSE
@@ -364,4 +375,24 @@ Sub Include(pathToVBS)
   objVBSFile.Close
   Set objVBSFile = NULL
 End Sub
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to eturns the index of string "obj" in array "arr". obj can be anything. 
+'Returns TRUE if "obj" is in "arr". Returns FALSE if nothing was found.
+'https://gist.github.com/sholsinger/943116/caf67a2504d6e45e4acc49597fac5f1bb6033ba2
+Function InArray(arr, obj)
+  On Error Resume Next
+  x = FALSE
+  If isArray(arr) Then
+    For i = 0 To UBound(arr)
+      If arr(i) = obj Then
+        x = TRUE
+        Exit For
+      End If
+    Next
+  End If	
+  Call err_report()
+  InArray = x
+End Function
 '--------------------------------------------------

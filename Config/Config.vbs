@@ -1,3 +1,17 @@
+'HR-AV Desktop Antivirus
+'https://github.com/zelon88/HR-AV
+'https://github.com/zelon88
+
+'Author: Justin Grimes
+'Date: 9/4/2019
+'<3 Open-Source
+
+'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
+'https://www.gnu.org/licenses/gpl-3.0.html
+
+'This file contains the master VBS engine configuration.
+'If this file is lost or destroyed main application settings will be lost!
+
 '--------------------------------------------------
 'Define global variables for the session.
 Option Explicit
@@ -8,7 +22,7 @@ appDownloadURL, defDownloadURL, realTimeProtectionEnabled, servicesEnabled
 
 '--------------------------------------------------
 'Application Related Variables
-version = "v0.7.7" 
+version = "v0.7.8" 
 uiVersion = "v1.2"
 helpLocSetting = "https://github.com/zelon88/HR-AV"
 appDownloadURL = "https://github.com/zelon88/HR-AV/archive/master.zip"
@@ -20,5 +34,5 @@ dieOnInstallationError = TRUE
 windowHeight = 660
 windowWidth = 600
 realTimeProtectionEnabled = TRUE
-servicesEnabled = Array("USB_Monitor")
+servicesEnabled = Array("Workstation_USB_Monitor.vbs")
 '--------------------------------------------------

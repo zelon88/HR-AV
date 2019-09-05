@@ -3,13 +3,16 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 8/24/2019
+'Date: 9/4/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
 'https://www.gnu.org/licenses/gpl-3.0.html
 
-'This file contains the task manager for real-time protection.
+'This file contains the task manager for real-time protection. 
+
+'This file requires Config.vbs, UI-Core.vbs and App-Core.vbs.
+'This file is called by Main-Core.vbs.
 
 '--------------------------------------------------
 Option Explicit
@@ -18,12 +21,14 @@ Dim usbMonitorEnabled, registryMonitorEnabled, ransomwareDefenderEnabled, access
  resourceMonitorEnabled, realTimeProtectionError, infrastructureCheckupEnabled, infrastructureHeartbeatEnabled, itRemindersEnabled, _
  itRemindersDue, infrastructureHeartbeatdue, infrastructureCheckupDue, resourceMonitorDue, storageMonitorDue, accessibilityDefenderDue, _
  ransomwareDefenderDue, registryDefenderDue, usbMonitorRunning, realTimeSleep, servicesRunning, testServicesRunning, serviceRequired, _
- service, validService, serviceCheck, pcs, rpCounter, currentRunningProcs, runningServices, reqdServiceCount
+ service, validService, serviceCheck, pcs, rpCounter, currentRunningProcs, runningServices, reqdServiceCount, serviceEnabled, startServiceOutput
 
-validServices = Array("USB_Monitor")
+validServices = Array("Workstation_USB_Monitor.vbs")
 realTimeProtectionError = FALSE
 realTimeSleep = 10000 '10s
+'--------------------------------------------------
 
+'--------------------------------------------------
 'A function to enumerate running processes into an array. 
 'Each array element contains a CSV containing a PID, process name, and executable path.
 Function enumerateRunningProcesses() 
@@ -35,7 +40,9 @@ Function enumerateRunningProcesses()
   Next
   rpCounter = NULL
 End Function
+'--------------------------------------------------
 
+'--------------------------------------------------
 'A function to check that all HR-AV related background services are running.
 Function servicesRunning() 
   serviceCheck = FALSE
@@ -51,7 +58,7 @@ Function servicesRunning()
       End If
       If serviceCheck = TRUE Then
         For Each currentProc In currentRunningProcs
-          If InStr(serviceRequired, currentProc) = 0 Then
+          If InStr(UCase(serviceRequired), UCase(currentProc)) = 0 Then
             runningServices = runningServices + 1
           End If
         Next
@@ -65,16 +72,34 @@ Function servicesRunning()
   End If 
   servicesRunning = serviceCheck
 End Function
+'--------------------------------------------------
 
+'--------------------------------------------------
+'A function to start all of the enabled services that are found to be valid.
 Function startServices()
-
+  For Each serviceEnabled In servicesEnabled
+    If Not IsArray(enumerateRunningProcesses) Then
+      enumerateRunningProcesses()
+    End If
+    If InArray(enumerateRunningProcesses, serviceEnabled) Then
+      Next
+    End If
+    If InArray(validServices, enabledService) Then
+      createLog("Starting service: " & enabledService)
+      startServiceOutput = SystemBootstrap vbscriptsDirectory & serviceEnabled, "", FALSE
+      WScript.Sleep 100 '0.1s
+      createLog("Service '" & enabledServicel & "' returned the following output: '" & startServiceOutput & "'")
+    End If
+  Next
 End Function
+'--------------------------------------------------
 
+'--------------------------------------------------
+'The main logic of the Real-Time Protection engine and task manager.
 If realTimeProtectionEnabled Then 
   If Not servicesRunning() Then
     createLog("Attempting to start services.")
-    testServicesRunning = startServices()
-    If Not testServicesRunning Then
+    If startServices() Then
       createLog("Could not start services!")
     End If
   End If
@@ -106,3 +131,4 @@ If realTimeProtectionEnabled Then
 
   End If
 End If
+'--------------------------------------------------
