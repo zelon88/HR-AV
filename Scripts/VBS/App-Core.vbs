@@ -21,7 +21,7 @@ Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedP
  objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag, _
  newKey1, newKey2, newKey3, newKey4, passwordFile, newPasswordFile, programFilesCheck, appdataFilesCheck, installationDirectory, _
  instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated, instMsg7, _
- result0, key1, key2, key3, key4, uCheck, pfCheck, oLNK, arr, obj, x, i, objExecTemp
+ result0, key1, key2, key3, key4, uCheck, pfCheck, oLNK, arr, obj, x, i
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -38,7 +38,7 @@ InstallationDirectory = "C:\Program Files\"
 'Returns FALSE if the application is not elevated as admin user.
 Function isUserAdmin()
   On Error Resume Next
-  objShell.RegRead("HKEY_USERS\S-1-5-19\Environment\TEMP")
+  CreateObject("WScript.Shell").RegRead("HKEY_USERS\S-1-5-19\Environment\TEMP")
   If Err.number = 0 Then 
     isUserAdmin = TRUE
   Else
@@ -52,7 +52,7 @@ End Function
 'A function to restart the script with admin priviledges if required.
 Function restartAsAdmin()
   objShell.Run SanitizeFolder(fullScriptName), 0, TRUE
-  'DieGracefully 0, "", TRUE
+  DieGracefully 0, "", TRUE
 End Function
 '--------------------------------------------------
 
@@ -63,7 +63,7 @@ End Function
 Function isUserHRAV()
   On Error Resume Next
   whoamiOutput = Sanitize(SystemBootstrap("whoami", "", FALSE))
-  objShell.RegRead("HKEY_USERS\S-1-5-19\Environment\TEMP")
+  CreateObject("WScript.Shell").RegRead("HKEY_USERS\S-1-5-19\Environment\TEMP")
   If Err.number = 0 And Trim(Replace(Replace(whoamiOutput, Chr(10), ""), Chr(13), "")) = strHRAVUserName Then 
     isUserHRAV = TRUE
   Else
@@ -203,7 +203,7 @@ End Function
 Function createStartMenuShortcut()
   Set oLNK = objShell.CreateShortcut("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\" & appName & ".lnk")
   With oLNK
-  .TargetPath = InstallationDirectory & appname & "\" & appName & ".hta"
+  .TargetPath = InstallationDirectory & appName & "\" & appName & ".hta"
   .IconLocation = InstallationDirectory & appName & "\Resources\" & appName & ".ico"
   .Save
   End With
@@ -261,8 +261,7 @@ Function copyToProgramFiles()
   End If
   If objFSO.FolderExists(InstallationDirectory) Then
     createLog("Created a folder at: " & InstallationDirectory)
-    msgbox currentDirectory & " " & installationDirectory
-    objFSO.GetFolder(currentDirectory).Copy installationDirectory
+    objFSO.GetFolder(currentDirectory).Copy InstallationDirectory
     If objFSO.FileExists(InstallationDirectory & appName & "\" & appName & ".hta") Then
       createLog("Copied files to: " & InstallationDirectory)
       copyToProgramFiles = TRUE
@@ -379,7 +378,7 @@ End Sub
 '--------------------------------------------------
 
 '--------------------------------------------------
-'A function to returns the index of string "obj" in array "arr". obj can be anything. 
+'A function to eturns the index of string "obj" in array "arr". obj can be anything. 
 'Returns TRUE if "obj" is in "arr". Returns FALSE if nothing was found.
 'https://gist.github.com/sholsinger/943116/caf67a2504d6e45e4acc49597fac5f1bb6033ba2
 Function InArray(arr, obj)

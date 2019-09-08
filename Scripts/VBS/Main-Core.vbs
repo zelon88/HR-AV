@@ -25,12 +25,12 @@ Dim realTimeCoreResults
 If Not isInProgramFiles() Then
   If verifyDirectories() Then
     If verifyInstallation() Then
-      PrintGracefully appName & " - " & "Installation Wizard", "Installation Complete!", "vbOKOnly"
+      PrintGracefully appName & "-" & "Installation Wizard", "Installation Complete!", "vbOKOnly"
     End If
   End If
 End If
 If realTimeProtectionEnabled Then
-  realTimeCoreResults = SystemBootstrap(Trim(CreateObject("Scripting.FileSystemObject").GetAbsolutePathName(".")) & "\Scripts\VBS\Real-Time-Core.vbs", "", TRUE)
+  realTimeCoreResults = SystemBootstrap(realTimeCoreFile, "", TRUE)
 
 End If
 '--------------------------------------------------

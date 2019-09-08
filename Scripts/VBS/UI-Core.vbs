@@ -32,7 +32,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, _
  errorMessage, sCommLine, dProcess, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, humanTime, _
  logDateTime, logTime, charArr, tmpChar, charArr2, tmpChar2, outputStr1, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, typeMsg, _
- cantError, sProcName, oWMISrvc, Timesec, dontContinue, pathToVBS, objVBSFile, resourcesDirectory, realTimeCoreFile
+ cantError, sProcName, oWMISrvc, Timesec, dontContinue, pathToVBS, objVBSFile, resourcesDirectory
 
 '--------------------------------------------------
 'UI Related Variables.
@@ -69,8 +69,7 @@ logsDirectory = currentDirectory & "\Logs\"
 reportsDirectory = currentDirectory & "\Reports\"
 resourcesDirectory = currentDirectory & "\Resources\"
 logFilePath = Trim(logsDirectory & appName & "-Log_" & logDate)
-realTimeCoreFile = vbsScriptsDirectory & "Real-Time-Core.vbs" 
-requiredDirs = Array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory, reportsDirectory)
+requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory, reportsDirectory)
 fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 arrFN = Split(fullScriptName, "\")
 scriptName = Trim(arrFN(UBound(arrFN)))
