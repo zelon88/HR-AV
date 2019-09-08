@@ -21,9 +21,11 @@ Dim usbMonitorEnabled, registryMonitorEnabled, ransomwareDefenderEnabled, access
  resourceMonitorEnabled, realTimeProtectionError, infrastructureCheckupEnabled, infrastructureHeartbeatEnabled, itRemindersEnabled, _
  itRemindersDue, infrastructureHeartbeatdue, infrastructureCheckupDue, resourceMonitorDue, storageMonitorDue, accessibilityDefenderDue, _
  ransomwareDefenderDue, registryDefenderDue, usbMonitorRunning, realTimeSleep, servicesRunning, testServicesRunning, serviceRequired, _
- service, validService, serviceCheck, pcs, rpCounter, currentRunningProcs, runningServices, reqdServiceCount, serviceEnabled, startServiceOutput
+ service, validService, serviceCheck, pcs, rpCounter, currentRunningProcs, runningServices, reqdServiceCount, serviceEnabled, startServiceOutput, _
+ validTasks
 
 validServices = Array("Workstation_USB_Monitor.vbs")
+validTasks = Array("Registry_Monitor.vbs", "Ransomware_Defender.vbs", "Storage_Monitor.vbs", "Resource_Monitor.vbs", "Accessibility_Defender.vbs")
 realTimeProtectionError = FALSE
 realTimeSleep = 10000 '10s
 '--------------------------------------------------
