@@ -27,12 +27,13 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  version, currentDirectory, appName, developerName, developerURL, windowHeight, windowWidth, objSysInfo, _
  BinaryToRun, Command, tempDirectory, uiVersion, Async, error, requiredDir, requiredDirs, installationError, _
  dieOnInstallationError, cacheDirectory, pagesDirectory, realDirectory, vbsScriptsDirectory, dMenus, sMenuOpen, _
- hrefLocation, fullScriptName, arrFN, scriptName, oRE, oMatch, oMatches, shell, objWshNet, strNamespace, strHRAVUserName, _
+ hrefLocation, fullScriptName, arrFN, scriptName, oMatch, oMatches, shell, objWshNet, strNamespace, strHRAVUserName, _
  strHRAVGroupName, strCurrentUserName, oEL, oItem, objShell, objShellExec, tempFile, tempData, entry, strComputerName, file, _
- sBinaryToRun, sCommand, sAsync, stempFile, stempDirectory, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, message, _
- errorMessage, sCommLine, dProcess, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, humanTime, _
- logDateTime, logTime, charArr, tmpChar, charArr2, tmpChar2, outputStr1, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, typeMsg, _
- cantError, sProcName, oWMISrvc, Timesec, dontContinue, pathToVBS, objVBSFile, resourcesDirectory, realTimeCoreFile
+ sBinaryToRun, sCommand, sAsync, stempFile, sasync1, srun, stempData, mediaPlayer, pathToMedia, mediaDirectory, realTimeCoreFile, _
+ errorMessage, sCommLine, dProcess, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, resourcesDirectory, _
+ logDateTime, logTime, charArr, tmpChar, charArr2, tmpChar2, outputStr1, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, objVBSFile, _
+ cantError, sProcName, oWMISrvc, Timesec, dontContinue, pathToVBS, typeMsg, humanTime, message, oRE, RTPCacheFile1, oRTPCacheFile1, RTPCacheFile2, _
+ requiredCacheFile, requiredCacheFiles, oRTPCacheFile2
 
 '--------------------------------------------------
 'UI Related Variables.
@@ -69,8 +70,13 @@ logsDirectory = currentDirectory & "\Logs\"
 reportsDirectory = currentDirectory & "\Reports\"
 resourcesDirectory = currentDirectory & "\Resources\"
 logFilePath = Trim(logsDirectory & appName & "-Log_" & logDate)
-realTimeCoreFile = vbsScriptsDirectory & "Real-Time-Core.vbs" 
-requiredDirs = array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory, reportsDirectory)
+realTimeCoreFile = vbsScriptsDirectory & "Real-Time-Core.vbs"
+tempFile = tempDirectory & "temp.txt"
+stempFile = tempDirectory & "systemp.txt"
+RTPCacheFile1 = cacheDirectory & "RTP-cache1.dat"
+RTPCacheFile2 = cacheDirectory & "RTP-cache2.dat"
+requiredDirs = Array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory, reportsDirectory)
+requiredCacheFiles = Array(RTPCacheFile1, RTPCacheFile2)
 fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 arrFN = Split(fullScriptName, "\")
 scriptName = Trim(arrFN(UBound(arrFN)))
@@ -101,6 +107,22 @@ Function verifyDirectories()
       End If
     End If
   Next
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to verify that all required cache files exist and try to create them when they don't
+Function verifyCache()
+  For Each requiredCacheFile in requiredCacheFiles
+    If Not objFSO.FileExists(requiredCacheFile) Then
+      objFSO.CreateTextFile requiredCacheFile, TRUE, TRUE
+      If Not objFSO.FileExists(requiredCacheFile) Then
+        DieGracefully 1122, "Cannot create required cache files!", FALSE
+      End If
+    End If
+  Next
+  Set oRTPCacheFile1 = objFSO.GetFile(RTPCacheFile1)
+  Set oRTPCacheFile2 = objFSO.GetFile(RTPCacheFile2)
 End Function
 '--------------------------------------------------
 
@@ -234,15 +256,20 @@ End Function
 'The result will be that the PHP binary is used to execute a PHP script.
 'If Async is set to TRUE, HTA-UI will wait for the command to finish before continuing.
 Function Bootstrap(BinaryToRun, Command, Async)
-  tempFile = tempDirectory & "temp.txt"
   If Async = TRUE Then 
     async = TRUE
   Else 
-    async = ""
+    async = FALSE
   End If
   run = Trim("C:\Windows\System32\cmd.exe /c " & SanitizeFolder(binariesDirectory & BinaryToRun) & " " & Command & " > " & SanitizeFolder(tempFile))
   objShell.Run run, 0, async
   run = NULL
+  If Not objFSO.FileExists(tempFile) Then
+    objFSO.CreateTextFile tempFile, TRUE, TRUE 
+  End If
+  If Not objFSO.FileExists(stempFile) Then
+    DieGracefully 1000, "Cannot create a temporary Bootstrap file at: '" & stempFile & "'!", FALSE 
+  End If
   Set tempData = objFSO.OpenTextFile(tempFile, 1)
   If Not tempData.AtEndOfStream Then 
     Bootstrap = tempData.ReadAll()
@@ -264,15 +291,20 @@ End Function
 'The result will be that the shutdown.exe binary is used with the /r argument to restart the computer.
 'If sAsync is set to TRUE, HTA-UI will wait for the command to finish before continuing.
 Function SystemBootstrap(sBinaryToRun, sCommand, sAsync)
-  stempFile = stempDirectory & "systemp.txt"
   If sAsync = TRUE Then
     sasync1 = TRUE
   Else 
-    sasync1 = ""
+    sasync1 = FALSE
   End If
   srun = Trim("C:\Windows\System32\cmd.exe /c " & sCommand & " > " & SanitizeFolder(stempFile))
   objShell.Run srun, 0, sasync1
   srun = NULL
+  If Not objFSO.FileExists(stempFile) Then
+    objFSO.CreateTextFile stempFile, TRUE, TRUE 
+  End If
+  If Not objFSO.FileExists(stempFile) Then
+    DieGracefully 1001, "Cannot create a temporary SystemBootstrap file at: '" & stempFile & "'!", FALSE 
+  End If
   Set stempData = objFSO.OpenTextFile(stempFile, 1)
   If Not stempData.AtEndOfStream Then 
     SystemBootstrap = stempData.ReadAll()

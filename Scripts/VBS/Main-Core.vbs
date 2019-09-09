@@ -22,6 +22,10 @@ Dim realTimeCoreResults
 'The main logic of the application. The functional entry point for execution.
 'Requires functions and variables defined in Config.vbs, UI-Core.vbs, and App-Core.vbs.
 'This script is to be run from an HTA which has already loaded the scripts listed above into memory.
+
+'Verify the application is installed to the Program Files directory.
+'Fire the installation wizard if not.
+verifyCache()
 If Not isInProgramFiles() Then
   If verifyDirectories() Then
     If verifyInstallation() Then
@@ -29,8 +33,12 @@ If Not isInProgramFiles() Then
     End If
   End If
 End If
+'Check if the Real-Time Protection engine needs to be started and start it if needed.
 If realTimeProtectionEnabled Then
-  realTimeCoreResults = SystemBootstrap(Trim(CreateObject("Scripting.FileSystemObject").GetAbsolutePathName(".")) & "\Scripts\VBS\Real-Time-Core.vbs", "", TRUE)
-
+  If DateDiff("n", oRTPCacheFile1.DateLastModified, Now) > 2 Then
+    If killAllScripts() Then
+      realTimeCoreResults = SystemBootstrap(Trim(CreateObject("Scripting.FileSystemObject").GetAbsolutePathName(".")) & "\Scripts\VBS\Real-Time-Core.vbs", "", TRUE)
+    End If
+  End If
 End If
 '--------------------------------------------------

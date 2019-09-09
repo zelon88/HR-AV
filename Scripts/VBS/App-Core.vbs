@@ -21,7 +21,8 @@ Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedP
  objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag, _
  newKey1, newKey2, newKey3, newKey4, passwordFile, newPasswordFile, programFilesCheck, appdataFilesCheck, installationDirectory, _
  instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated, instMsg7, _
- result0, key1, key2, key3, key4, uCheck, pfCheck, oLNK, arr, obj, x, i, objExecTemp
+ result0, key1, key2, key3, key4, uCheck, pfCheck, oLNK, arr, obj, x, i, objExecTemp, tempArray, rpCounter, pcs, scriptsToSearch, _
+ searchScripts
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -261,7 +262,6 @@ Function copyToProgramFiles()
   End If
   If objFSO.FolderExists(InstallationDirectory) Then
     createLog("Created a folder at: " & InstallationDirectory)
-    msgbox currentDirectory & " " & installationDirectory
     objFSO.GetFolder(currentDirectory).Copy installationDirectory
     If objFSO.FileExists(InstallationDirectory & appName & "\" & appName & ".hta") Then
       createLog("Copied files to: " & InstallationDirectory)
@@ -272,6 +272,24 @@ Function copyToProgramFiles()
   Else
     DieGracefully 206, "Could not create a folder at: " & InstallationDirectory, FALSE
   End If
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to enumerate running processes into an array. 
+'Each array element contains a CSV containing a PID, process name, and executable path.
+Function enumerateRunningProcesses() 
+  enumerateRunningProcesses = Array()
+  tempArray = Array()
+  rpCounter = 0
+  For each pcs in oWMISrvc.InstancesOf("Win32_Process")
+  Redim Preserve tempArray(rpCounter)
+    tempArray(rpCounter) = pcs.ProcessID & "," & pcs.Name & "," & pcs.ExecutablePath
+    rpCounter = rpCounter + 1
+  Next
+  enumerateRunningProcesses = tempArray
+  tempArray = NULL
+  rpCounter = NULL
 End Function
 '--------------------------------------------------
 
@@ -396,4 +414,21 @@ Function InArray(arr, obj)
   Call err_report()
   InArray = x
 End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to kill all scripts running with CScript or WScript. 
+'Leaves HTA's running.
+Function killAllScripts()
+  killAllScripts = TRUE
+  createLog("Attempting to kill running scripts.")
+  objShell.Run "C:\Windows\System32\cmd.exe /c taskkill /im wscript.exe", 0, TRUE
+  objShell.Run "C:\Windows\System32\cmd.exe /c taskkill /im cscript.exe", 0, TRUE
+  searchScripts = enumerateRunningProcesses()
+  For Each scriptsToSearch In searchScripts
+    If InStr(LCase(scriptsToSearch), "wscript") > 0 Or InStr(LCase(scriptsToSearch), "cscript") > 0 Then
+      killAllScripts = FALSE
+    End If
+  Next
+End Function 
 '--------------------------------------------------
