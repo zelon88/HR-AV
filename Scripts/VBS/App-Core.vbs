@@ -422,8 +422,8 @@ End Function
 Function killAllScripts()
   killAllScripts = TRUE
   createLog("Attempting to kill running scripts.")
-  objShell.Run "C:\Windows\System32\cmd.exe /c taskkill /im wscript.exe", 0, TRUE
-  objShell.Run "C:\Windows\System32\cmd.exe /c taskkill /im cscript.exe", 0, TRUE
+  objShell.Run "C:\Windows\System32\cmd.exe /c taskkill /im wscript.exe", 0, FALSE
+  objShell.Run "C:\Windows\System32\cmd.exe /c taskkill /im cscript.exe", 0, FALSE
   searchScripts = enumerateRunningProcesses()
   For Each scriptsToSearch In searchScripts
     If InStr(LCase(scriptsToSearch), "wscript") > 0 Or InStr(LCase(scriptsToSearch), "cscript") > 0 Then

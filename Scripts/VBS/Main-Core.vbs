@@ -37,7 +37,8 @@ End If
 If realTimeProtectionEnabled Then
   If DateDiff("n", oRTPCacheFile1.DateLastModified, Now) > 2 Then
     If killAllScripts() Then
-      realTimeCoreResults = SystemBootstrap(Trim(CreateObject("Scripting.FileSystemObject").GetAbsolutePathName(".")) & "\Scripts\VBS\Real-Time-Core.vbs", "", TRUE)
+      realTimeCoreResults = SystemBootstrap(realTimeCoreFile, "", FALSE)
+      msgbox realTimeCoreResults
     End If
   End If
 End If

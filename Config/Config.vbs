@@ -22,7 +22,7 @@ appDownloadURL, defDownloadURL, realTimeProtectionEnabled
 
 '--------------------------------------------------
 'Application Related Variables
-version = "v0.8" 
+version = "v0.8.1" 
 uiVersion = "v1.2"
 helpLocSetting = "https://github.com/zelon88/HR-AV"
 appDownloadURL = "https://github.com/zelon88/HR-AV/archive/master.zip"

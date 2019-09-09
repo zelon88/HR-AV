@@ -58,9 +58,14 @@ logTime = Trim(Replace(Replace(humanTime, ":", "-"), " ", ""))
 humanDateTime = Trim(humanDate & " " & humanTime)
 logDateTime = Trim(logDate & "_" & logTime)
 'Directory Related Variables.
+fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 currentDirectory = Trim(objFSO.GetAbsolutePathName("."))
+If InStr(fullScriptName, "Program Files") > 0 Then
+  currentDirectory = Replace(fullScriptName, appName & ".hta", "")
+  currentDirectory = Mid(currentDirectory, 1, len(currentDirectory) - 1)
+End If
 scriptsDirectory = currentDirectory & "\Scripts\"
-vbsScriptsDirectory = scriptsDirectory & "\VBS\"
+vbsScriptsDirectory = scriptsDirectory & "VBS\"
 binariesDirectory = currentDirectory & "\Binaries\"
 cacheDirectory = currentDirectory & "\Cache\"
 tempDirectory = currentDirectory & "\Temp\"
@@ -77,7 +82,6 @@ RTPCacheFile1 = cacheDirectory & "RTP-cache1.dat"
 RTPCacheFile2 = cacheDirectory & "RTP-cache2.dat"
 requiredDirs = Array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory, reportsDirectory)
 requiredCacheFiles = Array(RTPCacheFile1, RTPCacheFile2)
-fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 arrFN = Split(fullScriptName, "\")
 scriptName = Trim(arrFN(UBound(arrFN)))
 'Misc Variables.

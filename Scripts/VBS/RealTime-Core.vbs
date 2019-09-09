@@ -48,7 +48,7 @@ humanDateTime = Trim(humanDate & " " & humanTime)
 logDateTime = Trim(logDate & "_" & logTime)
 'Directory Related Variables.
 currentDirectory = Replace(Trim(objFSO.GetAbsolutePathName(".")), "\Scripts\VBS\", "")
-currentDirectory = Mid(currentDirectory, 1, len(currentDirectory)-11)
+currentDirectory = Mid(currentDirectory, 1, len(currentDirectory) - 11)
 scriptsDirectory = currentDirectory & "\Scripts\"
 vbsScriptsDirectory = scriptsDirectory & "\VBS\"
 binariesDirectory = currentDirectory & "\Binaries\"
@@ -350,8 +350,8 @@ End Function
 Function killAllScripts()
   killAllScripts = TRUE
   createLog("Attempting to kill running scripts.")
-  objShell.Run "taskkill /im wscript.exe", , TRUE
-  objShell.Run "taskkill /im cscript.exe", , TRUE
+  objShell.Run "taskkill /im wscript.exe", , FALSE
+  objShell.Run "taskkill /im cscript.exe", , FALSE
   searchScripts = enumerateRunningProcesses()
   For Each scriptsToSearch In searchScripts
     If InStr(LCase(scriptsToSearch), "wscript") > 0 Or InStr(LCase(scriptsToSearch), "cscript") > 0 Then
