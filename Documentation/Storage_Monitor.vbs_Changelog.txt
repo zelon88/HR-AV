@@ -1,0 +1,29 @@
+4/26/2019
+-v2.2.
+-Add support for -e argument. 
+-The new -e argument supports a comma separated list of drives to skip.
+
+4/24/2019
+-v2.1.
+-Fix more bugs running as a SYSTEM task.
+
+4/24/2019
+-v2.0.
+-Fix bugs with running as a SYSTEM task.
+
+4/23/2019
+-v1.9.
+-Fix bugs with string comparison.
+
+4/23/2019
+-v1.8.
+-Fix issues with string comparison of new/old cache contents.
+
+4/23/2019
+-v1.7
+-Fix lots of bugs. Redesign entire script.
+
+9/13/2018
+-v1.6
+-Fix bug with sending emails, detecting low storage space.
+-Add this changelog.

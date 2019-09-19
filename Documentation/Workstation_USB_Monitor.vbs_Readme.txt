@@ -1,0 +1,32 @@
+NAME: Workstation_USB_Monitor.vbs
+
+TYPE: Visual Basic Script
+
+PRIMARY LANGUAGE: VBS
+
+AUTHOR: Justin Grimes
+
+ORIGINAL VERSION DATE: 6/1/2018
+
+CURRENT VERSION DATE: 2/19/2019
+
+VERSION: v1.9
+
+DESCRIPTION: 
+A simple script to be run on workstations that monitors for changes in disk drive configuration.
+
+PURPOSE: 
+To monitor company workstation storage devices for changes.
+
+
+INSTALLATION INSTRUCTIONS: 
+1. Copy the entire "Storage_Monitor" folder into the "AutomationScripts" folder on SERVER (or any other network accesbible location).
+2. Edit "sendmail.ini" with your desired email and password.
+3. Add a group policy object for with logon script to run the local copy of wscript.exe with the absolute path for the script specified as the main argument followed by the desired arguments for the script. (example, script directory C:\Windows\System32\wscript.exe parameter \\server\AutomationScripts\Workstation_USB_Monitor\Workstation_USB_Monitor.vbs --gui)
+4. Verify that each workstation runs the script on user logon and that UAC is configured to allow sendmail.exe to run.
+5. To disable email notifications, run with the -e or --email argument set.
+6. To disable logging, run with the -l or --log argument set.
+7. To disable the diablog box that appears when new devices are detected, run with the -g or --gui argument set.
+8. To run silently in the backround with email notifications and logging enabled, run with the -s or --silent argument set.
+
+NOTES: SendMail for Windows is required and included in the "Storage_Monitor" folder. The SendMail data files must be included in the same directory as "Data_Monitor.vbs" in order for emails to be sent correctly.

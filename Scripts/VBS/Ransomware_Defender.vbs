@@ -20,7 +20,7 @@ Option Explicit
 dim oShell, oShell2, oFSO, perimiterFile, perimiterFiles, perimiterCheck, perimiterFileHash, scriptName, tempFile, appPath, logPath, exe, cmdHardCodedHash, cmdDynamicHash, strComputerName, _
  strUserName, strSafeDate, strSafeTime, strDateTime, logFileName, strEventInfo, objLogFile, cmdHashCache, objCmdHashCache, dangerHashCache, tempDir, tempDir0, tempDir1, _
  dangerHashData, mailFile, objDangerHashCache, oFile, tempOutput, companyName, companyAbbr, companyDomain, toEmail, defaultPerimiterFile, tempData, _
- defaultPerimiterFileName, searchname1, folder, file, sourcefolder, targetFileName, enableEmail
+ defaultPerimiterFileName, searchname1, folder, file, sourcefolder, targetFileName, enableEmail, pathToVBS, objVBSFile
 
   ' ----------
   ' Company Specific variables.
@@ -35,24 +35,13 @@ dim oShell, oShell2, oFSO, perimiterFile, perimiterFiles, perimiterCheck, perimi
     appPath = ""
   End If
   ' The "logPath" is the full absolute path for where network-wide logs are stored.
-  logPath = appPath & "Logs\"
-  ' The "companyName" the the full, unabbreviated name of your organization.
-  companyName = "COMPANY_NAME_REPLACE"
-  ' The "companyAbbr" is the abbreviated name of your organization.
-  companyAbbr = "COMPANY_ABBR_REPLACE"
-  ' The "companyDomain" is the domain to use for sending emails. Generated report emails will appear
-  ' to have been sent by "COMPUTERNAME@domain.com"
-  companyDomain = Replace(Replace(GetObject("LDAP://RootDSE").Get("DefaultNamingContext"), ",DC=","."), "DC=","")
-  ' The "toEmail" is a valid email address where notifications will be sent.
-  toEmail = "TO_EMAIL_REPLACE"
-  'The "enableEmail" setting is for enabling (TRUE) or disabling (FALSE) the sendEmail() function.
-  enableEmail = FALSE
+  logPath = Left(appPath, InStrRev(appPath, "Scripts\VBS\")) & "Logs\"
   ' The "mailFile" is the full absolute path to the location where a temporary email file will be generated.
-  mailFile = Left(appPath, InStrRev(appPath, "Scripts\VBS\")) & "Resources\Warning.mail"
+  mailFile = Left(appPath, InStrRev(appPath, "Scripts\VBS\")) & "Temp\Ransomware_Defender_Warning.mail"
   ' The "defaultPerimiterFileName" is the master filename that all other perimiterfiles are copied from. It is located in the \Cache directory of the appPath.
   defaultPerimiterFileName = "Ransomware_Defender_Perimiter_File.dat"
   ' The "defaultPerimiterFile" is the master file that all other perimiter files are copied from. It is located in the \Cache directory of the appPath.
-  defaultPerimiterFile = Left(appPath, InStrRev(appPath, "Scripts\VBS\")) & "\Cache\" & defaultPerimiterFileName
+  defaultPerimiterFile = Left(appPath, InStrRev(appPath, "Scripts\VBS\")) & "Cache\" & defaultPerimiterFileName
   ' You can change the values in the array below to add, remove, or rename perimiter files. 
   ' It's probably a good idea to randomize these values just in case ransomware authors build ransomware to avoid these defaults.
   perimiterFiles = Array("C:\Ransomware_Defender_Perimiter_File.dat", "C:\Program Files\Ransomware_Defender_Perimiter_File.dat", "C:\Users\Ransomware_Defender_Perimiter_File.dat", "C:\Windows\Ransomware_Defender_Perimiter_File.dat")
@@ -74,6 +63,15 @@ strSafeDate = DatePart("yyyy",Date) & Right("0" & DatePart("m",Date), 2) & Right
 strSafeTime = Right("0" & Hour(Now), 2) & Right("0" & Minute(Now), 2) & Right("0" & Second(Now), 2)
 strDateTime = strSafeDate & "-" & strSafeTime
 logFileName = logPath & "\" & strComputerName & "-" & strDateTime & "-Ransomware_Defender.txt"
+
+'A function to execute VBS scripts in the context and scope of the running script. Works just like a PHP include().
+'https://blog.ctglobalservices.com/scripting-development/jgs/include-other-files-in-vbscript/
+Sub Include(pathToVBS)
+  Set objVBSFile = oFSO.OpenTextFile(pathToVBS, 1)
+  ExecuteGlobal objVBSFile.ReadAll
+  objVBSFile.Close
+  Set objVBSFile = NULL
+End Sub
 
 'A function to tell if the script has the required priviledges to run.
 'Returns TRUE if the application is elevated.
@@ -193,7 +191,7 @@ End Function
 
 'A function for running SendMail to send a prepared Warning.mail email message.
 Function sendEmail() 
-  oShell.run "c:\Windows\System32\cmd.exe /c sendmail.exe " & mailFile, 0, TRUE
+  oShell.run "c:\Windows\System32\cmd.exe /c " & Left(appPath, InStrRev(appPath, "Scripts\VBS\")) & "Binaries\Sendmail\sendmail.exe " & mailFile, 0, TRUE
 End Function
 
 'A function shut down the machine when triggered.
@@ -202,6 +200,8 @@ Function killWorkstation()
 End Function
 
 'The main logic of the program which makes use of the code and functions above.
+Include(Left(appPath, InStrRev(appPath, "Scripts\VBS\")) & "Config\Service_Config.vbs")
+
 If isUserAdmin = TRUE Then
   clearCache()
   If verifyPerimiterFiles = FALSE Then

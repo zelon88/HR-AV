@@ -38,7 +38,6 @@ If realTimeProtectionEnabled Then
   If DateDiff("n", oRTPCacheFile1.DateLastModified, Now) > 2 Then
     If killAllScripts() Then
       realTimeCoreResults = SystemBootstrap(realTimeCoreFile, "", FALSE)
-      msgbox realTimeCoreResults
     End If
   End If
 End If
