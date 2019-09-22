@@ -1,0 +1,10 @@
+--------------------
+COMMIT - 9/22/2019
+v0.8.3 - Working on RTP, getting closer to firing due tasks.
+
+-v0.8.3.
+-Real-Time-Protection should be pretty well standalone at this point.
+-It detects when the main application is no longer running, and if "runInBackground" config entry is not set it will kill itself and all running tasks.
+-Looking for a creative way to make a systray icon in VBS. Might have to have a tiny handler for this in Python. 
+-Getting closer to implementing settings. Going to hard-code timers for the real-time core due tasks next. Eventually we can move on to implementing the settings.hta page.
+--------------------

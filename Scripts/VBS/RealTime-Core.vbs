@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 9/8/2019
+'Date: 9/22/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -23,22 +23,24 @@ Dim usbMonitorEnabled, registryMonitorEnabled, ransomwareDefenderEnabled, access
  ransomwareDefenderDue, registryMonitorDue, usbMonitorRunning, realTimeSleep, testServicesRunning, serviceRequired, storageMonitorResults, _
  service, validService, serviceCheck, pcs, rpCounter, currentRunningProcs, runningServices, reqdServiceCount, serviceEnabled, startServiceOutput, _
  validTasks, serviceCounter, RTPTimer, realTimeClock, storageMonitorEnabled,  registryMonitorResults, ransomwareDefenderResults, accessibilityDefenderResults, _
- resourceMonitorResults, infrastructureCheckupResults, infrastructureHeartbeatResults, objShell, validServices, realTimeProtectionEnabled, servicesEnabled, oWMISrvc, _
+ resourceMonitorResults, infrastructureCheckupResults, infrastructureHeartbeatResults, objShell, validServices, servicesEnabled, oWMISrvc, objVBSFile, configFile, _
  tempArray, currentProc, objFSO, strEventInfo, logFilePath, charArr, tmpChar, strToClean1, humanDate, logDate, humanTime, logTime, humanDateTime, logDateTime, currentDirectory, _
  scriptsDirectory, vbsScriptsDirectory, binariesDirectory, cacheDirectory, tempDirectory, pagesDirectory, mediaDirectory, logsDirectory, reportsDirectory, resourcesDirectory, realTimeCoreFile, _
  sasync1, sAsync, sBinaryToRun, sCommand, srun, stempFile, charArr2, tmpChar2, strToClean2, stempData, Timesec, RTPCacheFile1, RTPCacheFile2, ageThreshold, cacheAge, oRTPCacheFile1, scriptsToSearch, _
- searchScripts
+ searchScripts, sesID, procSearch, procsToSearch, realTimeClockTemp
 
+'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
 Set oWMISrvc = GetObject("winmgmts:")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
-realTimeProtectionEnabled = TRUE
+'Environment Related Variables.
 validServices = Array("Workstation_USB_Monitor.vbs")
 servicesEnabled = Array("Workstation_USB_Monitor.vbs")
 validTasks = Array("Registry_Monitor.vbs", "Ransomware_Defender.vbs", "Storage_Monitor.vbs", "Resource_Monitor.vbs", "Accessibility_Defender.vbs")
 realTimeProtectionError = FALSE
 realTimeSleep =  60 '60s
 realTimeClock = 0
+sesID = Int(Rnd * 10000000)
 'Time Related Variables.
 humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
 logDate = Trim(Replace(humanDate, "/", "-"))
@@ -49,6 +51,7 @@ logDateTime = Trim(logDate & "_" & logTime)
 'Directory Related Variables.
 currentDirectory = Replace(Trim(objFSO.GetAbsolutePathName(".")), "\Scripts\VBS\", "")
 currentDirectory = Mid(currentDirectory, 1, len(currentDirectory) - 11)
+configFile = currentDirectory & "\Config\Config.vbs"
 scriptsDirectory = currentDirectory & "\Scripts\"
 vbsScriptsDirectory = scriptsDirectory & "\VBS\"
 binariesDirectory = currentDirectory & "\Binaries\"
@@ -64,6 +67,17 @@ realTimeCoreFile = vbsScriptsDirectory & "Real-Time-Core.vbs"
 stempFile = tempDirectory & "RTP-systemp.txt"
 RTPCacheFile1 = cacheDirectory & "RTP-cache1.dat"
 RTPCacheFile2 = cacheDirectory & "RTP-cache2.dat"
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to execute VBS scripts in the context and scope of the running script. Works just like a PHP include().
+'https://blog.ctglobalservices.com/scripting-development/jgs/include-other-files-in-vbscript/
+Sub Include(pathToVBS) 
+  Set objVBSFile = objFSO.OpenTextFile(pathToVBS, 1)
+  ExecuteGlobal objVBSFile.ReadAll
+  objVBSFile.Close
+  objVBSFile = NULL
+End Sub
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -346,6 +360,7 @@ End Function
 
 '--------------------------------------------------
 'A function to kill all scripts running with CScript or WScript. 
+'Assumes TRUE until an instance of wscript or cscript are found.
 'Leaves HTA's running.
 Function killAllScripts()
   killAllScripts = TRUE
@@ -356,17 +371,41 @@ Function killAllScripts()
   For Each scriptsToSearch In searchScripts
     If InStr(LCase(scriptsToSearch), "wscript") > 0 Or InStr(LCase(scriptsToSearch), "cscript") > 0 Then
       killAllScripts = FALSE
+      createLog("Could not kill script: """ & scriptsToSearch & """!")
     End If
   Next
 End Function 
 '--------------------------------------------------
 
 '--------------------------------------------------
+'A function to check that the main mshta.exe process is running. 
+'Assumes FALSE until an instance of mshta or appName are found.
+'Leaves HTA's running.
+Function checkForMSTHA() 
+  checkForMSTHA = FALSE
+  createLog("Checking for MSHTA.exe.")
+  procSearch = enumerateRunningProcesses()
+  For Each procsToSearch In procSearch
+    If InStr(LCase(scriptsToSearch), "mshta") > 0 And InStr(LCase(scriptsToSearch), appName) > 0 Then
+      checkForMSTHA = TRUE
+    End If
+  Next
+  procSearch = NULL
+  procsToSearch = NULL
+End Function 
+'--------------------------------------------------
+
+'--------------------------------------------------
 'The main logic of the Real-Time Protection engine and task manager.
+
+'Load the configuration data from "Config\Config.vbs"
+Include(configFile)
+
+'If Real-Time-Protection is enabled, we start the required services and start the internal task scheduler clock.
 If realTimeProtectionEnabled Then 
   If Not isUserHRAV() Then
     restartAsHRAV()
-  End If 
+  End If
   registryMonitorDue = 0
   ransomwareDefenderDue = 0
   accessibilityDefenderDue = 0
@@ -380,9 +419,14 @@ If realTimeProtectionEnabled Then
     End If
   End If
   While realTimeProtectionEnabled
+    'If the calling HTA is no longer running we kill real-time-protection.
+    If checkForMSTHA = FALSE And runInBackground = FALSE Then
+      killAllScripts()
+    End If
     Sleep(realTimeSleep)
     createRTPCache1()
-    realTimeClock = realTimeClock + realTimeClock
+    realTimeClockTemp = realTimeClock + realTimeClock
+    realTimeClock = realTimeClockTemp
     If registryMonitorEnabled And registryMonitorDue <= realTimeClock Then
       registryMonitorResults = SystemBootstrap(vbscriptsDirectory & "Registry_Monitor.vbs", "", TRUE)
     End If

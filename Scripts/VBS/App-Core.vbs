@@ -22,7 +22,7 @@ Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedP
  newKey1, newKey2, newKey3, newKey4, passwordFile, newPasswordFile, programFilesCheck, appdataFilesCheck, installationDirectory, _
  instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated, instMsg7, _
  result0, key1, key2, key3, key4, uCheck, pfCheck, oLNK, arr, obj, x, i, objExecTemp, tempArray, rpCounter, pcs, scriptsToSearch, _
- searchScripts
+ searchScripts, inst2Head, inst2Msg1, inst2Msg2, inst2Msg3, inst2Msg4, userCreateResult, password
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -353,7 +353,6 @@ End Function
 '...creates a new admin user with some options and a password set,
 '...kills the running application and executes it again using the newly created admin user.
 Function installationWizard2()
-  Dim inst2Head, inst2Msg1, inst2Msg2, inst2Msg3, inst2Msg4, instMsg5, instMsg6, userCreateResult, password
   pfCopyResult = FALSE
   inst2Head = "Installation Wizard (continued...)"
   inst2Msg1 = "You have successfully installed " & appName & " application files onto your computer!" & vbCRLF & vbCRLF & _
@@ -367,7 +366,7 @@ Function installationWizard2()
   createStartMenuShortcut
   password = verifyPassword()
   If userCreateResult = TRUE Then
-    PrintGracefully instHead, instMsg5, "vbOkOnly" 
+    PrintGracefully instHead, ins2tMsg4, "vbOkOnly" 
     Bootstrap "PAExec\paexec.exe", "-u:" & strHRAVUserName & " -p:" & password & " " & installationDirectory & "\HR-AV.hta", TRUE 
     DieGracefully 0, inst2Msg4, TRUE 
   Else
@@ -392,7 +391,7 @@ Sub Include(pathToVBS)
   Set objVBSFile = objFSO.OpenTextFile(pathToVBS, 1)
   ExecuteGlobal objVBSFile.ReadAll
   objVBSFile.Close
-  Set objVBSFile = NULL
+  objVBSFile = NULL
 End Sub
 '--------------------------------------------------
 

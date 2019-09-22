@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 9/4/2019
+'Date: 9/22/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -17,12 +17,12 @@
 Option Explicit
 
 Dim version, uiVersion, helpLocSetting, appName, developerName, developerURL, dieOnInstallationError, windowHeight, windowWidth, _
-appDownloadURL, defDownloadURL, realTimeProtectionEnabled
+appDownloadURL, defDownloadURL, realTimeProtectionEnabled, runInBackground
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Application Related Variables
-version = "v0.8.2" 
+version = "v0.8.3" 
 uiVersion = "v1.2"
 helpLocSetting = "https://github.com/zelon88/HR-AV"
 appDownloadURL = "https://github.com/zelon88/HR-AV/archive/master.zip"
@@ -34,4 +34,5 @@ dieOnInstallationError = TRUE
 windowHeight = 660
 windowWidth = 600
 realTimeProtectionEnabled = TRUE
+runInBackground = TRUE
 '--------------------------------------------------

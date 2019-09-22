@@ -33,12 +33,11 @@ If Not isInProgramFiles() Then
     End If
   End If
 End If
+
 'Check if the Real-Time Protection engine needs to be started and start it if needed.
 If realTimeProtectionEnabled Then
   If DateDiff("n", oRTPCacheFile1.DateLastModified, Now) > 2 Then
-    If killAllScripts() Then
-      realTimeCoreResults = SystemBootstrap(realTimeCoreFile, "", FALSE)
-    End If
+    realTimeCoreResults = SystemBootstrap(realTimeCoreFile, "", FALSE)
   End If
 End If
 '--------------------------------------------------
