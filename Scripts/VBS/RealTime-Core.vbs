@@ -403,16 +403,16 @@ Include(configFile)
 
 'If Real-Time-Protection is enabled, we start the required services and start the internal task scheduler clock.
 If realTimeProtectionEnabled Then 
-  If Not isUserHRAV() Then
+  If Not isUserHRAV() Then 
     restartAsHRAV()
   End If
-  registryMonitorDue = 0
-  ransomwareDefenderDue = 0
-  accessibilityDefenderDue = 0
-  storageMonitorDue = 0
-  resourceMonitorDue = 0
-  infrastructureCheckupDue = 0
-  infrastructureHeartbeatdue = 0
+  registryMonitorDue = registryMonitorInterval
+  ransomwareDefenderDue = ramsomwareDefenderInterval
+  accessibilityDefenderDue = accessibilityDefenderInterval
+  storageMonitorDue = storageMonitorInterval
+  resourceMonitorDue = resourceMonitorInterval
+  infrastructureCheckupDue = infrastructureCheckupInterval
+  infrastructureHeartbeatdue = infrastructureHeartbeatInterval
   If Not servicesRunning() Then
     If Not startServices() Then
       createLog("Could not start services!")
@@ -425,7 +425,7 @@ If realTimeProtectionEnabled Then
     End If
     Sleep(realTimeSleep)
     createRTPCache1()
-    realTimeClockTemp = realTimeClock + realTimeClock
+    realTimeClockTemp = realTimeClock + realTimeSleep
     realTimeClock = realTimeClockTemp
     If registryMonitorEnabled And registryMonitorDue <= realTimeClock Then
       registryMonitorResults = SystemBootstrap(vbscriptsDirectory & "Registry_Monitor.vbs", "", TRUE)

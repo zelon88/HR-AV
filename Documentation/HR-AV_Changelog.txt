@@ -1,5 +1,16 @@
 --------------------
 COMMIT - 9/22/2019
+v0.8.4 - Designed config.vbs in a more readable way. Added RTP engries.
+
+-v0.8.4. 
+-Changed the format of config.vbs a bit so that we can incorporate more information about each entry.
+-Added entries for RTP tasks and services.
+-Need to implement the tasks and services in RTP from config.vbs.
+-A placeholder commit so I don't lose any of this stuff.
+--------------------
+
+--------------------
+COMMIT - 9/22/2019
 v0.8.3 - Working on RTP, getting closer to firing due tasks.
 
 -v0.8.3.
