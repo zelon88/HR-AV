@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 9/22/2019
+'Date: 9/23/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -22,12 +22,14 @@ Dim usbMonitorEnabled, registryMonitorEnabled, ransomwareDefenderEnabled, access
  infrastructureHeartbeatdue, infrastructureCheckupDue, resourceMonitorDue, storageMonitorDue, accessibilityDefenderDue, x, i, _
  ransomwareDefenderDue, registryMonitorDue, usbMonitorRunning, realTimeSleep, testServicesRunning, serviceRequired, storageMonitorResults, _
  service, validService, serviceCheck, pcs, rpCounter, currentRunningProcs, runningServices, reqdServiceCount, serviceEnabled, startServiceOutput, _
- validTasks, serviceCounter, RTPTimer, realTimeClock, storageMonitorEnabled,  registryMonitorResults, ransomwareDefenderResults, accessibilityDefenderResults, _
+ serviceCounter, RTPTimer, realTimeClock, storageMonitorEnabled,  registryMonitorResults, ransomwareDefenderResults, accessibilityDefenderResults, _
  resourceMonitorResults, infrastructureCheckupResults, infrastructureHeartbeatResults, objShell, validServices, servicesEnabled, oWMISrvc, objVBSFile, configFile, _
  tempArray, currentProc, objFSO, strEventInfo, logFilePath, charArr, tmpChar, strToClean1, humanDate, logDate, humanTime, logTime, humanDateTime, logDateTime, currentDirectory, _
  scriptsDirectory, vbsScriptsDirectory, binariesDirectory, cacheDirectory, tempDirectory, pagesDirectory, mediaDirectory, logsDirectory, reportsDirectory, resourcesDirectory, realTimeCoreFile, _
  sasync1, sAsync, sBinaryToRun, sCommand, srun, stempFile, charArr2, tmpChar2, strToClean2, stempData, Timesec, RTPCacheFile1, RTPCacheFile2, ageThreshold, cacheAge, oRTPCacheFile1, scriptsToSearch, _
- searchScripts, sesID, procSearch, procsToSearch, realTimeClockTemp
+ searchScripts, sesID, procSearch, procsToSearch, realTimeClockTemp, registryMonitorInt, ramsomwareDefenderInt, accessibilityDefenderInt, storageMonitorInt, resourceMonitorInt, infrastructureCheckupInt, _
+ infrastructureHeartbeatInt, registryMonitorDueTemp, ransomwareDefenderDueTemp, accessibilityDefenderDueTemp, storageMonitorDueTemp, resourceMonitorDueTemp, infrastructureCheckupDueTemp, _
+ infrastructureHeartbeatDueTemp
 
 'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
@@ -36,11 +38,23 @@ Set objFSO = CreateObject("Scripting.FileSystemObject")
 'Environment Related Variables.
 validServices = Array("Workstation_USB_Monitor.vbs")
 servicesEnabled = Array("Workstation_USB_Monitor.vbs")
-validTasks = Array("Registry_Monitor.vbs", "Ransomware_Defender.vbs", "Storage_Monitor.vbs", "Resource_Monitor.vbs", "Accessibility_Defender.vbs")
 realTimeProtectionError = FALSE
 realTimeSleep =  60 '60s
 realTimeClock = 0
 sesID = Int(Rnd * 10000000)
+registryMonitorInt = registryMonitorInterval * 60  
+ransomwareDefenderInt = ransomwareDefenderInterval * 60
+accessibilityDefenderInt = accessibilityDefenderInterval * 60
+storageMonitorInt = storageMonitorInterval * 60
+resourceMonitorInt = resourceMonitorInterval * 60
+infrastructureHeartbeatInt = infrastructureHeartbeatInterval * 60
+registryMonitorDue = registryMonitorInt
+ransomwareDefenderDue = ramsomwareDefenderInt
+accessibilityDefenderDue = accessibilityDefenderInt
+storageMonitorDue = storageMonitorInt
+resourceMonitorDue = resourceMonitorInt
+infrastructureCheckupDue = infrastructureCheckupInt
+infrastructureHeartbeatdue = infrastructureHeartbeatInt
 'Time Related Variables.
 humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
 logDate = Trim(Replace(humanDate, "/", "-"))
@@ -402,51 +416,71 @@ End Function
 Include(configFile)
 
 'If Real-Time-Protection is enabled, we start the required services and start the internal task scheduler clock.
-If realTimeProtectionEnabled Then 
+If realTimeProtectionEnabled Then
+  'Check that the script is running as the HRAV admin user.
   If Not isUserHRAV() Then 
     restartAsHRAV()
   End If
-  registryMonitorDue = registryMonitorInterval
-  ransomwareDefenderDue = ramsomwareDefenderInterval
-  accessibilityDefenderDue = accessibilityDefenderInterval
-  storageMonitorDue = storageMonitorInterval
-  resourceMonitorDue = resourceMonitorInterval
-  infrastructureCheckupDue = infrastructureCheckupInterval
-  infrastructureHeartbeatdue = infrastructureHeartbeatInterval
+  'Check that required services are running.
   If Not servicesRunning() Then
     If Not startServices() Then
       createLog("Could not start services!")
     End If
   End If
   While realTimeProtectionEnabled
-    'If the calling HTA is no longer running we kill real-time-protection.
+    'If the calling HTA is no longer running and 'runInBackground' is set to FALSE we kill real-time-protection.
     If checkForMSTHA = FALSE And runInBackground = FALSE Then
       killAllScripts()
     End If
-    Sleep(realTimeSleep)
+    'Pause execution here and wait for the 'realTimeSleep' timer to fire.
+    Sleep(realTimeSleep)  
+    'Re-create the RTPCache file to inform the rest of the applicaton that the RealTime-Core is still running.
     createRTPCache1()
+    'Refresh the timere.
+    'Note that this is safer to do in VBS by using a separate 'Temp' variable to avoid an 'Out of string space' error.
     realTimeClockTemp = realTimeClock + realTimeSleep
     realTimeClock = realTimeClockTemp
+    'Fire the 'Registry_Monitor' task.
     If registryMonitorEnabled And registryMonitorDue <= realTimeClock Then
       registryMonitorResults = SystemBootstrap(vbscriptsDirectory & "Registry_Monitor.vbs", "", TRUE)
+      registryMonitorDueTemp = registryMonitorInt + registryMonitorDue
+      registryMonitorDue = registryMonitorDueTemp
     End If
+    'Fire the 'Ransomware_Defender' task.
     If ransomwareDefenderEnabled And ransomwareDefenderDue <= realTimeClock Then
       ransomwareDefenderResults = SystemBootstrap(vbscriptsDirectory & "Ransomware_Defender.vbs", "", TRUE)
+      ransomwareDefenderDueTemp = ransomwareDefenderInt + ransomwareDefenderDue
+      ransomwareDefenderDue = ransomwareDefenderDueTemp
     End If
+    'Fire the 'Accessibility_Defender' task.
     If accessibilityDefenderEnabled And accessibilityDefenderDue <= realTimeClock Then
       accessibilityDefenderResults = SystemBootstrap(vbscriptsDirectory & "Accessibility_Defender.vbs", "", TRUE)
+      accessibilityDefenderDueTemp = accessibilityDefenderInt + accessibilityDefenderDue
+      accessibilityDefenderDue = accessibilityDefenderDueTemp
     End If
+    'Fire the 'Storage_Monitor' task.
     If storageMonitorEnabled And storageMonitorDue <= realTimeClock Then
       storageMonitorResults = SystemBootstrap(vbscriptsDirectory & "Storage_Monitor.vbs", "", TRUE)
+      storageMonitorDueTemp = storageMonitorint + storageMonitorDue
+      storageMonitorDue = storageMonitorDueTemp
     End If
+    'Fire the 'Resource_Monitor' task.
     If resourceMonitorEnabled And resourceMonitorDue <= realTimeClock Then
       resourceMonitorResults = SystemBootstrap(vbscriptsDirectory & "Resource_Monitor.vbs", "", TRUE)
+      resourceMonitorDueTemp = resourceMonitorInt + resourceMonitorDue
+      resourceMonitorDue = resourceMonitorDueTemp
     End If
+    'Fire the 'Infrastructure_Checkup' task.
     If infrastructureCheckupEnabled And infrastructureCheckupDue <= realTimeClock Then
       infrastructureCheckupResults = SystemBootstrap(vbscriptsDirectory & "Infrastructure_Checkup.vbs", "", TRUE)
+      infrastructureCheckupDueTemp = infrastructureCheckupInt + infrastructureCheckupDue
+      infrastructureCheckupDue = infrastructureCheckupDueTemp
     End If
+    'Fire the 'Infrastructure_Heartbeat' task.
     If infrastructureHeartbeatEnabled And infrastructureHeartbeatdue <= realTimeClock Then
       infrastructureHeartbeatResults = SystemBootstrap(vbscriptsDirectory & "Infrastructure_Heartbeat.vbs", "", TRUE)
+      infrastructureHeartbeatDueTemp = infrastructureHeartbeatInt + infrastructureHeartbeatDue
+      infrastructureHeartbeatDue = infrastructureHeartbeatDueTemp
     End If
   Wend
 End If

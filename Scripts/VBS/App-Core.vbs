@@ -18,7 +18,7 @@
 Option Explicit
 
 Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedPassword, configFile, colAccounts, objUser, _
- objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag, _
+ objUser2, objGroup, ouser, errorMessage, emailContent, emailSubject,  objUserFlags, objPasswordExpirationFlag, val, _
  newKey1, newKey2, newKey3, newKey4, passwordFile, newPasswordFile, programFilesCheck, appdataFilesCheck, installationDirectory, _
  instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated, instMsg7, _
  result0, key1, key2, key3, key4, uCheck, pfCheck, oLNK, arr, obj, x, i, objExecTemp, tempArray, rpCounter, pcs, scriptsToSearch, _
@@ -412,6 +412,18 @@ Function InArray(arr, obj)
   End If	
   Call err_report()
   InArray = x
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to check if a variable has been declared or not. 
+'Inspired by PHP's Isset() function.
+'https://phpvbs.verygoodtown.com/en/vbscript-isset-function/
+Function IsSet(val)
+  IsSet = FALSE
+  If Not IsNull(val) Then 
+    IsSet = TRUE
+  End If
 End Function
 '--------------------------------------------------
 

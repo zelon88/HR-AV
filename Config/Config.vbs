@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 9/22/2019
+'Date: 9/23/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -30,7 +30,7 @@ accessibilityDefenderInterval, storageMonitorEnabled, storageMonitorInterval, re
 'Application-Development Related Variables
 
   'These string values in this section should only be modified by your application distributor.
-  version = "v0.8.3" 
+  version = "v0.8.5" 
   uiVersion = "v1.2"
   helpLocSetting = "https://github.com/zelon88/HR-AV"
   appDownloadURL = "https://github.com/zelon88/HR-AV/archive/master.zip"

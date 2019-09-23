@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 9/4/2019
+'Date: 9/23/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -25,7 +25,6 @@ Dim realTimeCoreResults
 
 'Verify the application is installed to the Program Files directory.
 'Fire the installation wizard if not.
-verifyCache()
 If Not isInProgramFiles() Then
   If verifyDirectories() Then
     If verifyInstallation() Then
@@ -33,6 +32,14 @@ If Not isInProgramFiles() Then
     End If
   End If
 End If
+
+'Check that the script is running as the HRAV admin user, or that the session is elevated.
+If Not isUserHRAV() Or Not isUserAdmin() Then 
+  restartAsHRAV()
+End If
+
+'Verify that required cache files exist and set objects for them.
+verifyCache()
 
 'Check if the Real-Time Protection engine needs to be started and start it if needed.
 If realTimeProtectionEnabled Then

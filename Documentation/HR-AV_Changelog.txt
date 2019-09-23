@@ -1,5 +1,14 @@
 --------------------
 COMMIT - 9/22/2019
+v0.8.5 - Working on triggers for RTP. 
+
+-v0.8.5.
+-Working on triggers for RTP.
+-I wish there was a better way to trigger tasks, like a loop similar to the way services are run.
+--------------------
+
+--------------------
+COMMIT - 9/22/2019
 v0.8.4 - Designed config.vbs in a more readable way. Added RTP engries.
 
 -v0.8.4. 
