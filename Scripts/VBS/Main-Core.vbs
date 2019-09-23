@@ -34,8 +34,8 @@ If Not isInProgramFiles() Then
 End If
 
 'Check that the script is running as the HRAV admin user, or that the session is elevated.
-If Not isUserHRAV() Or Not isUserAdmin() Then 
-  restartAsHRAV()
+If Not isUserHRAV() And Not isUserAdmin() Then 
+  restartAsAdmin()
 End If
 
 'Verify that required cache files exist and set objects for them.

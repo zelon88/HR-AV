@@ -49,7 +49,7 @@ Sub Include(pathToVBS)
   Set objVBSFile = oFSO.OpenTextFile(pathToVBS, 1)
   ExecuteGlobal objVBSFile.ReadAll
   objVBSFile.Close
-  Set objVBSFile = NULL
+  objVBSFile = NULL
 End Sub
 
 'A function to clear the previous dangerCache and create a new one.

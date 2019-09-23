@@ -70,7 +70,7 @@ Sub Include(pathToVBS)
   Set objVBSFile = oFSO.OpenTextFile(pathToVBS, 1)
   ExecuteGlobal objVBSFile.ReadAll
   objVBSFile.Close
-  Set objVBSFile = NULL
+  objVBSFile = NULL
 End Sub
 
 'A function to tell if the script has the required priviledges to run.

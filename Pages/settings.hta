@@ -52,17 +52,40 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
     <hr />
 
     <div style="text-align:left; margin-left:5%;">
-      <p alt="Set the directory where Proprietary applications are installed." title="Set the directory where Proprietary applications are installed.">Script Directory: </p>
-      <p alt="Set the directory where Proprietary applications are installed." title="Set the directory where Proprietary applications are installed."><input type="text" id="scriptLocInput" name="scriptLocInput" value="" size="50" style="margin-left:5%;"></p>
+      <p alt="Enable or Disable Real-Time protection." title="Enable or Disable Real-Time protection.">Real-Time Protection: </p>
+      <p alt="Enable or Disable Real-Time protection." title="Enable or Disable Real-Time protection."><select id="RTPEnable" name="RTPEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
 
-      <p alt="Set the directory where logs are stored." title="Set the directory where logs are stored.">Log Directory: </p>
-      <p alt="Set the directory where logs are stored." title="Set the directory where logs are stored."><input type="text" id="logLocInput" name="logLocInput" value="" size="50" style="margin-left:5%;"></p>
+      <p alt="Allow Real-Time protection scripts even when the main application window is closed." title="Allow Real-Time protection scripts even when the main application window is closed.">Keep Real-Time Protection Running In Background: </p>
+      <p alt="Allow Real-Time protection scripts even when the main application window is closed." title="Allow Real-Time protection scripts even when the main application window is closed."><select id="RTPBEnable" name="RTPBEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
 
-      <p alt="Set the URL for the Help Desk." title="Set the URL for the Help Desk.">Help URL: </p>
-      <p alt="Set the URL for the Help Desk." title="Set the URL for the Help Desk."><input type="text" id="helpLocInput" name="helpLocInput" value="" size="50" style="margin-left:5%;"></p>
+      <p alt="Set the URL to download application updates from." title="Set the URL to download application updates from.">Application Update URL: </p>
+      <p alt="Set the URL to download application updates from." title="Set the URL to download application updates from."><input type="text" id="AppUpdateURL" name="AppUpdateURL" value="" size="50" style="margin-left:5%;"></p>
 
-      <p alt="Update the list of managed workstations using Active Directory." title="Update the list of managed workstations using Active Directory.">Update Workstation List: </p>
-      <p alt="Update the list of managed workstations using Active Directory." title="Update the list of managed workstations using Active Directory."><button id="updateWorkstationList" name="updateWorkstationList" class="button1" style="margin-left:5%; width:33%;" onclick="javascript:updateListJS('workstation');">Update Workstation List</button></p>
+      <p alt="Set the URL to download virus definition updates from." title="Set the URL to download virus definition updates from.">Virus Definition Update URL: </p>
+      <p alt="Set the URL to download virus definition updates from." title="Set the URL to download virus definition updates from."><input type="text" id="DefinitionUpdateURL" name="DefinitionUpdateURL" value="" size="50" style="margin-left:5%;"></p>
+
+      <p alt="Set the URL where help requests will be directed." title="Set the URL where help requests will be directed.">Help URL: </p>
+      <p alt="Set the URL where help requests will be directed." title="Set the URL where help requests will be directed."><input type="text" id="HelpURL" name="HelpURL" value="" size="50" style="margin-left:5%;"></p>
+
+      <p alt="Monitor system USB ports and report device attachment events." title="Monitor system USB ports and report device attachment events.">USB Monitor: </p>
+      <p alt="Monitor system USB ports and report device attachment events." title="Monitor system USB ports and report device attachment events."><select id="USBMEnable" name="USBMEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+
+      <p alt="Monitor system registry and report changes." title="Monitor system registry and report changes.">Registry Monitor: </p>
+      <p alt="Monitor system registry and report changes." title="Monitor system registry and report changes."><select id="RegMEnable" name="RegMEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+
+      <p alt="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss." title="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss.">Ransomware Defender: </p>
+      <p alt="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss." title="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss."><select id="RansomwareDefenderEnable" name="RansomwareDefenderEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+
+      <p alt="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise." title="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise.">Accessibility Tools Defender: </p>
+      <p alt="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise." title="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise."><select id="AccessibilityDefenderEnable" name="AccessibilityDefenderEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+
+      <p alt="Monitor the local filesystem and report on indicators of storage device failure." title="Monitor the local filesystem and report on indicators of storage device failure.">Storage Device Monitor: </p>
+      <p alt="Monitor the local filesystem and report on indicators of storage device failure." title="Monitor the local filesystem and report on indicators of storage device failure."><select id="StorageMEnabled" name="StorageMEnabled" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+
+      <p alt="Monitor the local filesystem and report on indicators of storage device failure." title="Monitor the local filesystem and report on indicators of storage device failure.">Infrastructure Monitor: </p>
+      <p alt="Monitor the local filesystem and report on indicators of storage device failure." title="Monitor the local filesystem and report on indicators of storage device failure."><select id="InfraMEnabled" name="InfraMEnabled" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+
+
 
     </div>
 

@@ -64,7 +64,7 @@ mailFile = Left(appPath, InStrRev(appPath, "Scripts\VBS\")) & "Temp\Workstation_
 Set objVBSFile = objFSO.OpenTextFile(Left(appPath, InStrRev(appPath, "Scripts\VBS\")) & "Config\Service_Config.vbs", 1)
 ExecuteGlobal objVBSFile.ReadAll
 objVBSFile.Close
-Set objVBSFile = NULL
+objVBSFile = NULL
 
 'Retrieve the specified arguments.
 If (arg.Count > 0) Then

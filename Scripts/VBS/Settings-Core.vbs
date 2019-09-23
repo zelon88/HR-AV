@@ -21,7 +21,7 @@ Dim setting1, setting2, setting3, setting4, setting1Input, setting2Input, settin
 'Get submitted setting values from the DOM.
 Set setting1Input = document.getElementById("setting1")
 Set setting2Input = document.getElementById("setting2")
-Set setting3Input = document.ge tElementById("setting2")
+Set setting3Input = document.getElementById("setting2")
 Set setting4Input = document.getElementById("setting4")
 '--------------------------------------------------
 

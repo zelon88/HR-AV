@@ -20,9 +20,8 @@ Option Explicit
 Dim version, uiVersion, helpLocSetting, appName, developerName, developerURL, dieOnInstallationError, windowHeight, windowWidth, _
 appDownloadURL, defDownloadURL, realTimeProtectionEnabled, runInBackground, registryMonitorInterval, ramsomwareDefenderInterval, _
 accessibilityDefenderInterval, storageMonitorInterval, resourceMonitorInterval, infrastructureCheckupInterval, infrastructureHeartbeatInterval, _
-workstationUSBMonitorEnabled, registryMonitorEnabled, registryMonitorInterval, ransomwareDefenderEnabled, ramsomwareDefenderInterval, _
-infrastructureHeartbeatEnabled, infrastructureHeartbeatInterval, infrastructureCheckupEnabled, infrastructureCheckupInterval, accessibilityDefenderEnabled, _
-accessibilityDefenderInterval, storageMonitorEnabled, storageMonitorInterval, resourceMonitorEnabled, resourceMonitorInterval
+workstationUSBMonitorEnabled, registryMonitorEnabled, ransomwareDefenderEnabled, infrastructureHeartbeatEnabled, infrastructureCheckupEnabled, _
+accessibilityDefenderEnabled, storageMonitorEnabled, resourceMonitorEnabled, DEBUGMODE
 '--------------------------------------------------
 
 
