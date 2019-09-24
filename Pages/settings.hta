@@ -52,39 +52,121 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
     <hr />
 
     <div style="text-align:left; margin-left:5%;">
-      <p alt="Enable or Disable Real-Time protection." title="Enable or Disable Real-Time protection.">Real-Time Protection: </p>
-      <p alt="Enable or Disable Real-Time protection." title="Enable or Disable Real-Time protection."><select id="RTPEnable" name="RTPEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
 
-      <p alt="Allow Real-Time protection scripts even when the main application window is closed." title="Allow Real-Time protection scripts even when the main application window is closed.">Keep Real-Time Protection Running In Background: </p>
-      <p alt="Allow Real-Time protection scripts even when the main application window is closed." title="Allow Real-Time protection scripts even when the main application window is closed."><select id="RTPBEnable" name="RTPBEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+      <p alt="Set the URL to download application updates from." title="Set the URL to download application updates from.">Application Update URL:<i style="font-size:10;"> (Default: https://github.com/zelon88/HR-AV/archive/master.zip</i></p>
+      <p alt="Set the URL to download application updates from." title="Set the URL to download application updates from."><input type="text" id="AppUpdateURL" name="AppUpdateURL" style="margin-left:5%;" size="40"></p>
 
-      <p alt="Set the URL to download application updates from." title="Set the URL to download application updates from.">Application Update URL: </p>
-      <p alt="Set the URL to download application updates from." title="Set the URL to download application updates from."><input type="text" id="AppUpdateURL" name="AppUpdateURL" value="" size="50" style="margin-left:5%;"></p>
+      <hr width="90%"/>
+      
+      <p alt="Set the URL to download virus definition updates from." title="Set the URL to download virus definition updates from.">Virus Definition Update URL:<i style="font-size:10;"> (Default: https://github.com/zelon88/HR-AV_Defs/archive/master.zip</i></p>
+      <p alt="Set the URL to download virus definition updates from." title="Set the URL to download virus definition updates from."><input type="text" id="DefinitionUpdateURL" name="DefinitionUpdateURL" style="margin-left:5%;" size="40"></p>
 
-      <p alt="Set the URL to download virus definition updates from." title="Set the URL to download virus definition updates from.">Virus Definition Update URL: </p>
-      <p alt="Set the URL to download virus definition updates from." title="Set the URL to download virus definition updates from."><input type="text" id="DefinitionUpdateURL" name="DefinitionUpdateURL" value="" size="50" style="margin-left:5%;"></p>
+      <hr width="90%"/>
 
-      <p alt="Set the URL where help requests will be directed." title="Set the URL where help requests will be directed.">Help URL: </p>
-      <p alt="Set the URL where help requests will be directed." title="Set the URL where help requests will be directed."><input type="text" id="HelpURL" name="HelpURL" value="" size="50" style="margin-left:5%;"></p>
+      <p alt="Set the URL where help requests will be directed." title="Set the URL where help requests will be directed.">Help URL:<i style="font-size:10;"> (Default: https://github.com/zelon88/HR-AV</i></p>
+      <p alt="Set the URL where help requests will be directed." title="Set the URL where help requests will be directed."><input type="text" id="HelpURL" name="HelpURL" style="margin-left:5%;" size="40"></p>
 
-      <p alt="Monitor system USB ports and report device attachment events." title="Monitor system USB ports and report device attachment events.">USB Monitor: </p>
-      <p alt="Monitor system USB ports and report device attachment events." title="Monitor system USB ports and report device attachment events."><select id="USBMEnable" name="USBMEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+      <hr width="90%"/>
 
-      <p alt="Monitor system registry and report changes." title="Monitor system registry and report changes.">Registry Monitor: </p>
-      <p alt="Monitor system registry and report changes." title="Monitor system registry and report changes."><select id="RegMEnable" name="RegMEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+      <p alt="Enable or Disable Real-Time protection." title="Enable or Disable Real-Time protection.">Real-Time Protection:<i style="font-size:10;"> (Default: Enabled)</i></p>
+      <p alt="Enable or Disable Real-Time protection." title="Enable or Disable Real-Time protection."><select id="RTPEnable" name="RTPEnable" style="margin-left:5%;">
+        <option value="enabled">Enabled</option>
+        <option value="disabled">Disabled</option>
+      </select></p>
 
-      <p alt="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss." title="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss.">Ransomware Defender: </p>
-      <p alt="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss." title="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss."><select id="RansomwareDefenderEnable" name="RansomwareDefenderEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+      <hr width="90%"/>
 
-      <p alt="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise." title="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise.">Accessibility Tools Defender: </p>
-      <p alt="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise." title="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise."><select id="AccessibilityDefenderEnable" name="AccessibilityDefenderEnable" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+      <p alt="Allow Real-Time protection scripts even when the main application window is closed." title="Allow Real-Time protection scripts even when the main application window is closed.">Keep Real-Time Protection Running In Background:<i style="font-size:10;"> (Default: Enabled)</i></p>
+      <p alt="Allow Real-Time protection scripts even when the main application window is closed." title="Allow Real-Time protection scripts even when the main application window is closed."><select id="RTPBEnable" name="RTPBEnable" style="margin-left:5%;">
+        <option value="enabled">Enabled</option>
+        <option value="disabled">Disabled</option>
+      </select></p>
 
-      <p alt="Monitor the local filesystem and report on indicators of storage device failure." title="Monitor the local filesystem and report on indicators of storage device failure.">Storage Device Monitor: </p>
-      <p alt="Monitor the local filesystem and report on indicators of storage device failure." title="Monitor the local filesystem and report on indicators of storage device failure."><select id="StorageMEnabled" name="StorageMEnabled" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+      <hr width="90%"/>
 
-      <p alt="Monitor the local filesystem and report on indicators of storage device failure." title="Monitor the local filesystem and report on indicators of storage device failure.">Infrastructure Monitor: </p>
-      <p alt="Monitor the local filesystem and report on indicators of storage device failure." title="Monitor the local filesystem and report on indicators of storage device failure."><select id="InfraMEnabled" name="InfraMEnabled" value="" size="50" style="margin-left:5%;"><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></p>
+      <p alt="Monitor system USB ports and report device attachment events." title="Monitor system USB ports and report device attachment events.">USB Monitor:<i style="font-size:10;"> (Default: Enabled)</i></p>
+      <p alt="Monitor system USB ports and report device attachment events." title="Monitor system USB ports and report device attachment events."><select id="USBMEnable" name="USBMEnable" style="margin-left:5%;">
+        <option value="enabled">Enabled</option>
+        <option value="disabled">Disabled</option>
+      </select></p>
 
+      <hr width="90%"/>
+
+      <p alt="Monitor system registry and report changes." title="Monitor system registry and report changes.">Registry Monitor:<i style="font-size:10;"> (Default: Enabled)</i></p>
+      <p alt="Monitor system registry and report changes." title="Monitor system registry and report changes."><select id="RegMEnable" name="RegMEnable" style="margin-left:5%;">
+        <option value="enabled">Enabled</option>
+        <option value="disabled">Disabled</option>
+      </select></p>
+
+      <hr width="90%"/>
+
+      <p alt="Registry Monitor interval in minutes." title="Registry Monitor interval in minutes.">Registy Monitor Interval (minutes):<i style="font-size:10;"> Default: 10</i></p>
+      <p alt="Registry Monitor interval in minutes." title="Registry Monitor interval in minutes."><input id="RegMInt" name="RegMInt" type="number" min="1" max="10000" style="margin-left:5%;" size="5"></input></p>
+
+      <hr width="90%"/>
+
+      <p alt="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss." title="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss.">Ransomware Defender:<i style="font-size:10;"> (Default: Enabled)</i></p>
+      <p alt="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss." title="Monitor the local filesystem for indicators of ransomware activity and take action to prevent data loss."><select id="RansomwareDefenderEnable" name="RansomwareDefenderEnable" style="margin-left:5%;">
+        <option value="enabled">Enabled</option>
+        <option value="disabled">Disabled</option>
+      </select></p>
+      
+      <hr width="90%"/>
+
+      <p alt="Ransomware Defender interval in minutes." title="Ransomware Defender interval in minutes.">Ransomware Defender Interval (minutes):<i style="font-size:10;"> Default: 5</i></p>
+      <p alt="Ransomware Defender interval in minutes." title="Ransomware Defender interval in minutes."><input id="RansomwareDefenderInt" name="RansomwareDefenderInt" type="number" min="1" max="10000" style="margin-left:5%;" size="5"></input></p>
+      
+      <hr width="90%"/>
+
+      <p alt="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise." title="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise.">Accessibility Tools Defender:<i style="font-size:10;"> (Default: Enabled)</i></p>
+      <p alt="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise." title="Monitor the local filesystem for indicators of accessibility tool abuse and take action to prevent compromise."><select id="AccessibilityDefenderEnable" name="AccessibilityDefenderEnable" style="margin-left:5%;">
+        <option value="enabled">Enabled</option>
+        <option value="disabled">Disabled</option>
+      </select></p>
+      
+      <hr width="90%"/>
+
+      <p alt="Accessibility Tools Defender interval in minutes." title="Accessibility Tools Defender interval in minutes.">Accessibility Tools Defender Interval (minutes):<i style="font-size:10;"> Default: 60</i></p>
+      <p alt="Accessibility Tools Defender interval in minutes." title="Accessibility Tools Defender interval in minutes."><input id="AccessibilityToolsInt" name="AccessibilityToolsInt" type="number" min="1" max="10000" style="margin-left:5%;" size="5"></input></p>
+      
+      <hr width="90%"/>
+
+      <p alt="Monitor the local filesystem and report on indicators of storage device failure." title="Monitor the local filesystem and report on indicators of storage device failure.">Storage Device Monitor:<i style="font-size:10;"> (Default: Enabled)</i></p>
+      <p alt="Monitor the local filesystem and report on indicators of storage device failure." title="Monitor the local filesystem and report on indicators of storage device failure."><select id="StorageMEnabled" name="StorageMEnabled" value="" style="margin-left:5%;">
+        <option value="enabled">Enabled</option>
+        <option value="disabled">Disabled</option>
+      </select></p>
+      
+      <hr width="90%"/>
+
+      <p alt="Storage Device Monitor interval in minutes." title="Storage Device Monitor interval in minutes.">Storage Device Monitor Interval (minutes):<i style="font-size:10;"> Default: 7</i></p>
+      <p alt="Storage Device Monitor interval in minutes." title="Storage Device Monitor interval in minutes."><input id="StorageMInt" name="StorageMInt" type="number" min="1" max="10000" style="margin-left:5%;" size="5"></input></p>
+      
+      <hr width="90%"/>
+
+      <p alt="Monitor network devices for online status." title="Monitor network devices for online status.">Infrastructure Monitor:<i style="font-size:10;"> (Default: Enabled)</i></p>
+      <p alt="Monitor network devices for online status." title="Monitor network devices for online status."><select id="InfraMEnabled" name="InfraMEnabled" style="margin-left:5%;">
+        <option value="enabled">Enabled</option>
+        <option value="disabled">Disabled</option>
+      </select></p>
+      
+      <hr width="90%"/>
+
+      <p alt="Infrastructure Monitor interval in minutes." title="Infrastructure Monitor interval in minutes.">Infrastructure Monitor Interval (minutes):<i style="font-size:10;"> Default: 15</i></p>
+      <p alt="Infrastructure Monitor interval in minutes." title="Infrastructure Monitor interval in minutes."><input id="InfraMInt" name="InfraMInt" type="number" min="1" max="10000" style="margin-left:5%;" size="5"></input></p>
+      
+      <hr width="90%"/>
+
+      <p alt="Perform a series of diagnostic checks which could aid in troubleshooting problems." title="Perform a series of diagnostic checks which could aid in troubleshooting problems.">Diagnostic Checkup:<i style="font-size:10;"> (Default: Enabled)</i></p>
+      <p alt="Perform a series of diagnostic checks which could aid in troubleshooting problems." title="Perform a series of diagnostic checks which could aid in troubleshooting problems."><select id="InfraCEnabled" name="InfraCEnabled" size="200px;" style="margin-left:5%;">
+        <option value="enabled">Enabled</option>
+        <option value="disabled">Disabled</option>
+      </select></p>
+      
+      <hr width="90%"/>
+
+      <p alt="Diagnostic check interval in minutes." title="Diagnostic check interval in minutes.">Diagnostic Checkup Interval (minutes):<i style="font-size:10;"> Default: 10</i></p>
+      <p alt="Diagnostic check interval in minutes." title="Diagnostic check interval in minutes."><input id="InfraCInt" name="InfraCInt" type="number" min="1" max="10000"style="margin-left:5%;" size="5"></input></p>
 
 
     </div>

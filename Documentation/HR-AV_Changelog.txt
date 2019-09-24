@@ -1,4 +1,12 @@
 --------------------
+COMMIT - 9/24/2019
+v0.8.6 - Working on settings page.
+
+-v0.8.6.
+-Working on settings page layout.
+--------------------
+
+--------------------
 COMMIT - 9/22/2019
 v0.8.5 - Working on triggers for RTP. 
 
