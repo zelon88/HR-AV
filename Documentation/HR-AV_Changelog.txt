@@ -1,4 +1,18 @@
 --------------------
+COMMIT - 10/1/2019
+v0.8.7 - Working on scanCore.php.
+
+-v0.8.7.
+-Working on the single-threaded PHP scanner worker.
+-This script will be called asynchronously via VBS from the main application and managed as worker processes.
+-Perfect for high performance concurrent scanning! PHP is fast in this arena. 
+-My gut tells me it's faster than VBS or Python as a single thread.
+-That means we can run lots of threads!
+-It also means we can use the same ScanCore.php script for scanning pretty much every directory on the machine. We just scale the number of threads with the workload.
+
+--------------------
+
+--------------------
 COMMIT - 9/24/2019
 v0.8.6 - Working on settings page.
 

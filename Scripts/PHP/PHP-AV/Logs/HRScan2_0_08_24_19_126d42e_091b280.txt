@@ -1,6 +1,0 @@
-OP-Act: Logfile created on August 24, 2019, 2:07 am.
-ERROR!!! HRScan278, The specified ScanLoc does not exist at  on August 24, 2019, 2:07 am.
-OP-Act: Created a directory at \dc791091b280 on August 24, 2019, 2:07 am.
-OP-Act: Created a directory at \dc791091b280\c3c53e6a0e7d on August 24, 2019, 2:07 am.
-OP-Act: Created a directory at C:\Users\Inspiron1525\Desktop\HR-AV\Scripts\PHP\PHP-AV\\DATA\dc791091b280 on August 24, 2019, 2:07 am.
-OP-Act: Created a directory at C:\Users\Inspiron1525\Desktop\HR-AV\Scripts\PHP\PHP-AV\\DATA\dc791091b280\c3c53e6a0e7d on August 24, 2019, 2:07 am.

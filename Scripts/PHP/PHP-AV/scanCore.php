@@ -1,8 +1,7 @@
-<!DOCTYPE HTML>
 <?php
 // / -----------------------------------------------------------------------------------
 // / APPLICATION INFORMATION ...
-// / HRScan2, Copyright on 2/21/2016 by Justin Grimes, www.github.com/zelon88
+// / HR-AV, Copyright on 2/21/2016 by Justin Grimes, www.github.com/zelon88
 // / 
 // / LICENSE INFORMATION ...
 // / This project is protected by the GNU GPLv3 Open-Source license.
@@ -21,292 +20,194 @@
 // / -----------------------------------------------------------------------------------
 
 // / -----------------------------------------------------------------------------------
-// / The following code will load required HRScan2 files.
-if (!file_exists(realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.php')) die ('ERROR!!! HRScan226, Cannot process the HRScan2 Configuration file (config.php)!'.PHP_EOL); 
-else require_once (realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR.'config.php');
-if (!file_exists(realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR.'sanitizeCore.php')) die ('ERROR!!! HRScan233, Cannot process the HRScan2 Sanitize Core file (sanitizeCore.php)!'.PHP_EOL); 
-else require_once (realpath(dirname(__FILE__)).DIRECTORY_SEPARATOR.'sanitizeCore.php'); 
-// / -----------------------------------------------------------------------------------
-
-// / -----------------------------------------------------------------------------------
-// / The folloiwing code attempts to detect the users IP so it can be used as a unique identifier for the session.
-  // / If it is not unique we will adjust it later.
-if (!empty($_SERVER['HTTP_CLIENT_IP'])) $IP = htmlentities(str_replace(str_split('~#[](){};:$!#^&%@>*<"\''), '', $_SERVER['HTTP_CLIENT_IP']), ENT_QUOTES, 'UTF-8'); 
-elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) $IP = htmlentities(str_replace(str_split('~#[](){};:$!#^&%@>*<"\''), '', $_SERVER['HTTP_X_FORWARDED_FOR']), ENT_QUOTES, 'UTF-8'); 
-else $IP = htmlentities(str_replace(str_split('~#[](){};:$!#^&%@>*<"\''), '', $_SERVER['REMOTE_ADDR']), ENT_QUOTES, 'UTF-8'); 
-// / -----------------------------------------------------------------------------------
-
-// / -----------------------------------------------------------------------------------
-// / The following code sets an echo variable that adjusts printed URL's to https when SSL is enabled.
-if (!empty($_SERVER['HTTPS']) && $_SERVER['SERVER_PORT'] == 443) $URLEcho = 's'; 
-// / -----------------------------------------------------------------------------------
-
-// / -----------------------------------------------------------------------------------
-// / The following code sets or validates a Token so it can be used as a unique identifier for the session.
-if (!isset($Token1) or strlen($Token1) < 19) $Token1 = hash('ripemd160', rand(0, 1000000000).rand(0, 1000000000)); 
-if (isset($Token2)) if ($Token2 !== hash('ripemd160', $Token1.$Salts1.$Salts2.$Salts3.$Salts4.$Salts5.$Salts6)) die('ERROR!!! HRScan263, Authentication error!!!'); 
-if (!isset($Token2)) $Token2 = hash('ripemd160', $Token1.$Salts1.$Salts2.$Salts3.$Salts4.$Salts5.$Salts6); 
+// / The following code will load required HR-AV files.
+if (!file_exists(str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, '', str_replace(DIRECTORY_SEPARATOR.'Scripts'.DIRECTORY_SEPARATOR.'PHP'.DIRECTORY_SEPARATOR.'PHP-AV'.DIRECTORY_SEPARATOR '', realpath(dirname(__FILE__))).DIRECTORY_SEPARATOR.'Definitions'.DIRECTORY_SEPARATOR.'ScanCore_Config.php'))); die ('ERROR!!! ScanCore0, Cannot process the HR-AV ScanCore Configuration file (config.php)!'.PHP_EOL); 
+else require_once (str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, '', str_replace(DIRECTORY_SEPARATOR.'Scripts'.DIRECTORY_SEPARATOR.'PHP'.DIRECTORY_SEPARATOR.'PHP-AV'.DIRECTORY_SEPARATOR, '', realpath(dirname(__FILE__))).DIRECTORY_SEPARATOR.'Definitions'.DIRECTORY_SEPARATOR.'ScanCore_Config.php'));
 // / -----------------------------------------------------------------------------------
 
 // / -----------------------------------------------------------------------------------
 // / The following code sets the global variables for the session.
-$HRScanVersion = 'v1.8';
-$versions = 'PHP-AV App v4.0 | Virus Definition v4.9, 4/10/2019';
-$Date = date("m_d_y");
-$Time = date("F j, Y, g:i a"); 
-$JanitorDeleteIndex = FALSE;
-$Current_URL = "http$URLEcho://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-$SesHash = substr(hash('ripemd160', $Date.$Salts1.$Salts2.$Salts3.$Salts4.$Salts5.$Salts6), -12);
-$SesHash2 = substr(hash('ripemd160', $SesHash.$Token1.$Date.$IP.$Salts1.$Salts2.$Salts3.$Salts4.$Salts5.$Salts6), -12);
-$SesHash3 = $SesHash.DIRECTORY_SEPARATOR.$SesHash2;
-$SesHash4 = hash('ripemd160', $Salts6.$Salts5.$Salts4.$Salts3.$Salts2.$Salts1);
-$ScanDir0 = $ScanLoc.DIRECTORY_SEPARATOR.$SesHash;
-$ScanDir = $ScanDir0.DIRECTORY_SEPARATOR.$SesHash2;
-$ScanTemp = $InstLoc.DIRECTORY_SEPARATOR.'DATA';
-$ScanTempDir0 = $ScanTemp.DIRECTORY_SEPARATOR.$SesHash;
-$ScanTempDir = $ScanTempDir0.DIRECTORY_SEPARATOR.$SesHash2;
-$LogInc = '0';
-$ScanGuiCounter1 = $ConsolidateLogs = 0;
-$LogFile = $LogDir.DIRECTORY_SEPARATOR.'HRScan2_'.$LogInc.'_'.$Date.'_'.substr($SesHash4, -7).'_'.substr($SesHash, -7).'.txt';
-$ClamLogFileName = 'ClamScan_'.$Date.'_'.substr($SesHash4, -7).'_'.substr($SesHash, -7).'.txt';
-$ClamLogFile = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, str_replace('..', '', str_replace('//','/', $ScanDir.'/'.$ClamLogFileName)));
-$ClamLogTempFile = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, str_replace('..', '', str_replace('//','/', $ScanTempDir.'/'.$ClamLogFileName)));
-$PHPAVLogFileName = 'PHPAVScan_'.$Date.'_'.substr($SesHash4, -7).'_'.substr($SesHash, -7).'.txt';
-$PHPAVLogFile = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, str_replace('..', '', str_replace('//','/', $ScanDir.'/'.$PHPAVLogFileName)));
-$PHPAVLogTempFile = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, str_replace('..', '', str_replace('//','/', $ScanTempDir.'/'.$PHPAVLogFileName)));
-$ConsolidatedLogFileName = 'ScanAll_'.$Date.'_'.substr($SesHash4, -7).'_'.substr($SesHash, -7).'.txt';
-$ConsolidatedLogFile = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, str_replace('..', '', str_replace('//','/', $ScanDir.'/'.$ConsolidatedLogFileName)));
-$ConsolidatedLogTempFile = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, str_replace('..', '', str_replace('//','/', $ScanTempDir.'/'.$ConsolidatedLogFileName)));
-$defaultLogDir = $InstLoc.DIRECTORY_SEPARATOR.'Logs';
-$defaultLogSize = '1048576';
-$defaultApps = array('index.html', '.', '..', '..');
-$RequiredDirs = array($LogDir, $defaultLogDir, $ScanDir0, $ScanDir, $ScanTemp, $ScanTempDir0, $ScanTempDir);
-$ReservedFiles = array('index.php', 'index.html');
-$fileArray1 = array();
+  // / Application related variables.
+  $Versions = 'PHP-AV App v4.0 | Virus Definition v4.9, 4/10/2019';
+  $encType = 'ripemd160';
+  $defaultMemoryLimit = 4000000;
+  $defaultChunkSize = 1000000; 
+  $report = '';
+  $filecount = $infected = $dircount = 0;
+  $CONFIG = $CONFIG['extensions'] = Array();
+  $abort = $CONFIG['debug'] = FALSE;
+  // / Time related variables.
+  $Date = date("m_d_y");
+  $Time = date("F j, Y, g:i a"); 
+  // / SesHash related variables for developing predictable paths.
+  $RandomNumber = rand(10000, 1000000).rand(10000,1000000)
+  $SesHash = substr(hash($encType, $Date.$Salts1.$Salts2.$Salts3.$Salts4.$Salts5.$Salts6), - 12);
+  $SesHash2 = substr(hash($encType, $RandomNumber.$SesHash.$Date.$Time.$Salts1.$Salts2.$Salts3.$Salts4.$Salts5.$Salts6), - 12);
+  $SesHash3 = $SesHash.DIRECTORY_SEPARATOR.$SesHash2;
+  // / Directory related variables.
+  $ReportSubSubDir = $ReportDir.DIRECTORY_SEPARATOR.$SesHash
+  $ReportFile = $ReportDir.DIRECTORY_SEPARATOR.$SesHash3
 // / -----------------------------------------------------------------------------------
 
 // / -----------------------------------------------------------------------------------
-// / GUI specific resources.
-function getExtension($pathToFile) {
-  return pathinfo($pathToFile, PATHINFO_EXTENSION); }
-function getFilesize($File) {
-  $Size = filesize($File);
-  if ($Size < 1024) $Size=$Size." Bytes"; 
-  elseif (($Size < 1048576) && ($Size > 1023)) $Size = round($Size / 1024, 1)." KB";
-  elseif (($Size < 1073741824) && ($Size > 1048575)) $Size = round($Size / 1048576, 1)." MB";
-  else ($Size = round($Size/1073741824, 1)." GB");
-  return ($Size); }
-function symlinkmtime($symlinkPath) {
-  $stat = lstat($symlinkPath);
-  return isset($stat['mtime']) ? $stat['mtime'] : null; }
-function fileTime($filePath) {
-  if (file_exists($filePath)) {
-    $stat = filemtime($filePath);
-    return ($stat); } }
-function is_dir_empty($dir) { 
-  if (is_dir($dir)) { 
-    $contents = scandir($dir);
-    foreach ($contents as $content) { 
-      if ($content == '.' or $content == '..') return FALSE; } }
-  return TRUE; }
-function cleanFiles($path) { 
-  global $ScanLoc, $ScanTemp, $InstLoc, $defaultApps;
-  if (is_dir($path)) { 
-    $i = scandir($path);
-    foreach($i as $f) { 
-      if (is_file($path.'/'.$f) && !in_array(basename($path.'/'.$f), $defaultApps)) @unlink($path.'/'.$f);  
-      if (is_dir($path.'/'.$f) && !in_array(basename($path.'/'.$f), $defaultApps) && is_dir_empty($path)) @rmdir($path.'/'.$f);
-      if (is_dir($path.'/'.$f) && !in_array(basename($path.'/'.$f), $defaultApps) && !is_dir_empty($path)) cleanFiles($path.'/'.$f); } 
-    if ($path !== $ScanLoc && $path !== $ScanTemp) @rmdir($path); } }
+// / A function to create a logfile if one does not exist.
+function verifyLogFile($LogFile, $MaxLogSize) { 
+  $LogInc = 0;
+  if (!is_dir($LogDir)) die('ERROR!!! ScanCore1, The specified $LogDir does not exist at '.$LogDir.' on '.$Time.'.');
+  while (file_exists($LogFile) && round((filesize($LogFile) / $MaxLogSize), 2) > $MaxLogSize) { 
+    $LogInc++; 
+    $LogFile = $LogDir.DIRECTORY_SEPARATOR.'HR-AV_ScanCore_'.$LogInc.'.txt.'; 
+    $MAKELogFile = file_put_contents($LogFile, 'OP-Act: Logfile created on '.$Time.'.'.PHP_EOL, FILE_APPEND); }
+  if (!file_exists($LogFile)) $MAKELogFile = file_put_contents($LogFile, 'OP-Act: Logfile created on '.$Time.'.'.PHP_EOL, FILE_APPEND); }
 // / -----------------------------------------------------------------------------------
 
 // / -----------------------------------------------------------------------------------
-// / The following code creates a logfile if one does not exist.
-if (!is_numeric($MaxLogSize)) $MaxLogSize = $defaultLogSize;
-if (!is_dir($LogDir)) mkdir($LogDir);
-if (!is_dir($LogDir)) $LogDir = $defaultLogDir;
-if (!is_dir($LogDir)) die('ERROR!!! HRScan278, The specified $LogDir does not exist at '.$LogDir.' on '.$Time.'.');
-while (file_exists($LogFile) && round((filesize($LogFile) / $MaxLogSize), 2) > $MaxLogSize) { 
-  $LogInc++; 
-  $LogFile = $LogDir.DIRECTORY_SEPARATOR.'HRScan2_'.$LogInc.'.txt.'; 
-  $MAKELogFile = file_put_contents($LogFile, 'OP-Act: Logfile created on '.$Time.'.'.PHP_EOL, FILE_APPEND); }
-if (!file_exists($LogFile)) $MAKELogFile = file_put_contents($LogFile, 'OP-Act: Logfile created on '.$Time.'.'.PHP_EOL, FILE_APPEND);
+// / A function to add an entry to the logs.
+function addLogEntry($entry, $error, $errorNumber) {
+  if (!is_numeric($errorNumber)) $errorNumber = 0;
+  if ($error === TRUE) $preText = 'ERROR!!! '.$Time.' ScanCore'.$errorNumber.', ';
+  else $preText = 'OP-Act: ';
+  return(file_put_contents($LogFile, $preText.$entry)); } 
 // / -----------------------------------------------------------------------------------
 
 // / -----------------------------------------------------------------------------------
-// / The following code creates required data directoreis if they do not exist.
-if (!is_dir($ScanLoc)) {
-  $txt = ('ERROR!!! HRScan278, The specified ScanLoc does not exist at '.$ScanLoc.' on '.$Time.'.');
-  $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND); }
-foreach ($RequiredDirs as $RequiredDir) { 
-  if (!is_dir($RequiredDir)) { 
-    mkdir($RequiredDir); 
-    $txt = ('OP-Act: Created a directory at '.$RequiredDir.' on '.$Time.'.');
-    $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND); } }
+// / A function to parse supplied command-line arguments.
+function parseArgs($argv) { 
+  global $defaultMemoryLimit, $defaultChunkSize
+  foreach $argv as $key=>$argv {
+    $arg = htmlentities(str_replace(str_split('~#[](){};:$!#^&%@>*<"\''), '', $arg));
+    if strpos(lcase($arg), '-memoryLimit') !== FALSE $memoryLimit = $argv[$key + 1];
+    if strpos(lcase($arg), '-chunksize') !== FALSE $chunkSize = $argv[$key + 1]; }
+  if (!file_exists($argv[1])) addLogEntry('The specified file was not found! The first argument must be a valid file or directory path!', TRUE, 200);
+  if (!is_numeric($memoryLimit) or !is_numeric($chunkSize)) { 
+    addLogEntry('Either the chunkSize argument or the memoryLimit argument is invalid. Substituting default values.', TRUE, 300); 
+    $memoryLimit = $defaultMemoryLimit; 
+    $chunkSize = $defaultChunkSize; }
 // / -----------------------------------------------------------------------------------
 
 // / -----------------------------------------------------------------------------------
-// / The following code will clean up old files.
-if (file_exists($ScanTemp)) { 
-  $DFiles = array_diff(scandir($ScanTemp), array('..', '.'));
-  $now = time();
-  foreach ($DFiles as $DFile) { 
-    if (in_array($DFile, $defaultApps)) continue;
-    $DFilePath = $ScanTemp.'/'.$DFile;
-    if ($DFilePath == $ScanTemp.'/index.html') continue; 
-    if ($now - fileTime($DFilePath) > ($Delete_Threshold * 60)) { // Time to keep files.
-      if (is_dir($DFilePath)) { 
-        @chmod ($DFilePath, 0755);
-        cleanFiles($DFilePath);
-        if (is_dir_empty($DFilePath)) @rmdir($DFilePath); } } } }
-if (file_exists($ScanLoc)) { 
-  $DFiles = array_diff(scandir($ScanLoc), array('..', '.'));
-  $now = time();
-  foreach ($DFiles as $DFile) { 
-    if (in_array($DFile, $defaultApps)) continue;
-    $DFilePath = $ScanLoc.'/'.$DFile;
-    if ($now - fileTime($DFilePath) > ($Delete_Threshold * 60)) { // Time to keep files.
-      if (is_dir($DFilePath)) { 
-        @chmod ($DFilePath, 0755);
-        cleanFiles($DFilePath); 
-        if (is_dir_empty($DFilePath)) @rmdir($DFilePath); } } } }
+// Hunts files/folders recursively for scannable items.
+function file_scan($folder, $defs, $ReportFile, $debug) {
+  global $report, $memoryLimit;
+  $dircount = 0;
+  if ($d = @dir($folder)) {
+    while (false !== ($entry = $d->read())) {
+      $isdir = @is_dir($folder.'/'.$entry);
+      if (!$isdir and $entry != '.' and $entry != '..') {      
+        virus_check($folder.'/'.$entry, $defs, $debug, $defData); } 
+      elseif ($isdir and $entry != '.' and $entry != '..') {
+        $txt = 'OP-Act: Scanning folder '.$folder.' ... ';
+        $MAKELogFile = file_put_contents($ReportFile, $txt.PHP_EOL, FILE_APPEND);        
+        $dircount++;
+        file_scan($folder.'/'.$entry, $defs, $debug, $defData); } }
+    $d->close(); } }
 // / -----------------------------------------------------------------------------------
 
 // / -----------------------------------------------------------------------------------
-// / The following code is performed when a user initiates a file upload.
-if(!empty($_FILES)) {
-  $txt = ('OP-Act: Initiated Uploader on '.$Time.'.');
-  $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND);
-  if (!is_array($_FILES['file']['name'])) $_FILES['file']['name'] = array($_FILES['file']['name']); 
-  foreach ($_FILES['file']['name'] as $key=>$file) {
-    if (in_array($file, $ReservedFiles) or $file == '.' or $file == '..' or $file == 'index.html') continue;     
-    $file = htmlentities(str_replace(str_split('\\/[](){};:$!#^&%@>*<'), '', $file), ENT_QUOTES, 'UTF-8');
-    foreach ($DangerousFiles as $DangerousFile) if (strpos($file, $DangerousFile) == TRUE) continue 2;  
-    $F0 = pathinfo($file, PATHINFO_EXTENSION);
-    if (in_array($F0, $DangerousFiles)) { 
-      $txt = ("ERROR!!! HRScan2103, Unsupported file format, $F0 on $Time.");
-      $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND);
-      echo nl2br($txt."\n"); 
-      continue; }
-    $F2 = pathinfo($file, PATHINFO_BASENAME);
-    $F3 = str_replace(' ', '_', str_replace('//', '/', $ScanDir.'/'.$F2));
-    if($file == "") {
-      $txt = ("ERROR!!! HRScan2160, No file specified on $Time.");
-      $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND);
-      echo nl2br($txt."\n"); 
-      die(); }
-    $COPY_TEMP = copy($_FILES['file']['tmp_name'], $F3);
-    if (file_exists($F3) or $COPY_TEMP === FALSE) {
-      $txt = ('OP-Act: '."Uploaded $file to $F3 on $Time".'.');
-      echo nl2br ($txt."\n"); }
-    if (!file_exists($F3)) {
-      $txt = ('ERROR!!!HRScan2230, Could not upload '.$file.' to '.$F3.' on '.$Time.'!');
-      echo nl2br ($txt."\n"); }
-    $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND);
-    chmod($F3, 0755); } 
-  // / Free un-needed memory.
-  $txt = $file = $F0 = $F2 = $F3 = $Upload = $MAKELogFile = null;
-  unset ($txt, $file, $F0, $F2, $F3, $Upload, $MAKELogFile); }
+// Reads tab-delimited defs file.
+function load_defs($file, $debug) {
+  global $ReportFile;
+  $defs = file($file);
+  $counter = 0;
+  $counttop = sizeof($defs);
+  while ($counter < $counttop) {
+    $defs[$counter] = explode('  ', $defs[$counter]);
+    $counter++; }
+  $txt = 'OP-Act: Loaded '.sizeof($defs).' virus definitions.';
+  $MAKELogFile = file_put_contents($ReportFile, $txt.PHP_EOL, FILE_APPEND);
+  return $defs; }
 // / -----------------------------------------------------------------------------------
 
 // / -----------------------------------------------------------------------------------
-// / The following code is performed when a user selects to scan ALL the files they've uploaded with either ClamAV or PHP-AV
-if (isset($_POST['scanAll'])) { 
-  $ConsolidateLogs = 1;
-  if (file_exists($ConsolidatedLogFile)) @unlink($ConsolidatedLogFile);
-  if ($_POST['ClamScanAll'] == 'clamScanAll') $_POST['clamScanButton'] = 1;
-  if ($_POST['PHPAVScanAll'] == 'phpavScanAll') $_POST['phpavScanButton'] = 1; }
+// Check for >755 perms on virus defs.
+function check_defs($file) {
+  clearstatcache();
+  $perms = substr(decoct(fileperms($file)), - 2);
+  if ($perms > 55) return false;
+  else return true; }
 // / -----------------------------------------------------------------------------------
 
 // / -----------------------------------------------------------------------------------
-// / The following code is performed when a user selects to Clamscan the files they've uploaded with ClamAV.
-if (isset($_POST["clamScanButton"])) {
-  $_POST['clamScanButton'] = str_replace('//', '/', str_replace('///', '/', str_replace(str_split('[]{};:$!#^&%@>*<'), '', $_POST['clamScanButton'])));
-  $txt = ('OP-Act: Initiated ClamScanner on '.$Time.'.');
-  $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND);
-  $MAKELogFile = file_put_contents($ClamLogFile, $txt.PHP_EOL, FILE_APPEND);
-  if (!is_array($_POST['filesToScan'])) $_POST['filesToScan'] = array($_POST['filesToScan']);
-  if (isset($_POST["filesToScan"])) {
-    foreach (($_POST['filesToScan']) as $File) {
-      if (in_array($File, $defaultApps) or in_array($File, $ReservedFiles) or $File == '.' or $File == '..' or $File == '') continue;
-      $txt = 'OP-Act: Scanning '.$File.'.';
-      $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND);
-      $MAKELogFile = file_put_contents($ClamLogFile, $txt.PHP_EOL, FILE_APPEND);
-      if (!file_exists($ScanDir.'/'.$File)) { 
-        $txt = 'ERROR!!! HRScan2244, '.$File.' does not exist on '.$Time.'!';
-        $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND);
-        $MAKELogFile = file_put_contents($ClamLogFile, $txt.PHP_EOL, FILE_APPEND);
-        continue; }
-      shell_exec(str_replace('  ', ' ', str_replace('   ', ' ', 'clamscan -r '.$Thorough.' '.$ScanDir.'/'.$File.' | grep FOUND >> '.$ClamLogFile)));
-      $ClamLogFileDATA = @file_get_contents($ClamLogFile);
-      if (strpos($ClamLogFileDATA, 'FOUND') == FALSE) { 
-        $MAKELogFile = file_put_contents($LogFile, 'OP-Act: No infection detected in '.$File.' on '.$Time.'.'.PHP_EOL, FILE_APPEND);
-        $MAKELogFile = file_put_contents($ClamLogFile, 'OP-Act: No infection detected in '.$File.' on '.$Time.'.'.PHP_EOL, FILE_APPEND); }
-      if (strpos($ClamLogFileDATA, 'Virus Detected') == TRUE or strpos($ClamLogFileDATA, 'FOUND') == TRUE) { 
-        $MAKELogFile = file_put_contents($LogFile, 'WARNING!!! HRScan2338, Potential infection found in '.$File.' on '.$Time.'.'.PHP_EOL, FILE_APPEND);
-        $MAKELogFile = file_put_contents($ClamLogFile, 'WARNING!!! HRScan2338, Potential infection found in '.$File.' on '.$Time.'.'.PHP_EOL, FILE_APPEND); } } } 
-  $MAKELogFile = file_put_contents($ClamLogFile, PHP_EOL, FILE_APPEND); }
+// Hashes and checks files/folders for viruses against static virus defs.
+function virus_check($file, $defs, $defData, $ReportFile, $debug) {
+  global $memoryLimit, $chunkSize, $report, $CONFIG;
+  $infected = $filecount = 0;
+  $filecount++;
+  if ($file !== $DefsFileName) {
+    if (file_exists($file)) { 
+      $filesize = filesize($file);
+      $data1 = hash_file('md5', $file);
+      $data2 = hash_file('sha256', $file);
+      // / Scan files larger than the memory limit by breaking them into chunks.
+      if ($filesize >= $memoryLimit && file_exists($file)) { 
+        $txt = 'OP-Act: Chunking file ... ';
+        $MAKELogFile = file_put_contents($ReportFile, $txt.PHP_EOL, FILE_APPEND);
+        $handle = @fopen($file, "r");
+        if ($handle) {
+          while (($buffer = fgets($handle, $chunkSize)) !== false) {
+            $data = $buffer; 
+            if ($debug) { 
+              $txt = 'OP-Act: Scanning chunk ... ';
+              $MAKELogFile = file_put_contents($ReportFile, $txt.PHP_EOL, FILE_APPEND); }
+            foreach ($defs as $virus) {
+              $virus = explode("\t", $virus[0]);
+              if ($virus[1] !== '' && $virus[1] !== ' ') {
+                if (strpos(strtolower($data), strtolower($virus[1])) !== FALSE or strpos(strtolower($file), strtolower($virus[1])) !== FALSE) { 
+                  // File matches virus defs.
+                  $txt = 'Infected: '.$file.' ('.$virus[0].', Data Match: '.$virus[1].')';
+                  $MAKELogFile = file_put_contents($ReportFile, 'OP-Act: '.$txt.PHP_EOL, FILE_APPEND);
+                  $infected++; } } } }
+          if (!feof($handle)) {
+            $txt = 'ERROR!!! PHPAV160, Unable to open '.$file.' on '.$Time.'!';
+            $MAKELogFile = file_put_contents($ReportFile, $txt.PHP_EOL, FILE_APPEND); }
+          fclose($handle); } 
+          if ($virus[2] !== '' && $virus[2] !== ' ') {
+            if (strpos(strtolower($data1), strtolower($virus[2])) !== FALSE) {
+              // File matches virus defs.
+              $txt = 'Infected: '.$file.' ('.$virus[0].', MD5 Hash Match: '.$virus[2].')';
+              $MAKELogFile = file_put_contents($ReportFile, 'OP-Act: '.$txt.PHP_EOL, FILE_APPEND);
+              $infected++; } }
+            if ($virus[3] !== '' && $virus[3] !== ' ') {
+              if (strpos(strtolower($data2), strtolower($virus[3])) !== FALSE) {
+                // File matches virus defs.
+                $txt = 'Infected: '.$file.' ('.$virus[0].', SHA256 Hash Match: '.$virus[3].')';
+                $MAKELogFile = file_put_contents($ReportFile, 'OP-Act: '.$txt.PHP_EOL, FILE_APPEND);
+                $infected++; } } 
+            if ($virus[4] !== '' && $virus[4] !== ' ') {
+              if (strpos(strtolower($data3), strtolower($virus[4])) !== FALSE) {
+                // File matches virus defs.
+                $txt = 'Infected: '.$file.' ('.$virus[0].', SHA1 Hash Match: '.$virus[4].')';
+                $MAKELogFile = file_put_contents($ReportFile, $txt.PHP_EOL, FILE_APPEND);
+                $infected++; } } } } }
+      // / Scan files smaller than the memory limit by fitting the entire file into memory.
+      if ($filesize < $memoryLimit && file_exists($file)) {
+        $data = file_get_contents($file); }
+      if ($defData !== $data2) {
+        foreach ($defs as $virus) {
+          $virus = explode("\t", $virus[0]);
+          if ($virus[1] !== '' && $virus[1] !== ' ') {
+            if (strpos(strtolower($data), strtolower($virus[1])) !== FALSE or strpos(strtolower($file), strtolower($virus[1])) !== FALSE) {
+             // File matches virus defs.
+              $txt = 'Infected: '.$file.' ('.$virus[0].', Data Match: '.$virus[1].')';
+              $MAKELogFile = file_put_contents($ReportFile, 'OP-Act: '.$txt.PHP_EOL, FILE_APPEND);
+              $infected++; } }
+          if ($virus[2] !== '' && $virus[2] !== ' ') {
+            if (strpos(strtolower($data1), strtolower($virus[2])) !== FALSE) {
+                // File matches virus defs.
+              $txt = 'Infected: '.$file.' ('.$virus[0].', MD5 Hash Match: '.$virus[2].')';
+              $MAKELogFile = file_put_contents($ReportFile, 'OP-Act: '.$txt.PHP_EOL, FILE_APPEND);
+              $infected++; } }
+            if ($virus[3] !== '' && $virus[3] !== ' ') {
+              if (strpos(strtolower($data2), strtolower($virus[3])) !== FALSE) {
+                // File matches virus defs.
+                $txt = 'Infected: '.$file.' ('.$virus[0].', SHA256 Hash Match: '.$virus[3].')';
+                $MAKELogFile = file_put_contents($ReportFile, 'OP-Act: '.$txt.PHP_EOL, FILE_APPEND);
+                $infected++; } } 
+            if ($virus[4] !== '' && $virus[4] !== ' ') {
+              if (strpos(strtolower($data3), strtolower($virus[4])) !== FALSE) {
+                // File matches virus defs.
+                $txt = 'Infected: '.$file.' ('.$virus[0].', SHA1 Hash Match: '.$virus[4].')';
+                $MAKELogFile = file_put_contents($ReportFile, $txt.PHP_EOL, FILE_APPEND);
+                $infected++; } } } } 
+  return $infected; }
 // / -----------------------------------------------------------------------------------
-
-// / -----------------------------------------------------------------------------------
-// / The following code is performed when a user selects to scan the files they've uploaded with PHP-AV.
-if (isset($_POST['phpavScanButton'])) { 
-  $DefFile = 'Resources/virus.def';
-  $_POST['phpavScanButton'] = str_replace('//', '/', str_replace('///', '/', str_replace(str_split('[]{};:$!#^&%@>*<'), '', $_POST['phpavScanButton'])));
-  $txt = ('OP-Act: Initiated PHPAVScanner on '.$Time.'.');
-  $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND);
-  $MAKELogFile = file_put_contents($PHPAVLogFile, $txt.PHP_EOL, FILE_APPEND); 
-  require('PHP-AV-Lib.php');
-  $defs = load_defs($DefFile, $CONFIG['debug']);
-  $defData = hash_file('sha256', $DefFile);
-  if (!is_array($_POST['filesToScan'])) $_POST['filesToScan'] = array($_POST['filesToScan']);
-  foreach ($_POST['filesToScan'] as $File) {
-    if (in_array($File, $defaultApps) or in_array($File, $ReservedFiles) or $File == '.' or $File == '..' or $File == '') continue;
-    $txt = ('OP-Act: Scanning file '.$File.' on '.$Time.'.');
-    $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND);
-    $MAKELogFile = file_put_contents($PHPAVLogFile, $txt.PHP_EOL, FILE_APPEND); 
-    if (!file_exists($ScanDir.'/'.$File)) { 
-      $txt = 'ERROR!!! HRScan2276, '.$File.' does not exist on '.$Time.'!';
-      $MAKELogFile = file_put_contents($LogFile, $txt.PHP_EOL, FILE_APPEND);
-      $MAKELogFile = file_put_contents($PHPAVLogFile, $txt.PHP_EOL, FILE_APPEND);
-      continue; }
-    $infected = virus_check($ScanDir.'/'.$File, $defs, $CONFIG['debug'], $defData, $AVLogFile); 
-    if ($infected === 0) {
-      $MAKELogFile = file_put_contents($LogFile, 'OP-Act: No infection detected in '.$File.' on '.$Time.'.'.PHP_EOL, FILE_APPEND); 
-      $MAKELogFile = file_put_contents($PHPAVLogFile, 'OP-Act: No infection detected in '.$File.' on '.$Time.'.'.PHP_EOL, FILE_APPEND); }
-    if ($infected > 0) {
-      $MAKELogFile = file_put_contents($LogFile, 'WARNING!!! HRScan2351, Potential infection found in '.$File.' on '.$Time.'.'.PHP_EOL, FILE_APPEND);     
-      $MAKELogFile = file_put_contents($PHPAVLogFile, 'WARNING!!! HRScan2351, Potential infection found in '.$File.' on '.$Time.'.'.PHP_EOL, FILE_APPEND); }
-    $dirCount = $fileCount = $infected = 0; } 
-  $MAKELogFile = file_put_contents($PHPAVLogFile, PHP_EOL, FILE_APPEND); } 
-// / -----------------------------------------------------------------------------------
-
-// / -----------------------------------------------------------------------------------
-// / The following code consolididates the logfiles from ClamAV and PHP-AV when the ScanAll button is selected.
-if ($ConsolidateLogs === 1) { 
-  $spacer = '----------';
-  $txt1 = 'OP-Act: User selected to scan all files on '.$Time.'.';
-  $MAKEConsolidatedLogFile = file_put_contents($ConsolidatedLogFile, $txt1.PHP_EOL.$spacer.PHP_EOL, FILE_APPEND);
-  if (file_exists($ClamLogFile)) { 
-    $ClamLogDATA = file_get_contents($ClamLogFile); 
-    $MAKEConsolidatedLogFile = file_put_contents($ConsolidatedLogFile, $ClamLogDATA.PHP_EOL.$spacer.PHP_EOL, FILE_APPEND); 
-    @unlink($ClamLogFile); } 
-  if (file_exists($PHPAVLogFile)) { 
-    $PHPAVLogDATA = file_get_contents($PHPAVLogFile); 
-    $MAKEConsolidatedLogFile = file_put_contents($ConsolidatedLogFile, $PHPAVLogDATA.PHP_EOL.$spacer.PHP_EOL, FILE_APPEND); } 
-    @unlink($PHPAVLogFile); }
-// / -----------------------------------------------------------------------------------
-
-// / -----------------------------------------------------------------------------------
-// / The following code consolidates and copies any logfiles that were generated.
-if (file_exists($ClamLogFile)) $COPYClamLog = copy($ClamLogFile, $ClamLogTempFile); 
-if (file_exists($PHPAVLogFile)) $COPYPHPAVLogFile = copy($PHPAVLogFile, $PHPAVLogTempFile);
-if (file_exists($ConsolidatedLogFile)) $COPYConsolidatedLogFile = copy($ConsolidatedLogFile, $ConsolidatedLogTempFile); 
-// / -----------------------------------------------------------------------------------
-
-// / -----------------------------------------------------------------------------------
-// / The following code loads the GUI.
-if (isset($_GET['showFiles']) or isset($_POST['showFiles'])) require_once('scanGui2.php'); 
-if (!isset($_GET['showFiles'])) require_once('scanGui1.php'); 
-// / -----------------------------------------------------------------------------------
-?>
