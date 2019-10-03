@@ -59,5 +59,5 @@ $DefsFile = $DefsDir.DIRECTORY_SEPARATOR.$DefsFileName;
 // / ------------------------------ 
 // / General Information ...
   // / Number of bytes to store in each logfile before splitting to a new one.
-$MaxLogSize = '1048576';
+$MaxLogSize = '100000000000000000000';
 // / ------------------------------ 

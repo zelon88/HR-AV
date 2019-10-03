@@ -1,4 +1,16 @@
 --------------------
+COMMIT - 10/2/2019
+v0.8.8 - ScanCore to v0.1. 
+
+-v0.8.8.
+-ScanCore to v0.1.
+-Made ScanCore a true PHP CLI application!
+-Still needs testing and tweaking, no doubt.
+-Suppports file-path, memorylimit, chunksize, debug, & verbose arguments. 
+-Perfect for running with a worker-manager!
+--------------------
+
+--------------------
 COMMIT - 10/1/2019
 v0.8.7 - Working on scanCore.php.
 
@@ -9,7 +21,6 @@ v0.8.7 - Working on scanCore.php.
 -My gut tells me it's faster than VBS or Python as a single thread.
 -That means we can run lots of threads!
 -It also means we can use the same ScanCore.php script for scanning pretty much every directory on the machine. We just scale the number of threads with the workload.
-
 --------------------
 
 --------------------
