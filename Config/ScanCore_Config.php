@@ -41,19 +41,21 @@ $Salts6 = 'somethingSo1RanDoMThatNobodyawrsalafsadfsdfuaoe4th39ureijkf4u3iejrkmd
 // / Directory locations ...
   // / Install HR-AV to the following directory.
   // / DO NOT CHANGE THE DEFAULT INSTALL DIRECTORY!!! 
-$InstLoc = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, '', str_replace(DIRECTORY_SEPARATOR.'Scripts'.DIRECTORY_SEPARATOR.'PHP'.DIRECTORY_SEPARATOR.'PHP-AV', '', realpath(dirname(__FILE__))));
+$InstLoc = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, str_replace(DIRECTORY_SEPARATOR.'Scripts'.DIRECTORY_SEPARATOR.'PHP'.DIRECTORY_SEPARATOR.'PHP-AV', '', realpath(dirname(__FILE__))));
   // / The default location to scan if run with no input scan path argument. 
 $ScanLoc = '';
   // / The absolute path where log files are stored.
-$LogDir = $InstLoc.DIRECTORY_SEPARATOR.'Logs';
+$LogDir = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $InstLoc.DIRECTORY_SEPARATOR.'Logs');
   // / The absolute path where report files are stored.
-$ReportDir = $InstLoc.DIRECTORY_SEPARATOR.'Reports';
+$ReportDir = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, str_replace('Config', '', $InstLoc.DIRECTORY_SEPARATOR.'Reports'));
+  // / The filename for the ScanCore report file.
+$ReportFileName = 'ScanCore_Report.txt';
   // / The filename for the ScanCore virus definition file.
 $DefsFileName = 'ScanCore_Virus.def';
   // / The filename for the ScanCore virus definition file.
 $DefsDir = $InstLoc.DIRECTORY_SEPARATOR.'Definitions';
   // / The absolute path where virus definitions are found.
-$DefsFile = $DefsDir.DIRECTORY_SEPARATOR.$DefsFileName;
+$DefsFile = str_replace(DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, str_replace('Config', '', $DefsDir.DIRECTORY_SEPARATOR.$DefsFileName));
 // / ------------------------------ 
 
 // / ------------------------------ 
