@@ -1,5 +1,16 @@
 --------------------
 COMMIT - 10/2/2019
+v0.8.9 - Working on ScanCore.vbs. 
+
+-v0.8.9.
+-The ScanCore.vbs is going to be a thread handler for the various scanners and scanning modes of HR-AV.
+-It will run scanCore.php as well as other scanners, as they are developed.
+-It needs to be standalone because it's execution could continue for a looooong time.
+-Working on the functions it needs. Copied the generic ones from RealTime-Core.vbs.
+--------------------
+
+--------------------
+COMMIT - 10/2/2019
 v0.8.8 - ScanCore to v0.1. 
 
 -v0.8.8.
