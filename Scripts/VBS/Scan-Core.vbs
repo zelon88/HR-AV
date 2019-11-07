@@ -21,7 +21,9 @@ Dim objShell, objFSO, sesID, humanDate, logDate, humanTime, logTime, humanDateTi
  charArr, charArr2, tmpChar, tmpChar2, strToClean1, strToClean2, strEventInfo, objLogFile, logFilePath, whoamiOutput, strHRAVUserName, strHRAVPassword, fullScriptName, arr, _
  obj, x, i, tempArray, rpCounter, pcs, oWMISrvc, errorNumber, errorMessage, quietly, cantError, windowNote, message, typeMsg, dontContinue, sBinaryToRun, sCommand, sAsync, srun, _
  stempfile, sasync1, stempData, searchScripts, scriptsToSearch, procSearch, procsToSearch, strComputer, objRAMService,  result, resultSet, availableRAMBytes, availableRAMKB, availableRAMMB, _
- availableRAMGB, commitLimitRAMBytes, commitLimitRAMKB, commitLimitRAMMB, commitLimitRAMGB, committedRAMBytes, committedRAMKB, committedRAMMB, committedRAMGB, objDrives, objDrive, edCounter
+ availableRAMGB, commitLimitRAMBytes, commitLimitRAMKB, commitLimitRAMMB, commitLimitRAMGB, committedRAMBytes, committedRAMKB, committedRAMMB, committedRAMGB, objDrives, objDrive, edCounter, _
+ eDelimiter, eString, eLimit, fgcPath, objFGCFile, exCounter, nexCounter, newInfection, infectionArray, exception, exceptionFile, exceptionCSVData, type, workeType, targetType, memoryLimit, _
+ excepptionArray
 
 'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
@@ -422,5 +424,107 @@ Function enumerateDrives()
   objDrives = NULL
   tempArray = NULL
   edCounter = NULL
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to turn a CSV string variable into an array.
+'Also works with other delimiters other than comma.
+'https://phpvbs.verygoodtown.com/en/vbscript-explode-function/
+Function explode(eDelimiter, eString, eLimit) 
+  explode = FALSE
+  If len(eDelimiter) = 0 Then Exit Function
+  If len(eLimit) = 0 Then elimit = 0
+  If eLimit > 0 Then
+    explode = Split(eString, eDelimiter, eLimit)
+  Else
+    explode = Split(eString, eDelimiter)
+  End If
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to read files into memory as a string like PHP's file_get_contents.
+'Inspired by https://blog.ctglobalservices.com/scripting-development/jgs/include-other-files-in-vbscript/
+Function fileGetContents(fgcPath) 
+  'Set a handle to the file to be opened.
+  Set objFGCFile = objFSO.OpenTextFile(fgcPath, 1)
+  'Read the contents of the file into a string.
+  fileGetContents = objFGCFile.ReadAll
+  'Close the handle to the file we opened earlier in the function.
+  objFGCFile.Close
+  'Clean up unneeded memory.
+  objFGCFile = NULL
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to purge the infectionArray of exceptions.
+'For performance, we check exceptions after all infections have been detected.
+'We iterate throgugh all infections & check them against the exception list.
+Function checkExceptions(infectionArray) 
+  checkExceptions = Array()
+  exCounter = 0
+  nexCounter = 0
+  'Detect if no exceptionFile exists & create one if needed.
+  If Not objFSO.FileExists(exceptionFile) Then
+    objFSO.CreateTextFile(exceptionFile)
+  End If
+  'Load the exceptions.csv file and load it into an array.
+  exceptionCSVData = fileGetContents(exceptionFile)
+  exceptionArray - explode(",", exceptionCSVData, 0)
+  'Iterate through the exception list & check if any of the detected infectinons are exempt.
+  For Each exception In exceptionArray
+    If InArray(infectionArray, exception) Then
+      infectionArray(exCounter) = ""
+    End If
+    exCounter = exCounter + 1
+  Next
+  'Rebuild the input array without the deleted elements found above.
+  For Each newInfection In infectionArray
+    If newInfection <> "" Then
+      checkExceptions(nexCounter) = newInfection
+    End If
+    nexCounter = nexCounter + 1
+  Next
+  'clean up unneeded memory.
+  exCounter = NULL
+  nexCounter = NULL
+  newInfection = NULL
+  exception = NULL
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to add a target file or registry key to the exception list.
+Function addException(target, type)
+
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to start a worker.
+'Workers perform scan & file operations on targets using resources.
+'A worker is a single thread with a designated memory limit and a specific target object.
+'workerType can be scanner or janitor.
+'targetType can be either "registry" or "file".
+'target can be specific registry keys or files specified by path.
+'memoryLimit must be an integer of available RAM.
+Function startWorker(workerType, target, targetType, memoryLimit)
+
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to prepare the scanner for operation.
+Function prepareScanner()
+
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to scan the system for infections.
+Function smartScan()
+
 End Function
 '--------------------------------------------------

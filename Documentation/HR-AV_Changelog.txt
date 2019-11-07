@@ -1,5 +1,17 @@
 --------------------
 COMMIT - 11/7/2019
+v0.9.1 - Still working on Scan-Core.vbs supporting functions for thread handler.
+
+-v0.9.1.
+-Still Working on supporting functions for the thread manager.
+-Commenting as I go this time.
+-Added code to exempt inections based on an exemption list.
+-Still need to create the code to define the path to the exemptionlist.
+-Need to add a directory for the exemptionlist. This maybe should go into appcore instead of scancore?
+--------------------
+
+--------------------
+COMMIT - 11/7/2019
 v0.9.0 - Working on Scan-Core.vbs supporting functions for thread handler.
 
 -v0.9.0.
