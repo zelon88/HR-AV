@@ -1,4 +1,13 @@
 --------------------
+COMMIT - 11/7/2019
+v0.9.0 - Working on Scan-Core.vbs supporting functions for thread handler.
+
+-v0.9.0.
+-Working on supporting functions for the thread manager.
+-Commented a lot of code.
+--------------------
+
+--------------------
 COMMIT - 10/2/2019
 v0.8.9 - Working on ScanCore.vbs. 
 
