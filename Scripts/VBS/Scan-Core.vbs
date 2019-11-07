@@ -30,7 +30,6 @@ Set objShell = CreateObject("WScript.Shell")
 Set oWMISrvc = GetObject("winmgmts:")
 Set objRAMService = GetObject("winmgmts:\\.\root\cimv2")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
-
 'Environment Related Variables.
 Const sesID = Int(Rnd * 10000000)
 Const KB = 1024
@@ -59,6 +58,8 @@ logsDirectory = currentDirectory & "\Logs\"
 reportsDirectory = currentDirectory & "\Reports\"
 resourcesDirectory = currentDirectory & "\Resources\"
 logFilePath = Trim(logsDirectory & "RTP-Log_" & logDate)
+exceptionDirectory = currentDirectory & "\Exceptions\"
+excepptionFile = exceptionDirectory & "Exception_List.csv"
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -468,7 +469,7 @@ Function checkExceptions(infectionArray)
   nexCounter = 0
   'Detect if no exceptionFile exists & create one if needed.
   If Not objFSO.FileExists(exceptionFile) Then
-    objFSO.CreateTextFile(exceptionFile)
+    objFSO.CreateTextFile(exceptionFile, TRUE)
   End If
   'Load the exceptions.csv file and load it into an array.
   exceptionCSVData = fileGetContents(exceptionFile)
@@ -476,6 +477,7 @@ Function checkExceptions(infectionArray)
   'Iterate through the exception list & check if any of the detected infectinons are exempt.
   For Each exception In exceptionArray
     If InArray(infectionArray, exception) Then
+      ReDim Preserve infectionArray(exCounter)
       infectionArray(exCounter) = ""
     End If
     exCounter = exCounter + 1
@@ -483,6 +485,7 @@ Function checkExceptions(infectionArray)
   'Rebuild the input array without the deleted elements found above.
   For Each newInfection In infectionArray
     If newInfection <> "" Then
+      ReDim Preserve exceptionArray(nexCounter)
       checkExceptions(nexCounter) = newInfection
     End If
     nexCounter = nexCounter + 1
@@ -497,8 +500,24 @@ End Function
 
 '--------------------------------------------------
 'A function to add a target file or registry key to the exception list.
-Function addException(target, type)
-
+Function addException(exception) 
+  exceptionData = ""
+  exceptionArray = ""
+  If objFSO.FileExists(exceptionFile) Then
+    exceptionData = fileGetContents(exceptionFile)
+    exceptionArray = explode(",", exceptionData, 0)
+    objFSO.DeleteFile(exceptionFile)
+  End If
+  If Not objFSO.FileExists(exceptionFile) Then
+    Set objEFile = objFSO.CreateTextFile(exceptionFile, TRUE)
+    ReDim Preserve exceptionArray(UBound(exceptionArray) + 1)
+    exceptionArray(UBound(exceptionArray)) = exception
+    objEFile.WriteLine(Join(exceptionArray, ","))
+    objEFile.Close
+  End If
+  'Clean up unneeded memory.
+  exceptionData = NULL
+  objEFile = NULL
 End Function
 '--------------------------------------------------
 

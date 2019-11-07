@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 9/23/2019
+'Date: 11/7/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -33,7 +33,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  errorMessage, sCommLine, dProcess, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, resourcesDirectory, _
  logDateTime, logTime, charArr, tmpChar, charArr2, tmpChar2, outputStr1, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, objVBSFile, _
  cantError, sProcName, oWMISrvc, Timesec, dontContinue, pathToVBS, typeMsg, humanTime, message, oRE, RTPCacheFile1, oRTPCacheFile1, RTPCacheFile2, _
- requiredCacheFile, requiredCacheFiles, oRTPCacheFile2
+ requiredCacheFile, requiredCacheFiles, oRTPCacheFile2, exceptionDirectory, excepptionFile
 
 '--------------------------------------------------
 'UI Related Variables.
@@ -51,12 +51,12 @@ Set objSysInfo = CreateObject("WinNTSystemInfo")
 Set objWshNet = CreateObject("WScript.Network")
 Set oWMISrvc = GetObject("winmgmts:")
 'Time Related Variables.
-humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
-logDate = Trim(Replace(humanDate, "/", "-"))
-humanTime = Trim(FormatDateTime(Now, vbLongTime))
-logTime = Trim(Replace(Replace(humanTime, ":", "-"), " ", ""))
-humanDateTime = Trim(humanDate & " " & humanTime)
-logDateTime = Trim(logDate & "_" & logTime)
+Const humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
+Const logDate = Trim(Replace(humanDate, "/", "-"))
+Const humanTime = Trim(FormatDateTime(Now, vbLongTime))
+Const logTime = Trim(Replace(Replace(humanTime, ":", "-"), " ", ""))
+Const humanDateTime = Trim(humanDate & " " & humanTime)
+Const logDateTime = Trim(logDate & "_" & logTime)
 'Directory Related Variables.
 fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 currentDirectory = Trim(objFSO.GetAbsolutePathName("."))
@@ -74,24 +74,26 @@ mediaDirectory = currentDirectory & "\Media\"
 logsDirectory = currentDirectory & "\Logs\"
 reportsDirectory = currentDirectory & "\Reports\"
 resourcesDirectory = currentDirectory & "\Resources\"
+exceptionDirectory = currentDirectory & "\Exceptions\"
 logFilePath = Trim(logsDirectory & appName & "-Log_" & logDate)
 realTimeCoreFile = vbsScriptsDirectory & "Real-Time-Core.vbs"
 tempFile = tempDirectory & "temp.txt"
 stempFile = tempDirectory & "systemp.txt"
 RTPCacheFile1 = cacheDirectory & "RTP-cache1.dat"
 RTPCacheFile2 = cacheDirectory & "RTP-cache2.dat"
-requiredDirs = Array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory, reportsDirectory)
+excepptionFile = exceptionDirectory & "Exception_List.csv"
+requiredDirs = Array(scriptsDirectory, binariesDirectory, tempDirectory, cacheDirectory, mediaDirectory, logsDirectory, reportsDirectory, exceptionDirectory)
 requiredCacheFiles = Array(RTPCacheFile1, RTPCacheFile2)
 arrFN = Split(fullScriptName, "\")
 scriptName = Trim(arrFN(UBound(arrFN)))
 'Misc Variables.
-sesID = Int(Rnd * 10000000)
-strNamespace = "root\cimv2"
-strCurrentUserName = Trim(objSysInfo.UserName)
-strHRAVUserName = "HRAV"
-strHRAVGroupName = "Administrators" 
-strComputer = "."
-strComputerName = Trim(objWshNet.ComputerName)
+Const sesID = Int(Rnd * 10000000)
+Const strNamespace = "root\cimv2"
+Const strCurrentUserName = Trim(objSysInfo.UserName)
+Const strHRAVUserName = "HRAV"
+Const strHRAVGroupName = "Administrators" 
+Const strComputer = "."
+Const strComputerName = Trim(objWshNet.ComputerName)
 dontContinue = FALSE
 '--------------------------------------------------
 
