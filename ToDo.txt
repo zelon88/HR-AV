@@ -1,5 +1,11 @@
-ToDo  -  8/25/2019
+ToDo  
 
+11/7/2019
+
+Need to modify scancore.php to give it a switch that disables recursion. Then I can use it asynchronouslyto scan one directory level at a time . This will make it easier to manage workers. 
+
+
+8/25/2019
 
 UI IDEAS
 Play a sound when job is complete
