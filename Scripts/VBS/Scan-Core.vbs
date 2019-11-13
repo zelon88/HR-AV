@@ -16,15 +16,20 @@
 'Set global variables for the session.
 Option Explicit
 
-Dim objShell, objFSO, sesID, humanDate, logDate, humanTime, logTime, humanDateTime, logDateTime, currentDirectory, configFile, scriptsDirectory, vbsScriptsDirectory, _
- binariesDirectory, cacheDirectory, tempDirectory, pagesDirectory, mediaDirectory, logsDirectory, reportsDirectory, resourcesDirectory, logFilePath, objVBSFile, Timesec, _
- charArr, charArr2, tmpChar, tmpChar2, strToClean1, strToClean2, strEventInfo, objLogFile, logFilePath, whoamiOutput, strHRAVUserName, strHRAVPassword, fullScriptName, arr, _
- obj, x, i, tempArray, rpCounter, pcs, oWMISrvc, errorNumber, errorMessage, quietly, cantError, windowNote, message, typeMsg, dontContinue, sBinaryToRun, sCommand, sAsync, srun, _
- stempfile, sasync1, stempData, searchScripts, scriptsToSearch, procSearch, procsToSearch, strComputer, objRAMService,  result, resultSet, availableRAMBytes, availableRAMKB, availableRAMMB, _
- availableRAMGB, commitLimitRAMBytes, commitLimitRAMKB, commitLimitRAMMB, commitLimitRAMGB, committedRAMBytes, committedRAMKB, committedRAMMB, committedRAMGB, objDrives, objDrive, edCounter, _
- eDelimiter, eString, eLimit, fgcPath, objFGCFile, exCounter, nexCounter, newInfection, infectionArray, exception, exceptionFile, exceptionCSVData, type, workeType, targetType, memoryLimit, _
- excepptionArray, priority, chunkCoef, priorityCoef, workerRAMLimit, availableRAM, workerChunkSize, workerLimit, enumFolder, enumSubFolder, mValEl, mArray, mValue, tPath, checkExceptions, _
- exCounter, nexCounter, newInfection, exception, exceptionData, exceptionArray
+Dim objShell, objFSO, sesID, humanDate, logDate, humanTime, logTime, humanDateTime, logDateTime, currentDirectory, _
+ binariesDirectory, cacheDirectory, tempDirectory, pagesDirectory, mediaDirectory, logsDirectory, reportsDirectory, _ 
+ resourcesDirectory, logFilePath, objVBSFile, Timesec, scriptsDirectory, vbsScriptsDirectory, arr, fullScriptName, _
+ charArr, charArr2, tmpChar, tmpChar2, strToClean1, strToClean2, strEventInfo, objLogFile, logFilePath, whoamiOutput, _
+ obj, x, i, tempArray, rpCounter, pcs, oWMISrvc, errorNumber, errorMessage, quietly, cantError, windowNote, message, _ 
+ typeMsg, dontContinue, sBinaryToRun, sCommand, sAsync, srun, strHRAVUserName, strHRAVPassword, result, resultSet, _
+ stempfile, sasync1, stempData, searchScripts, scriptsToSearch, procSearch, procsToSearch, strComputer, objRAMService, _
+ availableRAMGB, commitLimitRAMBytes, commitLimitRAMKB, commitLimitRAMMB, commitLimitRAMGB, committedRAMBytes, _
+ committedRAMKB, committedRAMMB, committedRAMGB, objDrives, objDrive, edCounter, availableRAMBytes, availableRAMKB, _
+ eDelimiter, eString, eLimit, fgcPath, objFGCFile, exCounter, nexCounter, newInfection, infectionArray, exception, _
+ exceptionFile, exceptionCSVData, type, workeType, targetType, memoryLimit, availableRAMMB, exceptionArray, _
+ excepptionArray, priority, chunkCoef, priorityCoef, workerRAMLimit, availableRAM, workerChunkSize, workerLimit, _ 
+ enumFolder, enumSubFolder, mValEl, mArray, mValue, tPath, checkExceptions, nexCounter, newInfection, exception,_
+ exCounter, exceptionData, configFile, targets, wTarget
 
 'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
@@ -280,7 +285,9 @@ Function DieGracefully(errorNumber, errorMessage, quietly)
   'quietly must be a boolean value.
   If Not IsNumeric(errorNumber) Or TypeName(errorMessage) <> "String" Then
     cantError = TRUE
-    MsgBox appName & "-" & sesID & " ERROR-" & errorNumber & " on " & humanDateTime & ", There was a critical error, but due to the severity of the error more information cannot be displayed. The application will now terminate."
+    MsgBox appName & "-" & sesID & " ERROR-" & errorNumber & " on " & humanDateTime & _ 
+     ", There was a critical error, but due to the severity of the error more information cannot be displayed. " & _
+     "The application will now terminate."
   End If
   'If the sanity checks have passed we issue the error.
   errorMessage = appName & "-" & sesID & " ERROR-" & errorNumber & " on " & humanDateTime & ", " & SanitizeFolder(errorMessage) & "!"
@@ -639,7 +646,7 @@ End Function
 
 '--------------------------------------------------
 'A function to prepare the scanner for operation.
-Function prepareScanner(priority, target, targetType, availableRAM)
+Function prepareScanner(priority, target, targetType)
   'Redefine the target array variable incase this is not the first time the function is being called.
   targetArray = Array()
   'Check how much RAM is available, in bytes.
@@ -670,6 +677,13 @@ Function prepareScanner(priority, target, targetType, availableRAM)
   If LCase(targetType) = "registry" Then
 
   End If
+  prepareScanner = targetArray
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+Function requestMoreWorkers()
+
 End Function
 '--------------------------------------------------
 
@@ -681,10 +695,13 @@ End Function
 'targetType can be either "registry" or "file".
 'target can be specific registry keys or files specified by path.
 'Priority must be an integer between 1 & 10.
-Function startWorker(workerType, target, targetType)
+Function startWorker(workerType, wTarget, targetType)
   If LCase(workerType) = "scanner" Then
     If LCase(targetType) = "file" Then 
-    
+      'Run the PHP\7.3.8\php.exe binary with cmd.exe, hide the window, don't wait for completion, & 
+       'call Scripts\PHP\PHP-AV\scanCore.php script against the target with the specified RAM & chunk settings, without recursion.
+      objShell.Run "C:\Windows\System32\cmd.exe /c " & binariesDirectory & "PHP\7.3.8\php.exe " & _
+       scriptsDirectory & _ "PHP\scanCore.php " & wTarget & " -m " & workerRAMLimit & " -c " & workerChunkSize " -nr", 0, FALSE
     End If
     If LCase(targetType) = "registry" Then
 
@@ -704,11 +721,16 @@ End Function
 
 '--------------------------------------------------
 'A function to scan the system for infections.
-Function smartScan(priority, target, targetType, workerLimit, workerCount)
-  While workerLimit != workerCount
+Function smartScan(priority, target, targetType)
+  targetArray = prepareScanner(priority, target, targetType)
+  For targets In targetArray
     On Error Resume Next
-
-    workerCount = workerCount + 1
+    If workerCount != workerLimit Then
+      startWorker(workerType, targets, targetType)
+      workerCount = workerCount + 1
+    Else 
+      requestMoreWorkers()
+    End If
   Next
 End Function
 '--------------------------------------------------
