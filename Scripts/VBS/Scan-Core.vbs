@@ -23,21 +23,38 @@ Dim objShell, objFSO, sesID, humanDate, logDate, humanTime, logTime, humanDateTi
  stempfile, sasync1, stempData, searchScripts, scriptsToSearch, procSearch, procsToSearch, strComputer, objRAMService,  result, resultSet, availableRAMBytes, availableRAMKB, availableRAMMB, _
  availableRAMGB, commitLimitRAMBytes, commitLimitRAMKB, commitLimitRAMMB, commitLimitRAMGB, committedRAMBytes, committedRAMKB, committedRAMMB, committedRAMGB, objDrives, objDrive, edCounter, _
  eDelimiter, eString, eLimit, fgcPath, objFGCFile, exCounter, nexCounter, newInfection, infectionArray, exception, exceptionFile, exceptionCSVData, type, workeType, targetType, memoryLimit, _
- excepptionArray, priority, chunkCoef, priorityCoef, workerRAMLimit, availableRAM, workerChunkSize, workerLimit, enumFolder, enumSubFolder, mValEl, mArray, mValue, tPath
+ excepptionArray, priority, chunkCoef, priorityCoef, workerRAMLimit, availableRAM, workerChunkSize, workerLimit, enumFolder, enumSubFolder, mValEl, mArray, mValue, tPath, checkExceptions, _
+ exCounter, nexCounter, newInfection, exception, exceptionData, exceptionArray
 
 'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
 Set oWMISrvc = GetObject("winmgmts:")
 Set objRAMService = GetObject("winmgmts:\\.\root\cimv2")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
-'Environment Related Variables.
+'Environment Related Constants.
 Const sesID = Int(Rnd * 10000000)
 Const KB = 1024
 Const MB = KB * 1024
 Const GB = MB * 1024
 Const priorityCoef = 1
 Const chunkCoef = 3
-'Time Related Variables.
+Const strComputer = "."
+'Environment Related Variables.
+workerLimit = 0
+workerCount = 0
+availableRAM = 0
+workerRAMLimit = 0
+workerChunkSize = 0
+nexCounter = 0
+exCounter = 0
+exceptionData = ""
+newInfection = ""
+exception = ""
+exceptionData = ""
+exceptionArray = Array()
+targetArray = Array()
+checkExceptions = Array()
+'Time Related Constants.
 Const humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
 Const logDate = Trim(Replace(humanDate, "/", "-"))
 Const humanTime = Trim(FormatDateTime(Now, vbLongTime))
@@ -45,7 +62,6 @@ Const logTime = Trim(Replace(Replace(humanTime, ":", "-"), " ", ""))
 Const humanDateTime = Trim(humanDate & " " & humanTime)
 Const logDateTime = Trim(logDate & "_" & logTime)
 'Directory Related Variables.
-Const strComputer = "."
 currentDirectory = Replace(Trim(objFSO.GetAbsolutePathName(strComputer)), "\Scripts\VBS\", "")
 currentDirectory = Trim(Mid(currentDirectory, 1, len(currentDirectory) - 11))
 configFile = currentDirectory & "\Config\Config.vbs"
@@ -494,6 +510,9 @@ Function checkExceptions(infectionArray)
   checkExceptions = Array()
   exCounter = 0
   nexCounter = 0
+  newInfection = ""
+  exception = ""
+  exceptionArray = ""
   'Detect if no exceptionFile exists & create one if needed.
   If Not objFSO.FileExists(exceptionFile) Then
     objFSO.CreateTextFile(exceptionFile, TRUE)
@@ -528,17 +547,29 @@ End Function
 '--------------------------------------------------
 'A function to add a target file or registry key to the exception list.
 Function addException(exception) 
+  'Re-define variables incase this function has been called before.
   exceptionData = ""
   exceptionArray = ""
+  'See if a "exceptionFile" exists.
   If objFSO.FileExists(exceptionFile) Then
+    'Read the exception file into memory.
     exceptionData = fileGetContents(exceptionFile)
+    'Turn the comma separated list loaded into memory into an array.
     exceptionArray = explode(",", exceptionData, 0)
+    'Delete the existing exception file. 
+    'This triggers the additional code condition below that executes when an exception file is missing.
     objFSO.DeleteFile(exceptionFile)
   End If
+  'If no "exceptionFile" exists. 
+  'If no errors are encountered, this code should fire every time the function is called.
   If Not objFSO.FileExists(exceptionFile) Then
+    'Create an empty exception file.
     Set objEFile = objFSO.CreateTextFile(exceptionFile, TRUE)
+    'Re-define the length of the Exception array.
     ReDim Preserve exceptionArray(UBound(exceptionArray) + 1)
+    'Add the new exception to the exception array.
     exceptionArray(UBound(exceptionArray)) = exception
+    'Write the newly created exceptionArray to the newly created exception file.
     objEFile.WriteLine(Join(exceptionArray, ","))
     objEFile.Close
   End If
@@ -549,56 +580,21 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
-'A function to start a worker.
-'Workers perform scan & file operations on targets using resources.
-'A worker is a single thread with a designated memory limit and a specific target object.
-'workerType can be scanner or janitor.
-'targetType can be either "registry" or "file".
-'target can be specific registry keys or files specified by path.
-'Priority must be an integer between 1 & 10.
-Function startWorker(workerType, target, targetType)
-  If LCase(workerType) = "scanner" Then
-    If LCase(targetType) = "file" Then 
-    
-    End If
-    If LCase(targetType) = "registry" Then
-
-    End If
-  End If
-
-  If LCase(workerType) = "janitor" Then
-    If LCase(targetType) = "file" Then 
-    
-    End If
-    If LCase(targetType) = "registry" Then
-
-    End If
-  End IF
-End Function
-'--------------------------------------------------
-
-'--------------------------------------------------
 'https://stackoverflow.com/questions/1433785/vbscript-to-iterate-through-set-level-of-subfolders
 Function enumerateSubdirs(enumFolder) 
   enumerateSubdirs = Array()
+  'Iterate through each subfolder of the "enumFolder".
   For Each enumSubFolder in enumFolder.enumSubFolder
-    Wscript.Echo enumSubFolder.Path
-    esdTemp = push(enumerateSubdirs, enumSubFolder)
+    enumSubFolderPath = enumSubFolder.Path 
+    'Add the current path to the "targetArray".
+    esdTemp = push(enumerateSubdirs, enumSubFolderPath)
+    'We must use a temp variable here to avoid an out of memory error.
     enumerateSubdirs = esdTemp
-    enumerateSubdirs enumSubFolder
+    'Iterate deeper into the directory hierarchy.
+    enumerateSubdirs enumSubFolderPath
   Next
-End Function
-'--------------------------------------------------
-
-'--------------------------------------------------
-'A function to prepare the scanner for operation.
-Function prepareScanner(target, targetType, availableRAM)
-
-If targetType = "file" Then
-  If 
-End IF
-
-
+  'Clean up unneeded memory.
+  esdTemp = NULL
 End Function
 '--------------------------------------------------
 
@@ -607,8 +603,8 @@ End Function
 'https://stackoverflow.com/questions/21035366/how-to-check-the-given-path-is-a-directory-or-file-in-vbscript
 Function GetFSElementType(ByVal tPath)
   With CreateObject("Scripting.FileSystemObject") 
-    tPath = .GetAbsolutePathName( tPath )
-    Select Case True
+    tPath = .GetAbsolutePathName(tPath)
+    Select Case TRUE
       Case .FileExists(tPath)   : GetFSElementType = 1
       Case .FolderExists(tPath) : GetFSElementType = 2
       Case Else                : GetFSElementType = 0
@@ -642,20 +638,77 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
-'A function to scan the system for infections.
-Function smartScan(priority, target, targetType)
-
+'A function to prepare the scanner for operation.
+Function prepareScanner(priority, target, targetType, availableRAM)
+  'Redefine the target array variable incase this is not the first time the function is being called.
+  targetArray = Array()
+  'Check how much RAM is available, in bytes.
   availableRAM = checkRAM()
+  'Validate the priority. It must be a number between 1 and 10.
+  'If the priority is not valid, we assume it is 5.
+  'The priority is multiplied by 10 and used to represent a percentage of available system RAM.
   If Not IsNumeric(priority) Or priority > 10 Or priority <= 0 Then 
     priority = 5
   End If
+  'Here is where we multiply the priority by 10. Also rounds the result into a whole number.
   priorityCoef = Round(priority * 10) 
+  'Here we find the percentage of ram that represents our priority percentage. 
+  'A priority of 9 allows the Scan-Core to consume 90% of available RAM.
   workerRAMLimit = Round((availableRAM * priorityCoef) / 100) 
   workerChunkSize = Round(workerRAMLimit / chunkCoef)
-  workerLimit = workerChunkSize
+  'Add the root target to the target array.
+  targetArray = push(target, targetArray)
+  'If the target is a file, we add it to the target array.
+  If LCase(targetType) = "file" Then
+    targetArray = enumSubFolder
+    'The workerlimit is set as the number of elements in the array.
+    'Default is one worker per subdirectory.
+    'If the target is a lonely file, it only gets a single worker.
+    workerLimit = UBound(enumSubFolder) + 1
+  End IF
+  'If the file is a registry object, we validate it and add it to the target array.
+  If LCase(targetType) = "registry" Then
+
+  End If
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to start a worker.
+'Workers perform scan & file operations on targets using resources.
+'A worker is a single thread with a designated memory limit and a specific target object.
+'workerType can be scanner or janitor.
+'targetType can be either "registry" or "file".
+'target can be specific registry keys or files specified by path.
+'Priority must be an integer between 1 & 10.
+Function startWorker(workerType, target, targetType)
+  If LCase(workerType) = "scanner" Then
+    If LCase(targetType) = "file" Then 
+    
+    End If
+    If LCase(targetType) = "registry" Then
+
+    End If
+  End If
+
+  If LCase(workerType) = "janitor" Then
+    If LCase(targetType) = "file" Then 
+    
+    End If
+    If LCase(targetType) = "registry" Then
+
+    End If
+  End IF
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to scan the system for infections.
+Function smartScan(priority, target, targetType, workerLimit, workerCount)
   While workerLimit != workerCount
     On Error Resume Next
 
+    workerCount = workerCount + 1
   Next
 End Function
 '--------------------------------------------------
