@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 11/7/2019
+'Date: 11/12/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -23,7 +23,7 @@ Dim objShell, objFSO, sesID, humanDate, logDate, humanTime, logTime, humanDateTi
  stempfile, sasync1, stempData, searchScripts, scriptsToSearch, procSearch, procsToSearch, strComputer, objRAMService,  result, resultSet, availableRAMBytes, availableRAMKB, availableRAMMB, _
  availableRAMGB, commitLimitRAMBytes, commitLimitRAMKB, commitLimitRAMMB, commitLimitRAMGB, committedRAMBytes, committedRAMKB, committedRAMMB, committedRAMGB, objDrives, objDrive, edCounter, _
  eDelimiter, eString, eLimit, fgcPath, objFGCFile, exCounter, nexCounter, newInfection, infectionArray, exception, exceptionFile, exceptionCSVData, type, workeType, targetType, memoryLimit, _
- excepptionArray
+ excepptionArray, priority, chunkCoef, priorityCoef, workerRAMLimit, availableRAM, workerChunkSize, workerLimit, enumFolder, enumSubFolder, mValEl, mArray, mValue, tPath
 
 'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
@@ -35,6 +35,8 @@ Const sesID = Int(Rnd * 10000000)
 Const KB = 1024
 Const MB = KB * 1024
 Const GB = MB * 1024
+Const priorityCoef = 1
+Const chunkCoef = 3
 'Time Related Variables.
 Const humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
 Const logDate = Trim(Replace(humanDate, "/", "-"))
@@ -228,6 +230,30 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
+'http://www.vbforums.com/showthread.php?280636-VBScript-Array-Push
+  Function push(ByRef mArray, ByVal mValue)
+    If IsArray(mArray) Then
+      If IsArray(mValue) Then
+        For Each mValEl In mValue
+          Redim Preserve mArray(UBound(mArray) + 1)
+          mArray(UBound(mArray)) = mValEl
+        Next
+      Else
+        Redim Preserve mArray(UBound(mArray) + 1)
+        mArray(UBound(mArray)) = mValue
+      End If
+    Else
+      If IsArray(mValue) Then
+        mArray = mValue
+      Else
+        mArray = Array(mValue)
+      End If
+    End If
+    push = UBound(mArray)
+  End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
 'A function to kill the script when a critical error occurs and display a useful message to the user.
 'Also logs the output.
 Function DieGracefully(errorNumber, errorMessage, quietly)
@@ -384,6 +410,7 @@ Function checkRAM()
   For Each result in resultSet
     'Set variables for current Available RAM. In bytes, KB, MB, & GB.
     availableRAMBytes = Round(objItem.AvailableBytes,3)
+    checkRAM = availableRAMBytes
     availableRAMKB = Round(availableRAMBytes / KB,3)
     availableRAMMB = Round(availableRAMBytes / MB,3)
     availableRAMGB = Round(availableRAMBytes / GB,3)
@@ -528,22 +555,107 @@ End Function
 'workerType can be scanner or janitor.
 'targetType can be either "registry" or "file".
 'target can be specific registry keys or files specified by path.
-'memoryLimit must be an integer of available RAM.
-Function startWorker(workerType, target, targetType, memoryLimit)
+'Priority must be an integer between 1 & 10.
+Function startWorker(workerType, target, targetType)
+  If LCase(workerType) = "scanner" Then
+    If LCase(targetType) = "file" Then 
+    
+    End If
+    If LCase(targetType) = "registry" Then
 
+    End If
+  End If
+
+  If LCase(workerType) = "janitor" Then
+    If LCase(targetType) = "file" Then 
+    
+    End If
+    If LCase(targetType) = "registry" Then
+
+    End If
+  End IF
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'https://stackoverflow.com/questions/1433785/vbscript-to-iterate-through-set-level-of-subfolders
+Function enumerateSubdirs(enumFolder) 
+  enumerateSubdirs = Array()
+  For Each enumSubFolder in enumFolder.enumSubFolder
+    Wscript.Echo enumSubFolder.Path
+    esdTemp = push(enumerateSubdirs, enumSubFolder)
+    enumerateSubdirs = esdTemp
+    enumerateSubdirs enumSubFolder
+  Next
 End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
 'A function to prepare the scanner for operation.
-Function prepareScanner()
+Function prepareScanner(target, targetType, availableRAM)
+
+If targetType = "file" Then
+  If 
+End IF
+
 
 End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
-'A function to scan the system for infections.
-Function smartScan()
+'A function to determine what type of target is selected.
+'https://stackoverflow.com/questions/21035366/how-to-check-the-given-path-is-a-directory-or-file-in-vbscript
+Function GetFSElementType(ByVal tPath)
+  With CreateObject("Scripting.FileSystemObject") 
+    tPath = .GetAbsolutePathName( tPath )
+    Select Case True
+      Case .FileExists(tPath)   : GetFSElementType = 1
+      Case .FolderExists(tPath) : GetFSElementType = 2
+      Case Else                : GetFSElementType = 0
+  End Select
+  End With
+End Function
+'--------------------------------------------------
 
+'--------------------------------------------------
+'A function to determine if a target is a file.
+'https://stackoverflow.com/questions/21035366/how-to-check-the-given-path-is-a-directory-or-file-in-vbscript
+Function IsFile(tPath)
+  IsFile = (GetFSElementType(tPath) = 1)
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to determine if a target is a folder.
+'https://stackoverflow.com/questions/21035366/how-to-check-the-given-path-is-a-directory-or-file-in-vbscript
+Function IsFolder(tPath)
+  IsFolder = (GetFSElementType(tPath) = 2)
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to determine if a target exists.
+'https://stackoverflow.com/questions/21035366/how-to-check-the-given-path-is-a-directory-or-file-in-vbscript
+Function FSExists(tPath)
+  FSExists = (GetFSElementType(tPath) <> 0)
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to scan the system for infections.
+Function smartScan(priority, target, targetType)
+
+  availableRAM = checkRAM()
+  If Not IsNumeric(priority) Or priority > 10 Or priority <= 0 Then 
+    priority = 5
+  End If
+  priorityCoef = Round(priority * 10) 
+  workerRAMLimit = Round((availableRAM * priorityCoef) / 100) 
+  workerChunkSize = Round(workerRAMLimit / chunkCoef)
+  workerLimit = workerChunkSize
+  While workerLimit != workerCount
+    On Error Resume Next
+
+  Next
 End Function
 '--------------------------------------------------
