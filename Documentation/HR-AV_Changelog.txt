@@ -1,3 +1,14 @@
+--------------------
+COMMIT - 11/7/2019
+v0.9.3.6 - Add logging to recently created thread handler.
+
+-v9.9.3.6.
+-Add logging to the thread / worker manager.
+-Remove the concept of a "requestMoreWorkers()" function. It shouldn't be required if scanning prep is done properly and creates a huge security risk of arbitrary code execution. Everything is sanitized, but still why allow unforseen execution? Do better hueristics beforehand.
+-Add a sleeper to pace the thread manager. Now it won't DDoS the host. Was pretty much a fork bomb before. >D
+--------------------
+
+--------------------
 COMMIT - 11/7/2019
 v0.9.3.5 - Still working on Scan-Core.vbs supporting functions for thread handler.
 

@@ -29,7 +29,7 @@ Dim objShell, objFSO, sesID, humanDate, logDate, humanTime, logTime, humanDateTi
  exceptionFile, exceptionCSVData, type, workeType, targetType, memoryLimit, availableRAMMB, exceptionArray, _
  excepptionArray, priority, chunkCoef, priorityCoef, workerRAMLimit, availableRAM, workerChunkSize, workerLimit, _ 
  enumFolder, enumSubFolder, mValEl, mArray, mValue, tPath, checkExceptions, nexCounter, newInfection, exception,_
- exCounter, exceptionData, configFile, targets, wTarget
+ exCounter, exceptionData, configFile, targets, wTarget, checkWorkerTimer
 
 'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
@@ -43,6 +43,7 @@ Const MB = KB * 1024
 Const GB = MB * 1024
 Const priorityCoef = 1
 Const chunkCoef = 3
+Const checkWorkerTimer = 3
 Const strComputer = "."
 'Environment Related Variables.
 workerLimit = 0
@@ -429,7 +430,7 @@ End Function
 Function checkRAM()
   'Redefine query each time this function is called.
   Set resultSet = objRAMService.ExecQuery("Select * from Win32_PerfFormattedData_PerfOS_Memory",,48)
-  CreateLog("Checking system memory utilization.")
+  createLog("Checking system memory utilization.")
   For Each result in resultSet
     'Set variables for current Available RAM. In bytes, KB, MB, & GB.
     availableRAMBytes = Round(objItem.AvailableBytes,3)
@@ -463,6 +464,7 @@ Function enumerateDrives()
   enumerateDrives = Array()
   tempArray = Array()
   edCounter = 0
+  createLog("Enumerating mounted disk drive volumes.")
   'Iterate through each drive volume on the system and add it to the tempArray().
   For Each objDrive in objDrives
     tempArray(edCounter) = objDrive.DriveLetter
@@ -498,6 +500,7 @@ End Function
 'A function to read files into memory as a string like PHP's file_get_contents.
 'Inspired by https://blog.ctglobalservices.com/scripting-development/jgs/include-other-files-in-vbscript/
 Function fileGetContents(fgcPath) 
+  createLog("Reading contents of file '" & SanitizeFolder(fgcPath) & "' into memory." )
   'Set a handle to the file to be opened.
   Set objFGCFile = objFSO.OpenTextFile(fgcPath, 1)
   'Read the contents of the file into a string.
@@ -520,6 +523,7 @@ Function checkExceptions(infectionArray)
   newInfection = ""
   exception = ""
   exceptionArray = ""
+  createLog("Checking exception list for matching infections.")
   'Detect if no exceptionFile exists & create one if needed.
   If Not objFSO.FileExists(exceptionFile) Then
     objFSO.CreateTextFile(exceptionFile, TRUE)
@@ -532,6 +536,7 @@ Function checkExceptions(infectionArray)
     If InArray(infectionArray, exception) Then
       ReDim Preserve infectionArray(exCounter)
       infectionArray(exCounter) = ""
+      createLog("Exception '" & SanitizeFolder(exception) & "' found.")
     End If
     exCounter = exCounter + 1
   Next
@@ -557,6 +562,7 @@ Function addException(exception)
   'Re-define variables incase this function has been called before.
   exceptionData = ""
   exceptionArray = ""
+  createLog("Adding an exception for '" & SanitizeFolder(exception) & "'.")
   'See if a "exceptionFile" exists.
   If objFSO.FileExists(exceptionFile) Then
     'Read the exception file into memory.
@@ -647,6 +653,8 @@ End Function
 '--------------------------------------------------
 'A function to prepare the scanner for operation.
 Function prepareScanner(priority, target, targetType)
+  createLog("Preparing scanner type '" & SanitizeFolder(targetType) & "' with a priority of " & SanitizeFolder(priority) & _
+   " against target '" & SanitizeFolder(target) & "'.")
   'Redefine the target array variable incase this is not the first time the function is being called.
   targetArray = Array()
   'Check how much RAM is available, in bytes.
@@ -671,19 +679,16 @@ Function prepareScanner(priority, target, targetType)
     'The workerlimit is set as the number of elements in the array.
     'Default is one worker per subdirectory.
     'If the target is a lonely file, it only gets a single worker.
-    workerLimit = UBound(enumSubFolder) + 1
+    workerLimit = UBound(targetArray) + 1
   End IF
   'If the file is a registry object, we validate it and add it to the target array.
   If LCase(targetType) = "registry" Then
 
   End If
+  createLog("Allocating " & workerLimit & " workers, each with a memory limit of " & ((workerRamLimit / 1024) / 1024) & _
+   "MB and a chunk size of " & ((workerRamLimit / 1024) / 1024) & "MB to be started sequentially utilizing a maximum of " & _
+   priorityCoef & "% of available memory."
   prepareScanner = targetArray
-End Function
-'--------------------------------------------------
-
-'--------------------------------------------------
-Function requestMoreWorkers()
-
 End Function
 '--------------------------------------------------
 
@@ -696,6 +701,8 @@ End Function
 'target can be specific registry keys or files specified by path.
 'Priority must be an integer between 1 & 10.
 Function startWorker(workerType, wTarget, targetType)
+  createLog("Starting worker type '" & SanitizeFolder(workerType) & "' against target '" & SanitizeFolder(target) & _
+   "' of type '" & SanitizeFolder(targetType) & "'.")
   If LCase(workerType) = "scanner" Then
     If LCase(targetType) = "file" Then 
       'Run the PHP\7.3.8\php.exe binary with cmd.exe, hide the window, don't wait for completion, & 
@@ -723,13 +730,23 @@ End Function
 'A function to scan the system for infections.
 Function smartScan(priority, target, targetType)
   targetArray = prepareScanner(priority, target, targetType)
+  createLog("Starting scanner type '" & SanitizeFolder(targetType) & "' with a priority of " & SanitizeFolder(priority) & _
+   " against target '" & SanitizeFolder(target) & "'.")
   For targets In targetArray
     On Error Resume Next
+    'The following loop sleeps the outer loop for as long as there is insufficient RAM to start a new worker.
+    'The loop will check system RAM every <checkWorkerTimer> seconds.
+    While checkRam() < workerRAMLimit
+      Sleep(checkWorkerTimer)
+    Next
+    'If the worker limit has not been met then we continue scanning targets.
     If workerCount != workerLimit Then
       startWorker(workerType, targets, targetType)
+      'Increment the worker counter.
       workerCount = workerCount + 1
-    Else 
-      requestMoreWorkers()
+    Else
+      createLog("Worker allocation depleted.")
+      Exit For
     End If
   Next
 End Function
