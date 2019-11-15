@@ -749,5 +749,6 @@ Function smartScan(priority, target, targetType)
       Exit For
     End If
   Next
+  createLog("Scan Complete.")
 End Function
 '--------------------------------------------------

@@ -1,5 +1,17 @@
 --------------------
-COMMIT - 11/7/2019
+COMMIT - 11/14/2019
+v0.9.3.7 - Update scanCore.php to v0.5. Add -nr argument (disable recursion).
+
+-v0.9.3.7.
+-Update scanCore.php to v0.5. 
+-Added a command line argument to disable recursion.
+-Use -nr or -norecursion to force DISABLE recursive scanning of subdirectories (only a parent target directory will be scanned).
+-Use -r or -recursion to force ENABLE recursive scanning.
+-Specifying recursion is not required because it is implied, but it helps write robust automation tools. If you specify recursion and no recursion via typo somehow, norecursion always takes precidence. That should limit self-inflicted ddos's after drunken typos.
+--------------------
+
+--------------------
+COMMIT - 11/14/2019
 v0.9.3.6 - Add logging to recently created thread handler.
 
 -v9.9.3.6.
