@@ -19,6 +19,7 @@
 <script language="VBScript" src="../../Config/Config.vbs"></script>
 <script language="VBScript" src="../../Scripts/VBS/UI-Core.vbs"></script>
 <script language="VBScript" src="../../Scripts/VBS/App-Core.vbs"></script>
+<script language="VBScript" src="../../Scripts/VBS/Scan-Core.vbs"></script>
 <script language="Javascript" src="../../Scripts/Javascript/JSFunctions.js"></script>
 <link rel="stylesheet" type="text/css" href="../../Scripts/CSS/mainStyle.css"/>
 
@@ -50,8 +51,23 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
     <br />
     <h4><p>File Scanner</p></h4>
     <hr />
-    <div id="HRScan2OutputDiv"><strong>Please wait...</strong></div>
+    <div id="fileScanDiv">
+      
+      <div id="fileScanOptions" name="fileScanOptions" style="display:block;">
+        <input id="priorityInput" name="priorityInput" type="number" min="1" max="10" value="5"/>
+        <button id="selectFileButton" name="selectFileButton" onClick="javascript:toggleVisibility('fileScanOptions'); toggleVisibility('loadingText'); vbscript:selectFile()">Select a File...</button>
+        <div id="fileInputPath" name="fileInputPath" style="display:none"></div>
+      </div>
+      
+      <a id="loadingText" name="loadingText" style="display:none"><strong>Please wait...</strong></a>
+      
+      <div id="scanOutputDIV" name="scanOutputDIV">
+        
+      </div>
+
+    </div>
   </div>
+  <div id="scanStatusDiv" name="scanStatusDiv" style="font-size:8pt;"></div>
   <div id="date" name="date" style="font-size:8pt;"></div>
 </body>
 </html>

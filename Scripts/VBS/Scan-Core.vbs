@@ -29,13 +29,16 @@ Dim objShell, objFSO, sesID, humanDate, logDate, humanTime, logTime, humanDateTi
  exceptionFile, exceptionCSVData, type, workeType, targetType, memoryLimit, availableRAMMB, exceptionArray, _
  excepptionArray, priority, chunkCoef, priorityCoef, workerRAMLimit, availableRAM, workerChunkSize, workerLimit, _ 
  enumFolder, enumSubFolder, mValEl, mArray, mValue, tPath, checkExceptions, nexCounter, newInfection, exception,_
- exCounter, exceptionData, configFile, targets, wTarget, checkWorkerTimer
+ exCounter, exceptionData, configFile, targets, wTarget, checkWorkerTimer, objFolder, objItem, objSh, strPath, _
+ pathInput, priorityInput, strComputerName, objNetwork, strComputerName, filePathInput, objFile
 
 'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
+Set objSh  = CreateObject("Shell.Application")
 Set oWMISrvc = GetObject("winmgmts:")
 Set objRAMService = GetObject("winmgmts:\\.\root\cimv2")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
+Set ObjNetwork = CreateObject("WScript.Network")
 'Environment Related Constants.
 Const sesID = Int(Rnd * 10000000)
 Const KB = 1024
@@ -67,6 +70,7 @@ Const humanTime = Trim(FormatDateTime(Now, vbLongTime))
 Const logTime = Trim(Replace(Replace(humanTime, ":", "-"), " ", ""))
 Const humanDateTime = Trim(humanDate & " " & humanTime)
 Const logDateTime = Trim(logDate & "_" & logTime)
+Const strComputerName = ObjNetwork.ComputerName
 'Directory Related Variables.
 currentDirectory = Replace(Trim(objFSO.GetAbsolutePathName(strComputer)), "\Scripts\VBS\", "")
 currentDirectory = Trim(Mid(currentDirectory, 1, len(currentDirectory) - 11))
@@ -612,6 +616,38 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
+'A function to select a folder for scanning. Also used to scan the computer when myStartFolder is left blank.
+'Opens a "Select Folder" dialog and will return the fully qualified path of the selected folder.
+'https://www.robvanderwoude.com/vbstech_ui_selectfolder.php
+Function selectFolder() 
+  On Error Resume Next
+  selectFolder = vbNull
+  'Create a dialog object.
+  Set objFolder = objSh.BrowseForFolder(0, "Select Folder", 0, "C:\")
+  'Return the path of the selected folder.
+  If IsObject(objfolder) Then selectFolder = objFolder.Self.Path
+  'Clean up unneeded memory.
+  Set objFolder = NULL
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to select a file for scanning.
+'Opens a "Select File" dialog and will return the fully qualified path of the selected file.
+'https://www.robvanderwoude.com/vbstech_ui_selectfolder.php
+Function selectFile()   
+  On Error Resume Next
+  selectFile = vbNull
+  'Create a dialog object.
+  Set objFile = objSh.BrowseForFolder(0, "Select File", &H4000, "C:\")
+  'Return the path of the selected folder.
+  If IsObject(objfile) Then selectFile = objFile.Self.Path
+  'Clean up unneeded memory.
+  Set objFile = NULL
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
 'A function to determine what type of target is selected.
 'https://stackoverflow.com/questions/21035366/how-to-check-the-given-path-is-a-directory-or-file-in-vbscript
 Function GetFSElementType(ByVal tPath)
@@ -750,5 +786,67 @@ Function smartScan(priority, target, targetType)
     End If
   Next
   createLog("Scan Complete.")
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to update the status bar HTML on the scan page and also log the status change.
+'Changes the scanStatusDiv used in scan-related pages.
+'Note that you can only set the newStatusMessage ONCE PER EXECUTION! 
+'If you set it twice only the last one interpreted will be visible to the user.
+Function updateStatusBar(newStatusMessage)
+  newStatusMessage = SanitizeFolder(newStatusMessage)
+  scanStatusDiv.innerHTML = newStatusMessage
+  createLog(newStatusMessage)
+  newStatusMessage = NULL
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to scan a selected folder.
+'Fire this function AFTER the selectFolder() functon and priorityInput have been filled out via the UI.
+'https://community.spiceworks.com/topic/456927-drop-down-menu-in-hta
+Function scanFolder(pathInput)  
+  pathInput = SanitizeFolder("pathInput")
+  priorityInput = SanitizeFolder(priorityInput.value)
+  If Not pathInput = vbNull Then
+    updateStatusBar("Scanning Folder: """ & pathInput & """") 
+    smartScan(priorityInput, pathInput, "file")
+  End If
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to scan the entire local computer.
+'Fire this function AFTER the selectFile() functon and priorityInput have been filled out via the UI.
+'https://community.spiceworks.com/topic/456927-drop-down-menu-in-hta
+Function scanFile() 
+  priorityInput = SanitizeFolder(priorityInput.value)
+  If Not pathInput = vbNull Then
+    updateStatusBar("Scanning File: """ & filePathInput & """") 
+    smartScan(priorityInput, filePathInput, "file")
+  End If
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to scan the entire local computer.
+'Fire this function AFTER the priorityInput has been filled out via the UI.
+'https://community.spiceworks.com/topic/456927-drop-down-menu-in-hta
+Function scanComputer()  
+  priorityInput = SanitizeFolder(priorityInput.value)
+  updateStatusBar("Scanning computer: """ & strComputerName & """")
+  smartScan(priorityInput, "", "file")
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to scan the entire local registry.
+'Fire this function AFTER the priorityInput has been filled out via the UI.
+'https://community.spiceworks.com/topic/456927-drop-down-menu-in-hta
+Function scanRegistry()  
+  priorityInput = SanitizeFolder(priorityInput.value)
+  updateStatusBar("Scanning registry: """ & strComputerName & """")
+  smartScan(priorityInput, "", "registry")
 End Function
 '--------------------------------------------------
