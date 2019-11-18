@@ -57,8 +57,11 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
       <p>Scan an individual <strong>Disk Or Volume</strong> attached to this computer.</p>
         <input style="min-width:125px;" type="submit" value="Disk Scan" title="Scan a disk or volume for viruses or malware." alt="Scan a disk or volume for viruses or malware."></input></form>
     <form method="POST" action="Pages/Scan/fileScanner.hta">
-      <p>Scan a <strong>Single File Or Folder</strong> on this computer for viruses or malware.</p>
-        <input style="min-width:125px;" type="submit" value="File-Folder Scan" title="Scan a file for viruses or malware." alt="Scan a file for viruses or malware."></input></form>
+      <p>Scan a <strong>Single File</strong> on this computer for viruses or malware.</p>
+        <input style="min-width:125px;" type="submit" value="File Scan" title="Scan a file for viruses or malware." alt="Scan a file for viruses or malware."></input></form>
+    <form method="POST" action="Pages/Scan/folderScanner.hta">
+      <p>Scan a <strong>Folder</strong> on this computer for viruses or malware.</p>
+        <input style="min-width:125px;" type="submit" value="Folder Scan" title="Scan a folder for viruses or malware." alt="Scan a folder for viruses or malware."></input></form>
     <form method="POST" action="Pages/Scan/remoteScanner.hta">
       <p>Scan a <strong>Remote Computer</strong> for indicators of compromise.</p>
         <input style="min-width:125px;" type="submit" value="File-Folder Scan" title="Scan a remote computer for viruses or malware." alt="Scan a remote computer for viruses or malware."></input></form>

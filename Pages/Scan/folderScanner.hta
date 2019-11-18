@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>HR-AV - File Scanner</title>
+  <title>HR-AV - Folder Scanner</title>
   <hta:application id="HRAV" 
   applicationname="HR-AV" 
   border="dialog"
@@ -49,15 +49,15 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
 
   <div id="header" style="color:#ffffff; height:300px; text-align:center; font-family:Tahoma; filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr='#1A3560', EndColorStr='#475d7f')">
     <br />
-    <h4><p>File Scanner</p></h4>
+    <h4><p>Folder Scanner</p></h4>
     <hr />
-    <div id="fileScanDiv">
+    <div id="folderScanDiv">
       
-      <div id="fileScanOptions" name="fileScanOptions" style="display:block;">
+      <div id="folderScanOptions" name="folderScanOptions" style="display:block;">
         <input id="priorityInput" name="priorityInput" type="number" min="1" max="10" value="5"/>
-        <button id="selectFileButton" name="selectFileButton" onClick="javascript:toggleVisibility('fileScanOptions'); toggleVisibility('loadingText'); vbscript:selectFile()">Select a File...</button>
-        <div id="fileInputPath" name="fileInputPath" style="display:none"></div>
-        <button id="startScanButton" name="startScanButton" onclick="vbscript:scanFile()">Start Scan</button>
+        <button id="selectFileButton" name="selectFileButton" onClick="javascript:toggleVisibility('folderScanOptions'); toggleVisibility('loadingText'); vbscript:selectFolder()">Select a Folder...</button>
+        <div id="folderInputPath" name="folderInputPath" style="display:none"></div>
+        <button id="startScanButton" name="startScanButton" onclick="vbscript:scanFolder()">Start Scan</button>
       </div>
       
       <a id="loadingText" name="loadingText" style="display:none"><strong>Please wait...</strong></a>

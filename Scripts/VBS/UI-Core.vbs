@@ -51,12 +51,12 @@ Set objSysInfo = CreateObject("WinNTSystemInfo")
 Set objWshNet = CreateObject("WScript.Network")
 Set oWMISrvc = GetObject("winmgmts:")
 'Time Related Variables.
-Const humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
-Const logDate = Trim(Replace(humanDate, "/", "-"))
-Const humanTime = Trim(FormatDateTime(Now, vbLongTime))
-Const logTime = Trim(Replace(Replace(humanTime, ":", "-"), " ", ""))
-Const humanDateTime = Trim(humanDate & " " & humanTime)
-Const logDateTime = Trim(logDate & "_" & logTime)
+humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
+logDate = Trim(Replace(humanDate, "/", "-"))
+humanTime = Trim(FormatDateTime(Now, vbLongTime))
+logTime = Trim(Replace(Replace(humanTime, ":", "-"), " ", ""))
+humanDateTime = Trim(humanDate & " " & humanTime)
+logDateTime = Trim(logDate & "_" & logTime)
 'Directory Related Variables.
 fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 currentDirectory = Trim(objFSO.GetAbsolutePathName("."))
@@ -87,13 +87,13 @@ requiredCacheFiles = Array(RTPCacheFile1, RTPCacheFile2)
 arrFN = Split(fullScriptName, "\")
 scriptName = Trim(arrFN(UBound(arrFN)))
 'Misc Variables.
-Const sesID = Int(Rnd * 10000000)
-Const strNamespace = "root\cimv2"
-Const strCurrentUserName = Trim(objSysInfo.UserName)
-Const strHRAVUserName = "HRAV"
-Const strHRAVGroupName = "Administrators" 
-Const strComputer = "."
-Const strComputerName = Trim(objWshNet.ComputerName)
+sesID = Int(Rnd * 10000000)
+strNamespace = "root\cimv2"
+strCurrentUserName = Trim(objSysInfo.UserName)
+strHRAVUserName = "HRAV"
+strHRAVGroupName = "Administrators" 
+strComputer = "."
+strComputerName = Trim(objWshNet.ComputerName)
 dontContinue = FALSE
 '--------------------------------------------------
 

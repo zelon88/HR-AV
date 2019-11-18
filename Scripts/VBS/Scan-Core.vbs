@@ -19,18 +19,18 @@ Option Explicit
 Dim objShell, objFSO, sesID, humanDate, logDate, humanTime, logTime, humanDateTime, logDateTime, currentDirectory, _
  binariesDirectory, cacheDirectory, tempDirectory, pagesDirectory, mediaDirectory, logsDirectory, reportsDirectory, _ 
  resourcesDirectory, logFilePath, objVBSFile, Timesec, scriptsDirectory, vbsScriptsDirectory, arr, fullScriptName, _
- charArr, charArr2, tmpChar, tmpChar2, strToClean1, strToClean2, strEventInfo, objLogFile, logFilePath, whoamiOutput, _
+ charArr, charArr2, tmpChar, tmpChar2, strToClean1, strToClean2, strEventInfo, objLogFile, whoamiOutput, _
  obj, x, i, tempArray, rpCounter, pcs, oWMISrvc, errorNumber, errorMessage, quietly, cantError, windowNote, message, _ 
  typeMsg, dontContinue, sBinaryToRun, sCommand, sAsync, srun, strHRAVUserName, strHRAVPassword, result, resultSet, _
  stempfile, sasync1, stempData, searchScripts, scriptsToSearch, procSearch, procsToSearch, strComputer, objRAMService, _
  availableRAMGB, commitLimitRAMBytes, commitLimitRAMKB, commitLimitRAMMB, commitLimitRAMGB, committedRAMBytes, _
  committedRAMKB, committedRAMMB, committedRAMGB, objDrives, objDrive, edCounter, availableRAMBytes, availableRAMKB, _
  eDelimiter, eString, eLimit, fgcPath, objFGCFile, exCounter, nexCounter, newInfection, infectionArray, exception, _
- exceptionFile, exceptionCSVData, type, workeType, targetType, memoryLimit, availableRAMMB, exceptionArray, _
+ exceptionFile, exceptionCSVData, workeType, targetType, memoryLimit, availableRAMMB, exceptionArray, _
  excepptionArray, priority, chunkCoef, priorityCoef, workerRAMLimit, availableRAM, workerChunkSize, workerLimit, _ 
- enumFolder, enumSubFolder, mValEl, mArray, mValue, tPath, checkExceptions, nexCounter, newInfection, exception,_
- exCounter, exceptionData, configFile, targets, wTarget, checkWorkerTimer, objFolder, objItem, objSh, strPath, _
- pathInput, priorityInput, strComputerName, objNetwork, strComputerName, filePathInput, objFile
+ enumFolder, enumSubFolder, mValEl, mArray, mValue, tPath, KB, MB, GB, workerCount, targetArray, _
+ exceptionData, configFile, targets, wTarget, checkWorkerTimer, objFolder, objItem, objSh, strPath, _
+ pathInput, priorityInput, strComputerName, objNetwork, filePathInput, objFile
 
 'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
@@ -39,15 +39,15 @@ Set oWMISrvc = GetObject("winmgmts:")
 Set objRAMService = GetObject("winmgmts:\\.\root\cimv2")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 Set ObjNetwork = CreateObject("WScript.Network")
-'Environment Related Constants.
-Const sesID = Int(Rnd * 10000000)
-Const KB = 1024
-Const MB = KB * 1024
-Const GB = MB * 1024
-Const priorityCoef = 1
-Const chunkCoef = 3
-Const checkWorkerTimer = 3
-Const strComputer = "."
+'Environment Related Variables.
+sesID = Int(Rnd * 10000000)
+KB = 1024
+MB = KB * 1024
+GB = MB * 1024
+priorityCoef = 1
+chunkCoef = 3
+checkWorkerTimer = 3
+strComputer = "."
 'Environment Related Variables.
 workerLimit = 0
 workerCount = 0
@@ -62,15 +62,14 @@ exception = ""
 exceptionData = ""
 exceptionArray = Array()
 targetArray = Array()
-checkExceptions = Array()
-'Time Related Constants.
-Const humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
-Const logDate = Trim(Replace(humanDate, "/", "-"))
-Const humanTime = Trim(FormatDateTime(Now, vbLongTime))
-Const logTime = Trim(Replace(Replace(humanTime, ":", "-"), " ", ""))
-Const humanDateTime = Trim(humanDate & " " & humanTime)
-Const logDateTime = Trim(logDate & "_" & logTime)
-Const strComputerName = ObjNetwork.ComputerName
+'Time Related Variables.
+humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
+logDate = Trim(Replace(humanDate, "/", "-"))
+humanTime = Trim(FormatDateTime(Now, vbLongTime))
+logTime = Trim(Replace(Replace(humanTime, ":", "-"), " ", ""))
+humanDateTime = Trim(humanDate & " " & humanTime)
+logDateTime = Trim(logDate & "_" & logTime)
+strComputerName = ObjNetwork.ComputerName
 'Directory Related Variables.
 currentDirectory = Replace(Trim(objFSO.GetAbsolutePathName(strComputer)), "\Scripts\VBS\", "")
 currentDirectory = Trim(Mid(currentDirectory, 1, len(currentDirectory) - 11))
@@ -530,7 +529,7 @@ Function checkExceptions(infectionArray)
   createLog("Checking exception list for matching infections.")
   'Detect if no exceptionFile exists & create one if needed.
   If Not objFSO.FileExists(exceptionFile) Then
-    objFSO.CreateTextFile(exceptionFile, TRUE)
+    objFSO.CreateTextFile exceptionFile, TRUE
   End If
   'Load the exceptions.csv file and load it into an array.
   exceptionCSVData = fileGetContents(exceptionFile)
@@ -723,7 +722,7 @@ Function prepareScanner(priority, target, targetType)
   End If
   createLog("Allocating " & workerLimit & " workers, each with a memory limit of " & ((workerRamLimit / 1024) / 1024) & _
    "MB and a chunk size of " & ((workerRamLimit / 1024) / 1024) & "MB to be started sequentially utilizing a maximum of " & _
-   priorityCoef & "% of available memory."
+   priorityCoef & "% of available memory.")
   prepareScanner = targetArray
 End Function
 '--------------------------------------------------
@@ -744,7 +743,7 @@ Function startWorker(workerType, wTarget, targetType)
       'Run the PHP\7.3.8\php.exe binary with cmd.exe, hide the window, don't wait for completion, & 
        'call Scripts\PHP\PHP-AV\scanCore.php script against the target with the specified RAM & chunk settings, without recursion.
       objShell.Run "C:\Windows\System32\cmd.exe /c " & binariesDirectory & "PHP\7.3.8\php.exe " & _
-       scriptsDirectory & _ "PHP\scanCore.php " & wTarget & " -m " & workerRAMLimit & " -c " & workerChunkSize " -nr", 0, FALSE
+       scriptsDirectory & "PHP\scanCore.php " & wTarget & " -m " & workerRAMLimit & " -c " & workerChunkSize & " -nr", 0, FALSE
     End If
     If LCase(targetType) = "registry" Then
 
@@ -768,16 +767,16 @@ Function smartScan(priority, target, targetType)
   targetArray = prepareScanner(priority, target, targetType)
   createLog("Starting scanner type '" & SanitizeFolder(targetType) & "' with a priority of " & SanitizeFolder(priority) & _
    " against target '" & SanitizeFolder(target) & "'.")
-  For targets In targetArray
+  For Each targets In targetArray
     On Error Resume Next
     'The following loop sleeps the outer loop for as long as there is insufficient RAM to start a new worker.
     'The loop will check system RAM every <checkWorkerTimer> seconds.
-    While checkRam() < workerRAMLimit
+    Do While checkRam() < workerRAMLimit
       Sleep(checkWorkerTimer)
-    Next
+    Loop
     'If the worker limit has not been met then we continue scanning targets.
-    If workerCount != workerLimit Then
-      startWorker(workerType, targets, targetType)
+    If Not workerCount = workerLimit Then
+      startWorker workerType, targets, targetType
       'Increment the worker counter.
       workerCount = workerCount + 1
     Else
@@ -806,12 +805,12 @@ End Function
 'A function to scan a selected folder.
 'Fire this function AFTER the selectFolder() functon and priorityInput have been filled out via the UI.
 'https://community.spiceworks.com/topic/456927-drop-down-menu-in-hta
-Function scanFolder(pathInput)  
-  pathInput = SanitizeFolder("pathInput")
+Function scanFolder()
+  pathInput = SanitizeFoldeR(folderPathInput.value)  
   priorityInput = SanitizeFolder(priorityInput.value)
   If Not pathInput = vbNull Then
     updateStatusBar("Scanning Folder: """ & pathInput & """") 
-    smartScan(priorityInput, pathInput, "file")
+    smartScan priorityInput, pathInput, "file"
   End If
 End Function
 '--------------------------------------------------
@@ -821,10 +820,11 @@ End Function
 'Fire this function AFTER the selectFile() functon and priorityInput have been filled out via the UI.
 'https://community.spiceworks.com/topic/456927-drop-down-menu-in-hta
 Function scanFile() 
+  filePathInput = SanitizeFoldeR(filePathInput.value)
   priorityInput = SanitizeFolder(priorityInput.value)
   If Not pathInput = vbNull Then
     updateStatusBar("Scanning File: """ & filePathInput & """") 
-    smartScan(priorityInput, filePathInput, "file")
+    smartScan priorityInput, filePathInput, "file"
   End If
 End Function
 '--------------------------------------------------
@@ -836,7 +836,7 @@ End Function
 Function scanComputer()  
   priorityInput = SanitizeFolder(priorityInput.value)
   updateStatusBar("Scanning computer: """ & strComputerName & """")
-  smartScan(priorityInput, "", "file")
+  smartScan priorityInput, "", "file"
 End Function
 '--------------------------------------------------
 
@@ -847,6 +847,6 @@ End Function
 Function scanRegistry()  
   priorityInput = SanitizeFolder(priorityInput.value)
   updateStatusBar("Scanning registry: """ & strComputerName & """")
-  smartScan(priorityInput, "", "registry")
+  smartScan priorityInput, "", "registry"
 End Function
 '--------------------------------------------------

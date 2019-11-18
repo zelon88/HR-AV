@@ -1,12 +1,25 @@
 --------------------
 COMMIT - 11/17/2019
+v0.9.3.9 - Fixed Scan-Core syntax. Working on UI.
+
+-v0.9.3.9.
+-Fixed the bugs in Scan-Core.vbs so the syntax doesn't get hung up anymore.
+-Continuing to figure out scanner pages. Going to need to do a lot of javascript.
+-I think it might be a one-laptop-speciific problem I'm having, but the installation wizard doesn't work on this machine anymore. It works on others. I think it's permissions related to this box only.
+-Keep working on UI. 
+-Start thinking about making settings work and doing something for a dashboard on. the homepage as well. 
+-Draw some sketches!
+-Need to add a recursive option to the folder scanner page HTML and back-end functions.
+--------------------
+
+--------------------
+COMMIT - 11/17/2019
 v0.9.3.8 - Making UI elements for scanners!
 
 -v0.9.3.8
 -Made lots more functions, mostly to tie the UI to the backend scanning functionality.
 -Starting to work on scanner pages.
 -Need to try running it again soon to work out all the syntax errors. I'm sure there are a bunch!
-
 --------------------
 
 --------------------
