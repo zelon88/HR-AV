@@ -13,6 +13,35 @@
 // / I hope that someone out there can make as much use out of it as I was able to. 
 
 // / --------------------
+// / A function to validate the scanner priority input field.
+// / Enforces a minimum of 1 & a maximum of 10.
+function checkPriority(priorityInput) {
+  var priorityValue = document.getElementById(priorityInput).value;
+  if (priorityValue < 1) document.getElementById(priorityInput).value = 1;
+  if (priorityValue > 10) document.getElementById(priorityInput).value = 10; }
+// / --------------------
+
+// / --------------------
+// / A function to increment the value of a target object.
+// / https://stackoverflow.com/questions/9186346/javascript-onclick-increment-number
+function decrementValue(valToDec) {
+  var value = parseInt(document.getElementById(valToDec).value, 10);
+  value = isNaN(value) ? 0 : value;
+  value++;
+  document.getElementById(valToDec).value = value; }
+// / --------------------
+
+// / --------------------
+// / A function to increment the value of a target object.
+// / https://stackoverflow.com/questions/9186346/javascript-onclick-increment-number
+function incrementValue(valToInc) {
+  var value = parseInt(document.getElementById(valToInc).value, 10);
+  value = isNaN(value) ? 0 : value;
+  value++;
+  document.getElementById(valToInc).value = value; }
+// / --------------------
+
+// / --------------------
 // / A function to format a prettified date for the UI.
 function humanDate() {
   var dateVar = new Date(); 
