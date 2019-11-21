@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 9/4/2019
+'Date: 11/20/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -319,7 +319,7 @@ Function installationWizard1()
   result0 = FALSE
   instHead = "Installation Wizard"
   instMsg1 = "Welcome to the " & appName & " Installation wizard!" & vbCRLF & vbCRLF & _
-   "This wizard will guide you through the the installation process." & _
+   "This wizard will guide you through the installation process." & _
    "At any time you can click the cancel button to stop the installation process."
   instMsg2 = "Before we continue, we want you to know that this software is 100% free and open-source licensed to you under GNU GPLv3v (gnu.org/licenses/gpl-3.0.en.html)." & vbCRLF & vbCRLF & _
    "At HonestRepair, we beleive in the GNU definition of free software. Free software in this context doesn't mean  'Free beer.'" & vbCRLF & vbCRLF & _

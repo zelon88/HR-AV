@@ -39,10 +39,10 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
 
   <div class="navigation">
     <a href="../../HR-AV.hta">Home</a>
-    <a class="active" href="../../scanner.hta">Scan</a>
-    <a href="../../updater.hta">Update</a>
+    <a class="active" href="../scanner.hta">Scan</a>
+    <a href="../updater.hta">Update</a>
     <a href="">Page 4</a>
-    <a href="../../settings.hta" style="float:right;"><strong>&#8801;</strong></a>
+    <a href="../settings.hta" style="float:right;"><strong>&#8801;</strong></a>
   </div>
 
   <div id="spacer" style="width: 200px; height: 47px; float:left; display:inline-block"></div>
@@ -54,10 +54,17 @@ setInterval(function() { document.getElementById('date').innerHTML = humanDate()
     <div id="folderScanDiv">
       
       <div id="folderScanOptions" name="folderScanOptions" style="display:block;">
-        <input id="priorityInput" name="priorityInput" type="number" min="1" max="10" value="5"/>
-        <button id="selectFileButton" name="selectFileButton" onClick="javascript:toggleVisibility('folderScanOptions'); toggleVisibility('loadingText'); vbscript:selectFolder()">Select a Folder...</button>
-        <div id="folderInputPath" name="folderInputPath" style="display:none"></div>
-        <button id="startScanButton" name="startScanButton" onclick="vbscript:scanFolder()">Start Scan</button>
+        <br />
+        <div id="scanOptions" name="scanOptions" style="width:90%;">
+          <a style="tex-size:10; text-align:left; float:left;">Priority:</a>
+          <br /> <br />
+          <button id="priorityDown" name="priorityDown" style="margin-right:10px;" onclick="javascript: decrementValue('priorityInput'); checkPriority('priorityInput');">&darr;</button>
+          <input id="priorityInput" name="priorityInput" type="number" min="1" max="10" value="5" size="1"/>
+          <button id="priorityUp" name="priorityUp" style="margin-left:15px;" onclick="javascript: incrementValue('priorityInput'); checkPriority('priorityInput');">&uarr;</button>
+          <br /> <br /> <hr /> <br /> 
+          <button id="startScanButton" name="startScanButton" onclick="vbscript:scanFolder()">Start Scan</button>
+          <br />
+        </div>
       </div>
       
       <a id="loadingText" name="loadingText" style="display:none"><strong>Please wait...</strong></a>
