@@ -1,4 +1,15 @@
 --------------------
+COMMIT - 11/20/2019
+v0.9.4 - Working on UI, building scanner pages.
+
+-v0.9.4.
+-Working on the UI HTML.
+-Building out the pages.
+-Fixed a typo in the installation wizard in App-Core.
+-Fix paths in scanner pages.
+-Made Javascript for incrementing/decrementing/validating priority input.
+
+--------------------
 COMMIT - 11/17/2019
 v0.9.3.9 - Fixed Scan-Core syntax. Working on UI.
 
