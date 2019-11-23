@@ -47,4 +47,10 @@ If realTimeProtectionEnabled Then
     realTimeCoreResults = SystemBootstrap(realTimeCoreFile, "", FALSE)
   End If
 End If
+
+'If the startup variable is set, we kill the UI and leave the background services running.
+If startup Then
+  createLog("Startup detected. Closing UI but leaving background processes open.")
+  killAllHTAS()
+End If
 '--------------------------------------------------

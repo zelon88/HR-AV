@@ -180,7 +180,7 @@ End Function
 'Returns FALSE if the application is not elevated as HRAV user.
 Function isUserHRAV()
   'Determine who is executing the current script.
-  whoamiOutput = Sanitize(SystemBootstrap("whoami", "", FALSE))
+  whoamiOutput = SystemBootstrap("whoami", "", FALSE)
   'See if the current user has admin rights by trying to access an arbitrary registry key which requires admin rights.
   objShell.RegRead("HKEY_USERS\S-1-5-19\Environment\TEMP")
   'If we are able to read the registry key above then either the user is an admin or the script is elevated.
@@ -252,6 +252,7 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
+'A function to push data onto an existing array. Similar to PHP's array_push().
 'http://www.vbforums.com/showthread.php?280636-VBScript-Array-Push
   Function push(ByRef mArray, ByVal mValue)
     If IsArray(mArray) Then
@@ -590,6 +591,7 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
+'A function to build an array of all subdirectories of a target array.
 'https://stackoverflow.com/questions/1433785/vbscript-to-iterate-through-set-level-of-subfolders
 Function enumerateSubdirs(enumFolder) 
   enumFolder = objFSO.GetFolder(enumFolder)
@@ -599,11 +601,10 @@ Function enumerateSubdirs(enumFolder)
     enumSubFolderPath = enumSubFolder.Path 
     'Add the current path to the "targetArray".
     esdTemp = push(enumerateSubdirs, enumSubFolderPath)
-    'We must use a temp variable here to avoid an out of memory error.
-    enumerateSubdirs = esdTemp
     'Iterate deeper into the directory hierarchy.
     enumerateSubdirs enumSubFolderPath
   Next
+  enumerateSubdirs = esdTemp
   'Clean up unneeded memory.
   esdTemp = NULL
 End Function
@@ -744,7 +745,8 @@ Function startWorker(workerType, wTarget, targetType)
     If LCase(targetType) = "file" Then 
       'Run the PHP\7.3.8\php.exe binary with cmd.exe, hide the window, don't wait for completion, & 
        'call Scripts\PHP\PHP-AV\scanCore.php script against the target with the specified RAM & chunk settings, without recursion.
-      execString = """" & binariesDirectory & "PHP\7.3.8\php.exe"" """ & scriptsDirectory & "PHP\PHP-AV\scanCore.php"" """ & wTarget & """ -m " & workerRAMLimit & " -c " & workerChunkSize & " -nr"
+      execString = """" & binariesDirectory & "PHP\7.3.8\php.exe"" """ & scriptsDirectory & "PHP\PHP-AV\scanCore.php"" """ & wTarget & _
+       """ -m " & workerRAMLimit & " -c " & workerChunkSize & " -nr"
       MsgBox execString
       objShell.Run execString, 0, FALSE
     End If
@@ -768,7 +770,7 @@ End Function
 'A function to scan the system for infections.
 Function smartScan(priority, target, targetType, workerType)
   targetArray = prepareScanner(priority, target, targetType)
-  createLog("Starting scanner type '" & SanitizeFolder(targetType) & "' with a priority of " & SanitizeFolder(priority) & _
+  createLog("Starting scanner engine type '" & SanitizeFolder(targetType) & "' with a priority of " & SanitizeFolder(priority) & _
    " against target '" & SanitizeFolder(target) & "'.")
   For Each targets In targetArray
     'The following loop sleeps the outer loop for as long as there is insufficient RAM to start a new worker.

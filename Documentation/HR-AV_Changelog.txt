@@ -1,4 +1,28 @@
 --------------------
+COMMIT - 11/22/2019
+v0.9.6 - Tidying up. Improved installation process.
+
+-v0.9.7.
+-Start reworking enumeratesubdirs() in Scan-Core.
+-Add startup mode.
+-Improve installation wizard.
+-Disable auto-restart after installation, as it doesn't seem to work properly anymore.
+-Add an option during installation to enable automatic startup when Windows boots.
+-Add .ico icon file for shortcuts.
+
+--------------------
+COMMIT - 11/22/2019
+v0.9.5 - Scanning is almost functional!
+
+-v0.9.5.
+-Scanner works, just need to work on controlling output.
+-Thread manager seems to work.
+-Enumeratesubdirs does not seem to work.
+-Definately needs work.
+-Why is it not restarting as PAExec?
+-Also changed the installation wizard to stop restarting automatically, as the start path still remains the installationloc and winds up using the wrong scripts and binaries in Scan-Core.php.
+
+--------------------
 COMMIT - 11/20/2019
 v0.9.4 - Working on UI, building scanner pages.
 

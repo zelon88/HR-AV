@@ -33,7 +33,7 @@ Dim objFSO, strComputer, objWMIService, scriptsDirectory, binariesDirectory, hum
  errorMessage, sCommLine, dProcess, quietly, windowNote, strEventInfo, logFilePath, objLogFile, humanDate, logDate, resourcesDirectory, _
  logDateTime, logTime, charArr, tmpChar, charArr2, tmpChar2, outputStr1, logsDirectory, sesID, rStr, rStrLen, i1, reportsDirectory, objVBSFile, _
  cantError, sProcName, oWMISrvc, Timesec, dontContinue, pathToVBS, typeMsg, humanTime, message, oRE, RTPCacheFile1, oRTPCacheFile1, RTPCacheFile2, _
- requiredCacheFile, requiredCacheFiles, oRTPCacheFile2, exceptionDirectory, excepptionFile
+ requiredCacheFile, requiredCacheFiles, oRTPCacheFile2, exceptionDirectory, excepptionFile, startup
 
 '--------------------------------------------------
 'UI Related Variables.
@@ -43,6 +43,7 @@ Const sSettings = "View Settings"
 Const sHelp = "Help, About" 
 Const sHTML = "&nbsp;&nbsp;&nbsp;#sItem#&nbsp;&nbsp;&nbsp;" 
 Const Letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+startup = FALSE
 'Frequently Used Objects.
 Set objShell = CreateObject("WScript.Shell")
 Set shell = CreateObject("Shell.Application")
@@ -60,6 +61,10 @@ logDateTime = Trim(logDate & "_" & logTime)
 'Directory Related Variables.
 fullScriptName = Trim(Replace(HRAV.commandLine, Chr(34), ""))
 currentDirectory = Trim(objFSO.GetAbsolutePathName("."))
+If InStr(fullScriptName, "-startup") > 0 Then
+  startup = TRUE
+  fullScriptName = "C:\Program Files\HR-AV\HR-AV.hta"
+End If
 If InStr(fullScriptName, "Program Files") > 0 Then
   currentDirectory = Replace(fullScriptName, appName & ".hta", "")
   currentDirectory = Mid(currentDirectory, 1, len(currentDirectory) - 1)
