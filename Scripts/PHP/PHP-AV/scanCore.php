@@ -49,14 +49,15 @@
 // / -----------------------------------------------------------------------------------
 // / The following code will load required HR-AV files.
 $rp = realpath(dirname(__FILE__));
-if (!file_exists('ScanCore_Config.php')) die ('ERROR!!! ScanCore-0, Cannot process the HR-AV ScanCore Configuration file (config.php)!'.PHP_EOL); 
-else require_once ('ScanCore_Config.php');
+if (!file_exists(str_replace(DIRECTORY_SEPARATOR.'Scripts'.DIRECTORY_SEPARATOR.'PHP'.DIRECTORY_SEPARATOR.'PHP-AV', '', $rp).DIRECTORY_SEPARATOR.'Config'.DIRECTORY_SEPARATOR.'ScanCore_Config.php')) 
+  die ('ERROR!!! ScanCore-0, Cannot process the HR-AV ScanCore Configuration file (config.php)!'.PHP_EOL); 
+else require_once (str_replace(DIRECTORY_SEPARATOR.'Scripts'.DIRECTORY_SEPARATOR.'PHP'.DIRECTORY_SEPARATOR.'PHP-AV', '', $rp).DIRECTORY_SEPARATOR.'Config'.DIRECTORY_SEPARATOR.'ScanCore_Config.php');
 // / -----------------------------------------------------------------------------------
 
 // / -----------------------------------------------------------------------------------
 // / The following code sets the global variables for the session.
   // / Application related variables.
-  $scanCoreVersion = 'v0.5';
+  $scanCoreVersion = 'v0.6-custom';
   $Versions = 'PHP-AV App v4.0 | Virus Definition v4.9, 4/10/2019';
   $encType = 'ripemd160';
   $dirCount = $fileCount = $infected = 0;
@@ -146,7 +147,7 @@ function file_scan($folder, $defs, $DefsFile, $defData, $debug, $verbose, $memor
           $txt = 'Scanning folder "'.$folder.'" ... ';
           echo $txt.PHP_EOL; }
         $dirCount++;
-        $dirCount = file_scan($folder.'/'.$entry, $defs, $DefsFile, $defData, $debug, $verbose, $memoryLimit, $chunkSize, $recursion; } }
+        $dirCount = file_scan($folder.'/'.$entry, $defs, $DefsFile, $defData, $debug, $verbose, $memoryLimit, $chunkSize, $recursion); } }
     $d->close(); } 
     return array($dirCount, $fileCount, $infected); }
 // / -----------------------------------------------------------------------------------

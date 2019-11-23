@@ -27,7 +27,7 @@ function checkPriority(priorityInput) {
 function decrementValue(valToDec) {
   var value = parseInt(document.getElementById(valToDec).value, 10);
   value = isNaN(value) ? 0 : value;
-  value++;
+  value--;
   document.getElementById(valToDec).value = value; }
 // / --------------------
 

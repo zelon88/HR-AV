@@ -329,7 +329,7 @@ Function installationWizard1()
   instMsg4 = "By clicking 'Ok' below, " & appName & " files will be installed to the following directory: " & vbCRLF & vbCRLF & installationDirectory
   instMsg5 = "Successfully copied " & appName & " files to " & installationDirectory & " on " & humanDateTime & "! The installation will now continue using the copied version of " & appName & "."
   instMsg6 = "Could not copy files to: " & installationDirectory & "!"
-  instMsg7 = "Restarting from new installation directory."
+  instMsg7 = "Your new software is ready for use."
   result0 = PrintGracefully(instHead, instMsg1, "vbOkCancel")
   result0 = PrintGracefully(instHead, instMsg2, "vbOkCancel")
   result0 = PrintGracefully(instHead, instMsg3, "vbOkCancel")
@@ -337,7 +337,7 @@ Function installationWizard1()
   pfCopyResult = copyToProgramFiles()
   If dontContinue = FALSE And result0 <> 2 And result0 <> 3 And pfCopyResult = TRUE And objFSO.FileExists(InstallationDirectory & appName & "\" & appName & ".hta") Then
     PrintGracefully instHead, instMsg5, "vbOkOnly"
-    objShell.Run """C:\Program Files\HR-AV\Scripts\VBS\Restart.vbs"""
+    'objShell.Run """C:\Program Files\HR-AV\Scripts\VBS\Restart.vbs"""
     DieGracefully 0, instMsg7, TRUE 
   Else
     DieGracefully 201, instMsg6, FALSE 
