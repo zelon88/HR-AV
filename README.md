@@ -11,12 +11,12 @@ This application is also a showcase for the powerful [HTA-UI](https://github.com
 Currently the built-in installation wizard is 100% functional. The real-time protection engine is 90% functional. The back-end scanners are 100% functional. The thread managers are 50% complete and the ones that are complete are 90% functional. The UI is 50% complete and 100% functional. Auto updating is 0% complete. Back-end settings handler is 0% complete. Front-end dashboards are 0% complete. Front end scanning is 50% complete. Front end real-time protection controls are 0% complete. 
 
 ## Real-Time protections include:
-1. Ransomware protection (https://github.com/zelon88/Ransomware_Defender)
-2. Storage monitoring (https://github.com/zelon88/Storage_Monitor)
-3. Accessibility tools tamper monitoring (https://github.com/zelon88/Accessibility-Tools-utilmon-Defender)
+1. Ransomware Protection (https://github.com/zelon88/Ransomware_Defender)
+2. Storage Monitoring (https://github.com/zelon88/Storage_Monitor)
+3. Accessibility Tools Tamper Protection (https://github.com/zelon88/Accessibility-Tools-utilmon-Defender)
 4. Workstation USB Monitoring (https://github.com/zelon88/Workstation_USB_Monitor)
-5. (Coming Soon) Meterpreter/reverse shell protection (https://github.com/zelon88/Meterpreter_Defender)
-6. (Coming Soon) System checkups (https://github.com/zelon88/Infrastructure_Checkup)
+5. (Coming Soon) Meterpreter/Reverse Shell Protection (https://github.com/zelon88/Meterpreter_Defender)
+6. (Coming Soon) System Checkups (https://github.com/zelon88/Infrastructure_Checkup)
 7. (Coming Soon) Registry Monitoring (https://github.com/zelon88/Registry_Monitor)
 
 # In the meantime
