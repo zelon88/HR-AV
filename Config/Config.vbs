@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 11/22/2019
+'Date: 11/23/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -18,7 +18,7 @@
 Option Explicit
 
 Dim version, uiVersion, helpLocSetting, appName, developerName, developerURL, dieOnInstallationError, windowHeight, windowWidth, _
-appDownloadURL, defDownloadURL, realTimeProtectionEnabled, runInBackground, registryMonitorInterval, ramsomwareDefenderInterval, _
+appDownloadURL, defDownloadURL, realTimeProtectionEnabled, runInBackground, registryMonitorInterval, ransomwareDefenderInterval, _
 accessibilityDefenderInterval, storageMonitorInterval, resourceMonitorInterval, infrastructureCheckupInterval, infrastructureHeartbeatInterval, _
 workstationUSBMonitorEnabled, registryMonitorEnabled, ransomwareDefenderEnabled, infrastructureHeartbeatEnabled, infrastructureCheckupEnabled, _
 accessibilityDefenderEnabled, storageMonitorEnabled, resourceMonitorEnabled, DEBUGMODE
@@ -29,7 +29,7 @@ accessibilityDefenderEnabled, storageMonitorEnabled, resourceMonitorEnabled, DEB
 'Application-Development Related Variables
 
   'These string values in this section should only be modified by your application distributor.
-  version = "v0.9.5" 
+  version = "v0.9.7" 
   uiVersion = "v1.2"
   helpLocSetting = "https://github.com/zelon88/HR-AV"
   appDownloadURL = "https://github.com/zelon88/HR-AV/archive/master.zip"
@@ -101,9 +101,9 @@ accessibilityDefenderEnabled, storageMonitorEnabled, resourceMonitorEnabled, DEB
    'Cloned from 'https://github.com/zelon88/Ransomware_Defender' and heavily modified for use in this application.
     'To enable "Ransomware_Defender.vbs" to run at scheduled intervals, set 'ransomwareDefenderEnabled' to 'TRUE'.
     ransomwareDefenderEnabled = TRUE
-    'Set the 'ramsomwareDefenderInterval' interval, in minutes, that 'Ransomware_Defender.vbs' will be triggered by the RealTime-Core.
-    ramsomwareDefenderInterval = 5
-  
+    'Set the 'ransomwareDefenderInterval' interval, in minutes, that 'Ransomware_Defender.vbs' will be triggered by the RealTime-Core.
+    ransomwareDefenderInterval = 5
+
    'Accessibility Monitor watches the local accessibility tools for changes which could indicate backdoor attacker activity. 
    'When suspicious/malicious activity is detected a log file is created and an email is sent.
    'Cloned from 'https://github.com/zelon88/Accessibility_Tools_Utilimon_Defender' and heavily modified for use in this application.

@@ -1,8 +1,18 @@
 --------------------
+COMMIT v0.9.7 - 11/23/2019
+
+-v0.9.7.
+-Working on implementing HRAV account usage and password maintanence.
+-Working on getting real-time-protection implemented.
+-Trying to advance all fronts and keep it all fresh in my mind at the same time. 
+-Look for ways to improve workflow efficiency.
+-Files are already organized but development process is rather sloppy. Need to think about automating it more.
+
+--------------------
 COMMIT - 11/22/2019
 v0.9.6 - Tidying up. Improved installation process.
 
--v0.9.7.
+-v0.9.6.
 -Start reworking enumeratesubdirs() in Scan-Core.
 -Add startup mode.
 -Improve installation wizard.

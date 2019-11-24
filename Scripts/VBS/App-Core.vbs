@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 11/20/2019
+'Date: 11/23/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -22,14 +22,15 @@ Dim php73Directory, phpavEngineDirectory, whoamiOutput, strHRAVpassword, storedP
  newKey1, newKey2, newKey3, newKey4, passwordFile, newPasswordFile, programFilesCheck, appdataFilesCheck, installationDirectory, _
  instHead, instMsg1, instMsg2, instMsg3, instMsg4, instMsg5, instMsg6, pfCopyResult, iW1Result, iW2Result, uCreated, instMsg7, _
  result0, key1, key2, key3, key4, uCheck, pfCheck, oLNK, arr, obj, x, i, objExecTemp, tempArray, rpCounter, pcs, scriptsToSearch, _
- searchScripts, inst2Head, inst2Msg1, inst2Msg2, inst2Msg3, inst2Msg4, userCreateResult, password, instMsg8, result1
+ searchScripts, inst2Head, inst2Msg1, inst2Msg2, inst2Msg3, inst2Msg4, userCreateResult, password, instMsg8, result1, _
+ rI, strLen, str, letters
 '--------------------------------------------------
 
 '--------------------------------------------------
 'Set variables for the session.
 phpavEngineDirectory = scriptsDirectory & "\PHP\PHP-AV\"
 php73Directory = "PHP\7.3.8\php.exe"
-passwordFile = cacheDirectory & appNAme & "_Keys.vbs"
+passwordFile = cacheDirectory & appName & "_Keys.vbs"
 InstallationDirectory = "C:\Program Files\" 
 '--------------------------------------------------
 
@@ -53,7 +54,7 @@ End Function
 'A function to restart the script with admin priviledges if required.
 Function restartAsAdmin()
   objShell.Run SanitizeFolder(fullScriptName), 0, TRUE
-  'DieGracefully 0, "", TRUE
+  DieGracefully 0, "", TRUE
 End Function
 '--------------------------------------------------
 
@@ -104,6 +105,25 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
+'A function to generate a random string for the generatePassword() function.
+'https://stackoverflow.com/questions/7417153/vbscript-generate-a-file-with-x-lines-of-random-text
+Function RandomString()
+  strLen = 10
+  letters = "abcdefghijklmnopqrstuvwxyz0123456789"
+  Randomize
+  str = ""
+  For rI = 1 To strLen
+    str = str & Mid(letters, Int(strLen*Rnd+1) )
+  Next
+  RandomString = str
+  letters = NULL
+  strLen = NULL
+  str = NULL
+  rI = NULL
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
 'A function to generate a random password for the HRAV user.
 'Generates a new random password and saves it to the \Config\ folder.
 Function generatePassword()
@@ -111,7 +131,7 @@ Function generatePassword()
   newKey1 = Rnd * 100000000000000000
   newKey2 = Rnd * 100000000000
   newKey3 = Rnd * 1000000 
-  newKey4 = RandomString(4)
+  newKey4 = RandomString()
   generatePassword = Trim(newKey4 & Int((newKey1 - newKey2 + 1) * newKey3 + newKey2))
   If objFSO.FileExists(passwordFile) Then
     objFSO.DeleteFile(passwordFile)

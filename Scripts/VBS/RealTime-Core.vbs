@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 9/23/2019
+'Date: 11/23/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -27,34 +27,16 @@ Dim usbMonitorEnabled, registryMonitorEnabled, ransomwareDefenderEnabled, access
  tempArray, currentProc, objFSO, strEventInfo, logFilePath, charArr, tmpChar, strToClean1, humanDate, logDate, humanTime, logTime, humanDateTime, logDateTime, currentDirectory, _
  scriptsDirectory, vbsScriptsDirectory, binariesDirectory, cacheDirectory, tempDirectory, pagesDirectory, mediaDirectory, logsDirectory, reportsDirectory, resourcesDirectory, realTimeCoreFile, _
  sasync1, sAsync, sBinaryToRun, sCommand, srun, stempFile, charArr2, tmpChar2, strToClean2, stempData, Timesec, RTPCacheFile1, RTPCacheFile2, ageThreshold, cacheAge, oRTPCacheFile1, scriptsToSearch, _
- searchScripts, sesID, procSearch, procsToSearch, realTimeClockTemp, registryMonitorInt, ramsomwareDefenderInt, accessibilityDefenderInt, storageMonitorInt, resourceMonitorInt, infrastructureCheckupInt, _
+ searchScripts, sesID, procSearch, procsToSearch, realTimeClockTemp, registryMonitorInt, ransomwareDefenderInt, accessibilityDefenderInt, storageMonitorInt, resourceMonitorInt, infrastructureCheckupInt, _
  infrastructureHeartbeatInt, registryMonitorDueTemp, ransomwareDefenderDueTemp, accessibilityDefenderDueTemp, storageMonitorDueTemp, resourceMonitorDueTemp, infrastructureCheckupDueTemp, _
- infrastructureHeartbeatDueTemp
+ infrastructureHeartbeatDueTemp, whoamiOutput, strHRAVUserName, strHRAVPassword, newKey1, newKey2, newKey3, newKey4, passwordFile, newPasswordFile, rI, strLen, str, letters, strComputerName, _
+ objWshNet
 
 'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
 Set oWMISrvc = GetObject("winmgmts:")
 Set objFSO = CreateObject("Scripting.FileSystemObject")
-'Environment Related Variables.
-validServices = Array("Workstation_USB_Monitor.vbs")
-servicesEnabled = Array("Workstation_USB_Monitor.vbs")
-realTimeProtectionError = FALSE
-realTimeSleep =  60 '60s
-realTimeClock = 0
-sesID = Int(Rnd * 10000000)
-registryMonitorInt = registryMonitorInterval * 60  
-ransomwareDefenderInt = ransomwareDefenderInterval * 60
-accessibilityDefenderInt = accessibilityDefenderInterval * 60
-storageMonitorInt = storageMonitorInterval * 60
-resourceMonitorInt = resourceMonitorInterval * 60
-infrastructureHeartbeatInt = infrastructureHeartbeatInterval * 60
-registryMonitorDue = registryMonitorInt
-ransomwareDefenderDue = ramsomwareDefenderInt
-accessibilityDefenderDue = accessibilityDefenderInt
-storageMonitorDue = storageMonitorInt
-resourceMonitorDue = resourceMonitorInt
-infrastructureCheckupDue = infrastructureCheckupInt
-infrastructureHeartbeatdue = infrastructureHeartbeatInt
+Set objWshNet = CreateObject("WScript.Network")
 'Time Related Variables.
 humanDate = Trim(FormatDateTime(Now, vbShortDate)) 
 logDate = Trim(Replace(humanDate, "/", "-"))
@@ -81,6 +63,8 @@ realTimeCoreFile = vbsScriptsDirectory & "Real-Time-Core.vbs"
 stempFile = tempDirectory & "RTP-systemp.txt"
 RTPCacheFile1 = cacheDirectory & "RTP-cache1.dat"
 RTPCacheFile2 = cacheDirectory & "RTP-cache2.dat"
+'Early Environment Related Variables
+strComputerName = Trim(objWshNet.ComputerName)
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -135,6 +119,70 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
+'A function to generate a random string for the generatePassword() function.
+'https://stackoverflow.com/questions/7417153/vbscript-generate-a-file-with-x-lines-of-random-text
+Function RandomString()
+  strLen = 10
+  letters = "abcdefghijklmnopqrstuvwxyz0123456789"
+  Randomize
+  str = ""
+  For rI = 1 To strLen
+    str = str & Mid(letters, Int(strLen*Rnd+1) )
+  Next
+  RandomString = str
+  letters = NULL
+  strLen = NULL
+  str = NULL
+  rI = NULL
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to generate a random password for the HRAV user.
+'Generates a new random password and saves it to the \Config\ folder.
+Function generatePassword() 
+  Randomize
+  newKey1 = Rnd * 100000000000000000
+  newKey2 = Rnd * 100000000000
+  newKey3 = Rnd * 1000000 
+  newKey4 = RandomString()
+  generatePassword = Trim(newKey4 & Int((newKey1 - newKey2 + 1) * newKey3 + newKey2))
+  If objFSO.FileExists(passwordFile) Then
+    objFSO.DeleteFile(passwordFile)
+  End If
+  Set newPasswordFile = objFSO.CreateTextFile(passwordFile, TRUE)
+  newPasswordFile.WriteLine("Option Explicit" & vbNewLine & "Dim key1, key2, key3, key4" & vbNewLine & _
+   "key1 = " & newKey1 & vbNewLine & "key2 = " & newKey2 & vbNewLine & "key3 = " & vbNewLine & newKey3 & vbNewLine & "key4 = " & newKey4)
+  newPasswordFile.Close
+  If Not objFSO.FileExists(passwordFile) Then
+    DieGracefully 2, "Could not generate a new password!"
+  Else
+    createLog(appName & "-" & sesID & ", Generated a new password on " & humanDateTime & "!")
+  End If
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to retrieve and verify the HRAV user password.
+'Returns the password as calculated from the keys in the \Config\ folder.
+Function verifyPassword()
+  verifyPassword = Trim(key4 & Int((key1 - key2 + 1) * key3 + key2))
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'A function to change the HRAV user password.
+'Part of HRAV's security is to constantly rotate the HRAV user password.
+'If the password is stale we can assume something is wrong.
+Function changePassword()
+  Set objUser3 = GetObject("WinNT://" & Sanitize(strComputerName) & "/" & Sanitize(strHRAVUserName) & ", user")
+  'YOU ARE HERE!!!'
+  objUser3.SetPassword verifyPassword
+  objUser3.SetInfo 
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
 'A function for sanitizing user input strings for use in directory paths.
 'Variables are redefined on every call incase they are compromised.
 Function SanitizeFolder(strToClean2)
@@ -172,7 +220,6 @@ End Function
 'Returns TRUE if the application is elevated as HRAV user.
 'Returns FALSE if the application is not elevated as HRAV user.
 Function isUserHRAV()
-  On Error Resume Next
   whoamiOutput = Sanitize(SystemBootstrap("whoami", "", FALSE))
   objShell.RegRead("HKEY_USERS\S-1-5-19\Environment\TEMP")
   If Err.number = 0 And Trim(Replace(Replace(whoamiOutput, Chr(10), ""), Chr(13), "")) = strHRAVUserName Then 
@@ -187,7 +234,7 @@ End Function
 '--------------------------------------------------
 'A function to restart the script with admin priviledges if required.
 Function restartAsHRAV(strHRAVPassword)
-  Bootstrap "PAExec\paexec.exe", "-u:" & Sanitize(strHRAVUserName) & " -p:" & Sanitize(strHRAVPassword) & " " & SanitizeFolder(fullScriptName), FALSE
+  Bootstrap  "PAExec\paexec.exe", "-u:" & Sanitize(strHRAVUserName) & " -p:" & Sanitize(strHRAVPassword) & " " & SanitizeFolder(fullScriptName), FALSE
   DieGracefully 1, "", TRUE
 End Function
 '--------------------------------------------------
@@ -343,6 +390,41 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
+'Bootstrap some other program or code in the Binaries folder.
+'Example for bootstrapping a PHP script.
+'  Bootstrap("PHP\php.exe", scriptsDirectory & "PHP\test.php", TRUE)
+'The above function call uses the Bootstrap() function to call 
+'Binaries\PHP\php.exe with an argument that evaluates to Scripts\PHP\test.php.
+'The result will be that the PHP binary is used to execute a PHP script.
+'If Async is set to TRUE, HTA-UI will wait for the command to finish before continuing.
+Function Bootstrap(BinaryToRun, Command, Async)
+  If Async = TRUE Then 
+    async = TRUE
+  Else 
+    async = FALSE
+  End If
+  run = Trim("C:\Windows\System32\cmd.exe /c " & SanitizeFolder(binariesDirectory & BinaryToRun) & " " & Command & " > " & SanitizeFolder(tempFile))
+  objShell.Run run, 0, async
+  run = NULL
+  If Not objFSO.FileExists(tempFile) Then
+    objFSO.CreateTextFile tempFile, TRUE, TRUE 
+  End If
+  If Not objFSO.FileExists(stempFile) Then
+    DieGracefully 1000, "Cannot create a temporary Bootstrap file at: '" & stempFile & "'!", FALSE 
+  End If
+  Set tempData = objFSO.OpenTextFile(tempFile, 1)
+  If Not tempData.AtEndOfStream Then 
+    Bootstrap = tempData.ReadAll()
+  Else
+    Bootstrap = FALSE
+  End If
+  tempData.Close
+  createLog("Bootstrapper ran binary:" & BinaryToRun)
+  'objFSO.DeleteFile(tempFile)
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
 'A function to start all of the enabled services that are found to be valid.
 Function startServices()
   startServices = FALSE
@@ -415,11 +497,35 @@ End Function
 'Load the configuration data from "Config\Config.vbs"
 Include(configFile)
 
+'Environment Related Variables.
+passwordFile = cacheDirectory & appName & "_Keys.vbs"
+validServices = Array("Workstation_USB_Monitor.vbs")
+servicesEnabled = Array("Workstation_USB_Monitor.vbs")
+realTimeProtectionError = FALSE
+realTimeSleep =  60 '60s
+realTimeClock = 0
+sesID = Int(Rnd * 10000000)
+registryMonitorInt = registryMonitorInterval * 60  
+ransomwareDefenderInt = ransomwareDefenderInterval * 60
+accessibilityDefenderInt = accessibilityDefenderInterval * 60
+storageMonitorInt = storageMonitorInterval * 60
+resourceMonitorInt = resourceMonitorInterval * 60
+infrastructureHeartbeatInt = infrastructureHeartbeatInterval * 60
+registryMonitorDue = registryMonitorInt
+ransomwareDefenderDue = ransomwareDefenderInt
+accessibilityDefenderDue = accessibilityDefenderInt
+storageMonitorDue = storageMonitorInt
+resourceMonitorDue = resourceMonitorInt
+infrastructureCheckupDue = infrastructureCheckupInt
+infrastructureHeartbeatdue = infrastructureHeartbeatInt
+
 'If Real-Time-Protection is enabled, we start the required services and start the internal task scheduler clock.
 If realTimeProtectionEnabled Then
+  generatePassword()
+  changePassword()
   'Check that the script is running as the HRAV admin user.
   If Not isUserHRAV() Then 
-    restartAsHRAV()
+    restartAsHRAV(verifyPassword)
   End If
   'Check that required services are running.
   If Not servicesRunning() Then
@@ -483,5 +589,7 @@ If realTimeProtectionEnabled Then
       infrastructureHeartbeatDue = infrastructureHeartbeatDueTemp
     End If
   Wend
+  generatePassword()
+  changePassword()
 End If
 '--------------------------------------------------

@@ -44,7 +44,8 @@ verifyCache()
 'Check if the Real-Time Protection engine needs to be started and start it if needed.
 If realTimeProtectionEnabled Then
   If DateDiff("n", oRTPCacheFile1.DateLastModified, Now) > 2 Then
-    realTimeCoreResults = SystemBootstrap(realTimeCoreFile, "", FALSE)
+    realTimeCoreResults = SystemBootstrap("""" & realTimeCoreFile & """", "", FALSE)
+    MsgBox realTimeCoreResults
   End If
 End If
 
