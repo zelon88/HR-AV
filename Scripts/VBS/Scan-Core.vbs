@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 11/12/2019
+'Date: 12/17/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -30,7 +30,7 @@ Dim objShell, objFSO, sesID, humanDate, logDate, humanTime, logTime, humanDateTi
  excepptionArray, priority, chunkCoef, priorityCoef, workerRAMLimit, availableRAM, workerChunkSize, workerLimit, _ 
  enumFolder, enumSubFolder, mValEl, mArray, mValue, tPath, KB, MB, GB, workerCount, targetArray, workerType, _
  exceptionData, configFile, targets, wTarget, checkWorkerTimer, objFolder, objItem, objSh, strPath, execString, _
- pathInput, priorityInput, strComputerName, objNetwork, filePathInput, objFile, targetArray2, target2
+ pathInput, priorityInput, strComputerName, objNetwork, filePathInput, objFile, targetArray2, target2, wTargetWrappers
 
 'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
@@ -71,7 +71,7 @@ humanDateTime = Trim(humanDate & " " & humanTime)
 logDateTime = Trim(logDate & "_" & logTime)
 strComputerName = ObjNetwork.ComputerName
 'Directory Related Variables.
-currentDirectory = Replace(Trim(objFSO.GetAbsolutePathName(strComputer)), "\\", "\")
+currentDirectory = Replace(Replace(Trim(objFSO.GetAbsolutePathName(strComputer)), "\\", "\"), "HR-AV\Pages", "HR-AV")
 configFile = Replace(currentDirectory & "\Config\Config.vbs", "\\", "\")
 scriptsDirectory = Replace(currentDirectory & "\Scripts\", "\\", "\")
 vbsScriptsDirectory = Replace(scriptsDirectory & "\VBS\", "\\", "\")
@@ -192,6 +192,41 @@ Function isUserHRAV()
     isUserHRAV = FALSE
   End If
   Err.Clear
+End Function
+'--------------------------------------------------
+
+'--------------------------------------------------
+'Bootstrap some other program or code in the Binaries folder.
+'Example for bootstrapping a PHP script.
+'  Bootstrap("PHP\php.exe", scriptsDirectory & "PHP\test.php", TRUE)
+'The above function call uses the Bootstrap() function to call 
+'Binaries\PHP\php.exe with an argument that evaluates to Scripts\PHP\test.php.
+'The result will be that the PHP binary is used to execute a PHP script.
+'If Async is set to TRUE, HTA-UI will wait for the command to finish before continuing.
+Function Bootstrap(BinaryToRun, Command, Async)
+  If Async = TRUE Then 
+    async = TRUE
+  Else 
+    async = FALSE
+  End If
+  run = Trim("C:\Windows\System32\cmd.exe /c " & SanitizeFolder(binariesDirectory & BinaryToRun) & " " & Command & " > " & SanitizeFolder(tempFile))
+  objShell.Run run, 0, async
+  run = NULL
+  If Not objFSO.FileExists(tempFile) Then
+    objFSO.CreateTextFile tempFile, TRUE, TRUE 
+  End If
+  If Not objFSO.FileExists(stempFile) Then
+    DieGracefully 1000, "Cannot create a temporary Bootstrap file at: '" & stempFile & "'!", FALSE 
+  End If
+  Set tempData = objFSO.OpenTextFile(tempFile, 1)
+  If Not tempData.AtEndOfStream Then 
+    Bootstrap = tempData.ReadAll()
+  Else
+    Bootstrap = FALSE
+  End If
+  tempData.Close
+  createLog("Bootstrapper ran binary:" & BinaryToRun)
+  'objFSO.DeleteFile(tempFile)
 End Function
 '--------------------------------------------------
 
@@ -739,16 +774,23 @@ End Function
 'target can be specific registry keys or files specified by path.
 'Priority must be an integer between 1 & 10.
 Function startWorker(workerType, wTarget, targetType)
-  createLog("Starting worker type '" & SanitizeFolder(workerType) & "' against target '" & SanitizeFolder(target) & _
+  wTarget = Replace(Replace(wTarget, "\\", "\"), "\\", "\")
+  createLog("Starting worker type '" & SanitizeFolder(workerType) & "' against target '" & SanitizeFolder(wTarget) & _
    "' of type '" & SanitizeFolder(targetType) & "'.")
   If LCase(workerType) = "scanner" Then
     If LCase(targetType) = "file" Then 
+      'If the wTarget is a drive letter we don't need to use parenthesis to encapsulate it for PHP-AV.
+      If Len(wTarget) < 4 Then
+        wTargetWrappers = ""
+      Else 
+        wTargetWrappers = Chr(34)
+      End If 
       'Run the PHP\7.3.8\php.exe binary with cmd.exe, hide the window, don't wait for completion, & 
        'call Scripts\PHP\PHP-AV\scanCore.php script against the target with the specified RAM & chunk settings, without recursion.
-      execString = """" & binariesDirectory & "PHP\7.3.8\php.exe"" """ & scriptsDirectory & "PHP\PHP-AV\scanCore.php"" """ & wTarget & _
-       """ -m " & workerRAMLimit & " -c " & workerChunkSize & " -nr"
+      execString = """" & scriptsDirectory & "PHP\PHP-AV\scanCore.php"" " & wTargetWrappers & wTarget & wTargetWrappers & _
+       " -m " & workerRAMLimit & " -c " & workerChunkSize & " -r"
       MsgBox execString
-      objShell.Run execString, 0, FALSE
+      Bootstrap "PHP\7.3.8\php.exe", execString, FALSE
     End If
     If LCase(targetType) = "registry" Then
 
