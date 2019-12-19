@@ -3,7 +3,7 @@
 'https://github.com/zelon88
 
 'Author: Justin Grimes
-'Date: 12/17/2019
+'Date: 12/18/2019
 '<3 Open-Source
 
 'Unless Otherwise Noted, The Code Contained In This Repository Is Licensed Under GNU GPLv3
@@ -22,7 +22,7 @@ Dim objShell, objFSO, sesID, humanDate, logDate, humanTime, logTime, humanDateTi
  charArr, charArr2, tmpChar, tmpChar2, strToClean1, strToClean2, strEventInfo, objLogFile, whoamiOutput, _
  obj, x, i, tempArray, rpCounter, pcs, oWMISrvc, errorNumber, errorMessage, quietly, cantError, windowNote, message, _ 
  typeMsg, dontContinue, sBinaryToRun, sCommand, sAsync, srun, strHRAVUserName, strHRAVPassword, result, resultSet, _
- stempfile, sasync1, stempData, searchScripts, scriptsToSearch, procSearch, procsToSearch, strComputer, objRAMService, _
+ stempFile, sasync1, stempData, searchScripts, scriptsToSearch, procSearch, procsToSearch, strComputer, objRAMService, _
  availableRAMGB, commitLimitRAMBytes, commitLimitRAMKB, commitLimitRAMMB, commitLimitRAMGB, committedRAMBytes, _
  committedRAMKB, committedRAMMB, committedRAMGB, objDrives, objDrive, availableRAMBytes, availableRAMKB, _
  eDelimiter, eString, eLimit, fgcPath, objFGCFile, exCounter, nexCounter, newInfection, infectionArray, exception, _
@@ -30,7 +30,8 @@ Dim objShell, objFSO, sesID, humanDate, logDate, humanTime, logTime, humanDateTi
  excepptionArray, priority, chunkCoef, priorityCoef, workerRAMLimit, availableRAM, workerChunkSize, workerLimit, _ 
  enumFolder, enumSubFolder, mValEl, mArray, mValue, tPath, KB, MB, GB, workerCount, targetArray, workerType, _
  exceptionData, configFile, targets, wTarget, checkWorkerTimer, objFolder, objItem, objSh, strPath, execString, _
- pathInput, priorityInput, strComputerName, objNetwork, filePathInput, objFile, targetArray2, target2, wTargetWrappers
+ pathInput, priorityInput, strComputerName, objNetwork, filePathInput, objFile, targetArray2, target2, wTargetWrappers, _
+ targetTemp, targetSubDirs, oenumFolder, enumSubFolderPath, esdTemp
 
 'Commonly Used Objects.
 Set objShell = CreateObject("WScript.Shell")
@@ -60,6 +61,8 @@ exceptionData = ""
 newInfection = ""
 exception = ""
 exceptionData = ""
+targetTemp = ""
+targetSubdirs = ""
 exceptionArray = Array()
 targetArray = Array()
 'Time Related Variables.
@@ -86,6 +89,8 @@ resourcesDirectory = Replace(currentDirectory & "\Resources\", "\\", "\")
 logFilePath = Replace(Trim(logsDirectory & "RTP-Log_" & logDate), "\\", "\")
 exceptionDirectory = Replace(currentDirectory & "\Exceptions\", "\\", "\")
 excepptionFile = Replace(exceptionDirectory & "Exception_List.csv", "\\", "\")
+tempFile = tempDirectory & "SC-STemp.txt"
+stempFile = tempDirectory & "SC-Temp.txt"
 '--------------------------------------------------
 
 '--------------------------------------------------
@@ -215,7 +220,7 @@ Function Bootstrap(BinaryToRun, Command, Async)
   If Not objFSO.FileExists(tempFile) Then
     objFSO.CreateTextFile tempFile, TRUE, TRUE 
   End If
-  If Not objFSO.FileExists(stempFile) Then
+  If Not objFSO.FileExists(tempFile) Then
     DieGracefully 1000, "Cannot create a temporary Bootstrap file at: '" & stempFile & "'!", FALSE 
   End If
   Set tempData = objFSO.OpenTextFile(tempFile, 1)
@@ -409,7 +414,7 @@ Function SystemBootstrap(sBinaryToRun, sCommand, sAsync)
   End If
   stempData.Close
   createLog("System Bootstrapper ran binary:" & sBinaryToRun)
-  objFSO.DeleteFile(stempFile)
+  'objFSO.DeleteFile(stempFile)
 End Function
 '--------------------------------------------------
 
@@ -626,14 +631,14 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
-'A function to build an array of all subdirectories of a target array.
+'A function to build an array of all subdirectories of a target folder.
 'https://stackoverflow.com/questions/1433785/vbscript-to-iterate-through-set-level-of-subfolders
 Function enumerateSubdirs(enumFolder) 
-  enumFolder = objFSO.GetFolder(enumFolder)
+  Set oenumFolder = objFSO.GetFolder(enumFolder)
   enumerateSubdirs = Array()
   'Iterate through each subfolder of the "enumFolder".
-  For Each enumSubFolder in enumFolder.enumSubFolder
-    enumSubFolderPath = enumSubFolder.Path 
+  For Each enumSubFolder in oenumFolder.SubFolders
+    enumSubFolderPath = enumSubFolder.Path
     'Add the current path to the "targetArray".
     esdTemp = push(enumerateSubdirs, enumSubFolderPath)
     'Iterate deeper into the directory hierarchy.
@@ -725,6 +730,12 @@ Function prepareScanner(priority, target, targetType)
   'If the target is blank we set the target array to an array of disk volumes attached to the computer.
   If target = "" Then
     targetArray = enumerateDrives()
+    For Each targetTemp in targetArray
+      targetSubDirs = enumerateSubdirs(targetTemp)
+      targetArray = push(targetSubDirs, targetArray)
+      targetSubDirs = ""
+    Next 
+    targetTemp = ""
   End If
   'Check how much RAM is available, in bytes.
   availableRAM = checkRAM()
@@ -788,8 +799,8 @@ Function startWorker(workerType, wTarget, targetType)
       'Run the PHP\7.3.8\php.exe binary with cmd.exe, hide the window, don't wait for completion, & 
        'call Scripts\PHP\PHP-AV\scanCore.php script against the target with the specified RAM & chunk settings, without recursion.
       execString = """" & scriptsDirectory & "PHP\PHP-AV\scanCore.php"" " & wTargetWrappers & wTarget & wTargetWrappers & _
-       " -m " & workerRAMLimit & " -c " & workerChunkSize & " -r"
-      MsgBox execString
+       " -m " & workerRAMLimit & " -c " & workerChunkSize & " -nr"
+      'MsgBox execString
       Bootstrap "PHP\7.3.8\php.exe", execString, FALSE
     End If
     If LCase(targetType) = "registry" Then

@@ -12,7 +12,7 @@
 'This file contains popular functions that are likely to be used throught the entire operation.
 'Note that some of the real-time protection files define these variables again for robustness.
 
-'This file requiires Config.vbs and UI-Core.vbs.
+'This file requires Config.vbs and UI-Core.vbs.
 
 '--------------------------------------------------
 Option Explicit
@@ -35,7 +35,7 @@ InstallationDirectory = "C:\Program Files\"
 '--------------------------------------------------
 
 '--------------------------------------------------
-'A function to tell if the script has the required priviledges to run.
+'A function to tell if the script has the required privileges to run.
 'Returns TRUE if the application is elevated as admin user.
 'Returns FALSE if the application is not elevated as admin user.
 Function isUserAdmin()
@@ -51,7 +51,7 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
-'A function to restart the script with admin priviledges if required.
+'A function to restart the script with admin privileges if required.
 Function restartAsAdmin()
   objShell.Run SanitizeFolder(fullScriptName), 0, TRUE
   DieGracefully 0, "", TRUE
@@ -59,7 +59,7 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
-'A function to tell if the script has the required priviledges to run.
+'A function to tell if the script has the required privileges to run.
 'Returns TRUE if the application is elevated as HRAV user.
 'Returns FALSE if the application is not elevated as HRAV user.
 Function isUserHRAV()
@@ -76,7 +76,7 @@ End Function
 '--------------------------------------------------
 
 '--------------------------------------------------
-'A function to restart the script with admin priviledges if required.
+'A function to restart the script with admin privileges if required.
 Function restartAsHRAV(strHRAVPassword)
   Bootstrap "PAExec\paexec.exe", "-u:" & Sanitize(strHRAVUserName) & " -p:" & Sanitize(strHRAVPassword) & " " & SanitizeFolder(fullScriptName), FALSE
   DieGracefully 1, "", TRUE
@@ -382,7 +382,7 @@ Function installationWizard1()
    "This wizard will guide you through the installation process." & _
    "At any time you can click the cancel button to stop the installation process."
   instMsg2 = "Before we continue, we want you to know that this software is 100% free and open-source licensed to you under GNU GPLv3 (gnu.org/licenses/gpl-3.0.en.html)." & vbCRLF & vbCRLF & _
-   "At HonestRepair, we beleive in the GNU definition of free software. Free software in this context doesn't mean  'Free beer.'" & vbCRLF & vbCRLF & _
+   "At HonestRepair, we believe in the GNU definition of free software. Free software in this context doesn't mean  'Free beer.'" & vbCRLF & vbCRLF & _
    "It means 'Free' as in you have the 'Freedom' to modify, distribute, and understand the software you use." & vbCRLF & vbCRLF & _
    "To view or download the source code for this application, please visit our website (HonestRepair.net) or the official HR-AV Github repository (github.com/zelon88/HR-AV)."
   instMsg3 = "By clicking 'Ok' below, you agree that you understand your rights as a consumer of free software, and that any redistributed forms of this application must also be licensed under GNU GPLv3 to protect the rights of everyone."

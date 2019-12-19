@@ -1,4 +1,12 @@
 --------------------
+COMMIT - 12/18/2019
+v0.9.9.1 - Working on Scan-Core.
+
+-v0.9.9.1.
+-Working on Scan-Core.
+-Revised the prepareScanner() function.
+
+--------------------
 COMMIT - 12/17/2019
 v0.9.9 - Get "Computer Scanner" working.
 
